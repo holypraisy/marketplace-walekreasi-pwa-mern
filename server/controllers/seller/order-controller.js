@@ -7,7 +7,7 @@ const getAllOrdersOfAllUsers = async (req, res) => {
     if (!orders.length) {
       return res.status(404).json({
         success: false,
-        message: "No orders found!",
+        message: "Tidak ada pesanan yang ditemukan",
       });
     }
 
@@ -19,12 +19,12 @@ const getAllOrdersOfAllUsers = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Terjadi Kesalahan!",
     });
   }
 };
 
-const getOrderDetailsForAdmin = async (req, res) => {
+const getOrderDetailsForSeller = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -33,7 +33,7 @@ const getOrderDetailsForAdmin = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found!",
+        message: "Pesanan Tidak ditemukan!",
       });
     }
 
@@ -45,7 +45,7 @@ const getOrderDetailsForAdmin = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Terjadi Kesalahan!",
     });
   }
 };
@@ -60,7 +60,7 @@ const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found!",
+        message: "Pesanan Tidak ditemukan!",
       });
     }
 
@@ -68,19 +68,19 @@ const updateOrderStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Order status is updated successfully!",
+      message: "Status pesanan berhasil diperbarui!",
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Terjadi Kesalahan!",
     });
   }
 };
 
 module.exports = {
   getAllOrdersOfAllUsers,
-  getOrderDetailsForAdmin,
+  getOrderDetailsForSeller,
   updateOrderStatus,
 };

@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logoWaleKreasi from "../../assets/logo-WaleKreasi.png";
 
 const initialState = {
-  name: "",
+  sellerName: "", // was: name
   phoneNumber: "",
   email: "",
   password: "",
@@ -20,6 +20,7 @@ const initialState = {
   bankAccountNumber: "",
   eWallets: "",
 };
+
 
 function AuthRegisterSeller() {
   const [formData, setFormData] = useState(initialState);

@@ -1,9 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
-const Seller = require('../../models/Seller');
+const Seller = require ('../../models/Seller');
 
-// register user (default)
+
+//register
 const registerUser = async (req, res) => {
   const { userName, email, password } = req.body;
 
@@ -12,12 +13,12 @@ const registerUser = async (req, res) => {
     if (checkUser)
       return res.json({
         success: false,
-        message: "Pengguna sudah terdaftar dengan email yang sama! Silakan coba lagi.",
+        message: "User Already exists with the same email! Please try again",
       });
 
     const hashPassword = await bcrypt.hash(password, 12);
     const newUser = new User({
-      name: userName, // perhatikan perubahan dari 'userName' ke 'name'
+      userName,
       email,
       password: hashPassword,
     });
@@ -25,27 +26,27 @@ const registerUser = async (req, res) => {
     await newUser.save();
     res.status(200).json({
       success: true,
-      message: "Registrasi Berhasil",
+      message: "Registration successful",
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Terjadi Kesalahan",
+      message: "Some error occured",
     });
   }
 };
 
+// registrasi seller (pakai model Seller baru)
 const registerSeller = async (req, res) => {
   const {
-    name,
+    sellerName,
     phoneNumber,
     email,
     password,
     storeName,
     storeDescription,
     productionAddress,
-    storeLogo, // URL dari Cloudinary
     accountOwner,
     bankName,
     bankAccountNumber,
@@ -53,6 +54,7 @@ const registerSeller = async (req, res) => {
   } = req.body;
 
   try {
+    // Cek apakah user sudah terdaftar dengan email yang sama
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -61,22 +63,23 @@ const registerSeller = async (req, res) => {
       });
     }
 
+    // Buat user baru dengan role seller
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    // 1. Simpan user dasar
     const newUser = new User({
-      name,
-      phoneNumber,
+      userName: sellerName,
       email,
+      phoneNumber,
       password: hashedPassword,
       role: "seller",
     });
-
     await newUser.save();
 
-    // 2. Simpan data seller dengan referensi userId
+    // Buat entri seller
     const newSeller = new Seller({
-      userId: newUser._id,
+      user: newUser._id,
+      sellerName,
+      phoneNumber,
+      email,
       storeName,
       storeDescription,
       productionAddress,
@@ -86,15 +89,20 @@ const registerSeller = async (req, res) => {
       bankAccountNumber,
       eWallets,
     });
-
     await newSeller.save();
 
     res.status(201).json({
       success: true,
       message: "Pendaftaran seller berhasil.",
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        role: newUser.role,
+        sellerId: newSeller._id,
+      },
     });
-  } catch (e) {
-    console.error("Register Seller Error:", e);
+  } catch (error) {
+    console.error("Register Seller Error:", error);
     res.status(500).json({
       success: false,
       message: "Terjadi kesalahan saat mendaftar.",
@@ -185,10 +193,37 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+// Mengecek apakah user sudah login
+const isAuthenticated = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    return res.status(401).json({
+      success: false,
+      message: "Anda harus login terlebih dahulu.",
+    });
+  }
+};
+
+// Mengecek apakah user adalah seller
+const isSeller = (req, res, next) => {
+  if (req.user && req.user.role === "seller") {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Akses ditolak. Hanya seller yang diizinkan.",
+    });
+  }
+};
+
+
 module.exports = {
   registerUser,
-  registerSeller, // ✅ tambahkan ekspor fungsi baru
+  registerSeller, 
   loginUser,
   logoutUser,
   authMiddleware,
+  isAuthenticated,
+  isSeller
 };

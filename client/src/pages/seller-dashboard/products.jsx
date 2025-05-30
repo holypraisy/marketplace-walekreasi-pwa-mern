@@ -1,5 +1,5 @@
-import ProductImageUpload from "@/components/admin-view/image-upload";
-import AdminProductTile from "@/components/admin-view/product-tile";
+import ProductImageUpload from "@/components/seller-dashboard/image-upload";
+import SellerProductTile from "@/components/seller-dashboard/product-tile";
 import CommonForm from "@/components/common/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,7 @@ import {
   deleteProduct,
   editProduct,
   fetchAllProducts,
-} from "@/store/admin/products-slice";
+} from "@/store/seller/products-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -30,7 +30,7 @@ const initialFormData = {
   averageReview: 0,
 };
 
-function AdminProducts() {
+function SellerProducts() {
   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
     useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -39,7 +39,7 @@ function AdminProducts() {
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
-  const { productList } = useSelector((state) => state.adminProducts);
+  const { productList } = useSelector((state) => state.sellerProducts);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
@@ -47,7 +47,7 @@ function AdminProducts() {
     event.preventDefault();
 
     currentEditedId !== null
-      ? dispatch(
+      ? dispatch(                                      
           editProduct({
             id: currentEditedId,
             formData,
@@ -112,7 +112,7 @@ function AdminProducts() {
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
         {productList && productList.length > 0
           ? productList.map((productItem) => (
-              <AdminProductTile
+              <SellerProductTile
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}
@@ -161,4 +161,4 @@ function AdminProducts() {
   );
 }
 
-export default AdminProducts;
+export default SellerProducts;

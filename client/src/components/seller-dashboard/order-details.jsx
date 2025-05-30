@@ -6,17 +6,17 @@ import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllOrdersForAdmin,
-  getOrderDetailsForAdmin,
+  getAllOrdersForSeller,
+  getOrderDetailsForSeller,
   updateOrderStatus,
-} from "@/store/admin/order-slice";
+} from "@/store/seller/order-slice";
 import { useToast } from "../ui/use-toast";
 
 const initialFormData = {
   status: "",
 };
 
-function AdminOrderDetailsView({ orderDetails }) {
+function SellerOrderDetailsView({ orderDetails }) {
   const [formData, setFormData] = useState(initialFormData);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -32,8 +32,8 @@ function AdminOrderDetailsView({ orderDetails }) {
       updateOrderStatus({ id: orderDetails?._id, orderStatus: status })
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(getOrderDetailsForAdmin(orderDetails?._id));
-        dispatch(getAllOrdersForAdmin());
+        dispatch(getOrderDetailsForSeller(orderDetails?._id));
+        dispatch(getAllOrdersForSeller());
         setFormData(initialFormData);
         toast({
           title: data?.payload?.message,
@@ -141,4 +141,4 @@ function AdminOrderDetailsView({ orderDetails }) {
   );
 }
 
-export default AdminOrderDetailsView;
+export default SellerOrderDetailsView;

@@ -1,6 +1,6 @@
 export const registerFormControls = [
   {
-      name : 'name' ,
+      name : 'userName' ,
       label : 'Nama Pengguna', 
       placeholder :'Masukkan nama pengguna' ,
       componentType : 'input' , 
@@ -25,8 +25,9 @@ export const registerFormControls = [
 ];
 
 export const sellerRegisterFormControls = [
+  // Data Diri Seller
   {
-    name: 'name',
+    name: 'sellerName',
     label: 'Nama Lengkap',
     placeholder: 'Masukkan nama lengkap',
     componentType: 'input',
@@ -53,7 +54,8 @@ export const sellerRegisterFormControls = [
     componentType: 'input',
     type: 'password',
   },
-  // Data Usaha
+
+  // Data Usaha / Toko
   {
     name: 'storeName',
     label: 'Nama Usaha / Toko',
@@ -74,12 +76,7 @@ export const sellerRegisterFormControls = [
     componentType: 'input',
     type: 'text',
   },
-  {
-    name: 'storeLogo',
-    label: 'Logo Usaha',
-    placeholder: 'Upload logo usaha (opsional)',
-    componentType: 'file',
-  },
+
   // Data Pembayaran
   {
     name: 'accountOwner',
@@ -106,10 +103,11 @@ export const sellerRegisterFormControls = [
     name: 'eWallets',
     label: 'Dompet Digital (jika ada)',
     placeholder: 'Contoh: DANA, OVO, GoPay',
-    componentType: 'input',
+    componentType: 'input', // atau bisa diganti menjadi input array/multi-tag input
     type: 'text',
   },
 ];
+
 
 
 export const loginFormControls = [

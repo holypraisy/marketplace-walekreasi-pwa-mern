@@ -2,11 +2,6 @@ import { Route, Routes } from "react-router-dom";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
-import AdminLayout from "./components/admin-view/layout";
-import AdminDashboard from "./pages/admin-view/dashboard";
-import AdminProducts from "./pages/admin-view/products";
-import AdminOrders from "./pages/admin-view/orders";
-import AdminFeatures from "./pages/admin-view/features";
 import ShoppingLayout from "./components/shopping-view/layout";
 import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/shopping-view/home";
@@ -23,6 +18,11 @@ import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
 import AuthRegisterSeller from "./pages/auth/registerSeller";
+
+import SellerDashboardLayout from "./components/seller-dashboard/layout";
+import SellerProducts from "./pages/seller-dashboard/products";
+import SellerProfilePage from "./pages/seller-dashboard/profil";
+import SellerOrders from "./pages/seller-dashboard/orders";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -59,22 +59,22 @@ function App() {
           }
         >
           <Route path="login" element={<AuthLogin />} />
-          <Route path="registe-customer" element={<AuthRegister />} />
+          <Route path="register" element={<AuthRegister />} />
           <Route path="register-seller" element={<AuthRegisterSeller />} />
         </Route>
         <Route
-          path="/admin"
+          path="/store"
           element={
             <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AdminLayout />
+              <SellerDashboardLayout />
             </CheckAuth>
           }
         >
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="features" element={<AdminFeatures />} />
+          <Route path="profil" element={< SellerProfilePage/>} />
+          <Route path="products" element={<SellerProducts />} />
+          <Route path="orders" element={<SellerOrders />} />
         </Route>
+
         <Route
           path="/shop"
           element={

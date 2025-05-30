@@ -2,14 +2,14 @@ const express = require("express");
 
 const {
   getAllOrdersOfAllUsers,
-  getOrderDetailsForAdmin,
+  getOrderDetailsForSeller,
   updateOrderStatus,
-} = require("../../controllers/admin/order-controller");
+} = require("../../controllers/seller/order-controller");
 
 const router = express.Router();
 
 router.get("/get", getAllOrdersOfAllUsers);
-router.get("/details/:id", getOrderDetailsForAdmin);
+router.get("/details/:id", getOrderDetailsForSeller);
 router.put("/update/:id", updateOrderStatus);
 
 module.exports = router;

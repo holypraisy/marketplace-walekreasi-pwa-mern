@@ -10,26 +10,26 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import AdminOrderDetailsView from "./order-details";
+import SellerOrderDetailsView from "./order-details";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllOrdersForAdmin,
-  getOrderDetailsForAdmin,
+  getAllOrdersForSeller,
+  getOrderDetailsForSeller,
   resetOrderDetails,
-} from "@/store/admin/order-slice";
+} from "@/store/seller/order-slice";
 import { Badge } from "../ui/badge";
 
-function AdminOrdersView() {
+function SellerOrdersView() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const { orderList, orderDetails } = useSelector((state) => state.adminOrder);
+  const { orderList, orderDetails } = useSelector((state) => state.sellerOrder);
   const dispatch = useDispatch();
 
   function handleFetchOrderDetails(getId) {
-    dispatch(getOrderDetailsForAdmin(getId));
+    dispatch(getOrderDetailsForSeller(getId));
   }
 
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin());
+    dispatch(getAllOrdersForSeller());
   }, [dispatch]);
 
   console.log(orderDetails, "orderList");
@@ -41,7 +41,7 @@ function AdminOrdersView() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>PESANAN</CardTitle>
+        <CardTitle>All Orders</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
@@ -91,7 +91,7 @@ function AdminOrdersView() {
                         >
                           View Details
                         </Button>
-                        <AdminOrderDetailsView orderDetails={orderDetails} />
+                        <SellerOrderDetailsView orderDetails={orderDetails} />
                       </Dialog>
                     </TableCell>
                   </TableRow>
@@ -104,4 +104,4 @@ function AdminOrdersView() {
   );
 }
 
-export default AdminOrdersView;
+export default SellerOrdersView;

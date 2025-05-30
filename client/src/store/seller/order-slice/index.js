@@ -6,22 +6,22 @@ const initialState = {
   orderDetails: null,
 };
 
-export const getAllOrdersForAdmin = createAsyncThunk(
-  "/order/getAllOrdersForAdmin",
+export const getAllOrdersForSeller = createAsyncThunk(
+  "/order/getAllOrdersForSeller",
   async () => {
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get`
+      `http://localhost:5000/api/store/orders/get`
     );
 
     return response.data;
   }
 );
 
-export const getOrderDetailsForAdmin = createAsyncThunk(
-  "/order/getOrderDetailsForAdmin",
+export const getOrderDetailsForSeller = createAsyncThunk(
+  "/order/getOrderDetailsForSeller",
   async (id) => {
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/details/${id}`
+      `http://localhost:5000/api/store/orders/details/${id}`
     );
 
     return response.data;
@@ -32,7 +32,7 @@ export const updateOrderStatus = createAsyncThunk(
   "/order/updateOrderStatus",
   async ({ id, orderStatus }) => {
     const response = await axios.put(
-      `http://localhost:5000/api/admin/orders/update/${id}`,
+      `http://localhost:5000/api/store/orders/update/${id}`,
       {
         orderStatus,
       }
@@ -42,8 +42,8 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-const adminOrderSlice = createSlice({
-  name: "adminOrderSlice",
+const sellerOrderSlice = createSlice({
+  name: "sellerOrderSlice",
   initialState,
   reducers: {
     resetOrderDetails: (state) => {
@@ -54,31 +54,31 @@ const adminOrderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAllOrdersForAdmin.pending, (state) => {
+      .addCase(getAllOrdersForSeller.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getAllOrdersForAdmin.fulfilled, (state, action) => {
+      .addCase(getAllOrdersForSeller.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orderList = action.payload.data;
       })
-      .addCase(getAllOrdersForAdmin.rejected, (state) => {
+      .addCase(getAllOrdersForSeller.rejected, (state) => {
         state.isLoading = false;
         state.orderList = [];
       })
-      .addCase(getOrderDetailsForAdmin.pending, (state) => {
+      .addCase(getOrderDetailsForSeller.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getOrderDetailsForAdmin.fulfilled, (state, action) => {
+      .addCase(getOrderDetailsForSeller.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orderDetails = action.payload.data;
       })
-      .addCase(getOrderDetailsForAdmin.rejected, (state) => {
+      .addCase(getOrderDetailsForSeller.rejected, (state) => {
         state.isLoading = false;
         state.orderDetails = null;
       });
   },
 });
 
-export const { resetOrderDetails } = adminOrderSlice.actions;
+export const { resetOrderDetails } = sellerOrderSlice.actions;
 
-export default adminOrderSlice.reducer;
+export default sellerOrderSlice.reducer;

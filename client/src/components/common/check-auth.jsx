@@ -2,57 +2,47 @@ import { Navigate, useLocation } from "react-router-dom";
 
 function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
+  const path = location.pathname;
 
-  console.log(location.pathname, isAuthenticated);
+  const isLoginOrRegister = ["/auth/login", "/auth/register", "/auth/register-seller"].includes(path);
 
-  if (location.pathname === "/") {
+  // Jika user belum login dan akses halaman yang bukan publik
+  if (!isAuthenticated && !isLoginOrRegister) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  // Jika user sudah login dan mencoba akses halaman login/register
+  if (isAuthenticated && isLoginOrRegister) {
+    if (user?.role === "seller") {
+      return <Navigate to="/store/profil" replace />;
+    } else {
+      return <Navigate to="/shop/home" replace />;
+    }
+  }
+
+  // Jika user login, dan role tidak sesuai dengan path
+  if (isAuthenticated) {
+    const isSeller = user?.role === "seller";
+    const isTryingToAccessSeller = path.includes("/seller") || path.includes("/store");
+    const isTryingToAccessShop = path.includes("/shop");
+
+    if (!isSeller && isTryingToAccessSeller) {
+      return <Navigate to="/unauth-page" replace />;
+    }
+
+    if (isSeller && isTryingToAccessShop) {
+      return <Navigate to="/store/dashboard" replace />;
+    }
+  }
+
+  // Redirect dari root
+  if (path === "/") {
     if (!isAuthenticated) {
-      return <Navigate to="/auth/login" />;
-    } else {
-      if (user?.role === "admin") {
-        return <Navigate to="/admin/dashboard" />;
-      } else {
-        return <Navigate to="/shop/home" />;
-      }
+      return <Navigate to="/auth/login" replace />;
     }
-  }
-
-  if (
-    !isAuthenticated &&
-    !(
-      location.pathname.includes("/login") ||
-      location.pathname.includes("/register")
-    )
-  ) {
-    return <Navigate to="/auth/login" />;
-  }
-
-  if (
-    isAuthenticated &&
-    (location.pathname.includes("/login") ||
-      location.pathname.includes("/register"))
-  ) {
-    if (user?.role === "admin") {
-      return <Navigate to="/admin/dashboard" />;
-    } else {
-      return <Navigate to="/shop/home" />;
-    }
-  }
-
-  if (
-    isAuthenticated &&
-    user?.role !== "admin" &&
-    location.pathname.includes("admin")
-  ) {
-    return <Navigate to="/unauth-page" />;
-  }
-
-  if (
-    isAuthenticated &&
-    user?.role === "admin" &&
-    location.pathname.includes("shop")
-  ) {
-    return <Navigate to="/admin/dashboard" />;
+    return user?.role === "seller"
+      ? <Navigate to="/store/profil" replace />
+      : <Navigate to="/shop/home" replace />;
   }
 
   return <>{children}</>;

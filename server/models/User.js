@@ -1,11 +1,7 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
+ userName: {
     type: String,
     required: true,
   },
@@ -23,6 +19,10 @@ const UserSchema = new mongoose.Schema({
     enum: ["admin", "seller", "customer"],
     default: "customer",
   },
+  storeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+  }
 });
 
 const User = mongoose.model("User", UserSchema);
