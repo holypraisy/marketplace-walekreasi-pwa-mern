@@ -3,7 +3,7 @@ import authReducer from "./auth-slice";
 
 import sellerOrderSlice from "./seller/order-slice";
 import sellerProductsSlice from "./seller/products-slice";
-
+import sellerProfileSlice from "./seller/profile-slice";
 import shopProductsSlice from "./shop/products-slice";
 import shopCartSlice from "./shop/cart-slice";
 import shopAddressSlice from "./shop/address-slice";
@@ -18,7 +18,7 @@ const store = configureStore({
 
     sellerProducts: sellerProductsSlice,
     sellerOrder: sellerOrderSlice,
-
+    sellerProfile: sellerProfileSlice, 
     shopProducts: shopProductsSlice,
     shopCart: shopCartSlice,
     shopAddress: shopAddressSlice,

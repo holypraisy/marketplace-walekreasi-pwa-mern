@@ -15,23 +15,61 @@ function SellerProfilePage() {
   if (!store) return <p>Data toko tidak ditemukan.</p>;
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 space-y-4">
-      <h2 className="text-2xl font-bold">Profil Toko</h2>
-      <div className="flex gap-4 items-start">
-        {store.logo && (
+    <div className="">
+      <h2 className="text-2xl font-bold">Halo, {store.sellerName} 👋</h2>
+      <div className="flex gap-4 items-start mt-4">
+        {store.storeLogoUrl && (
           <img
-            src={store.logo}
+            src={store.storeLogoUrl}
             alt="Logo Toko"
             className="w-24 h-24 rounded border object-cover"
           />
         )}
-        <div>
-          <p><strong>Nama Toko:</strong> {store.storeName}</p>
-          <p><strong>Deskripsi:</strong> {store.storeDescription}</p>
-          <p><strong>Alamat Produksi:</strong> {store.productionAddress}</p>
-          <p><strong>Nomor Telepon:</strong> {store.phoneNumber}</p>
-          <p><strong>Rekening:</strong> {store.accountOwner} - {store.bankName} - {store.bankAccountNumber}</p>
-          <p><strong>E-Wallet:</strong> {store.eWalletsAccountOwner} - {store.eWallet} - {store.eWalletAccountNumber}</p>
+        <div className="space-y-1"> 
+          <div className="space-y-4">
+              <h1 className="font-bold text-xl">Data Diri</h1> 
+              <div>
+                <h1>Nama Lengkap</h1>
+                <p>{store.sellerName}</p>
+              </div>
+              <div>
+                <h1>Nomor Telepon</h1>
+                <p>{store.phoneNumber}</p>
+              </div>
+
+              <div>
+                <h1>Alamat Domisili</h1>
+                <p>{store.domicileAddres}</p>
+              </div>
+              <div>
+                <h1>NIK (Nomor Induk Kependudukan)</h1>
+                <p>{store.nik}</p>
+              </div>
+          </div> 
+
+          <div className="space-y-4">
+              <h1 className="font-bold text-xl">Data Usaha</h1> 
+              <div>
+                <h1>Nama Lengkap</h1>
+                <p>{store.sellerName}</p>
+              </div>
+              <div>
+                <h1>Nomor Telepon</h1>
+                <p>{store.phoneNumber}</p>
+              </div>
+
+              <div>
+                <h1>Alamat Domisili</h1>
+                <p>{store.domicileAddres}</p>
+              </div>
+              <div>
+                <h1>NIK (Nomor Induk Kependudukan)</h1>
+                <p>{store.nik}</p>
+              </div>
+          </div> 
+
+
+        
         </div>
       </div>
     </div>

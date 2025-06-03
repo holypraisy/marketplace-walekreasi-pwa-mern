@@ -71,7 +71,7 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="profil" element={< SellerProfilePage/>} />
+          <Route path="profile" element={< SellerProfilePage/>} />
           <Route path="products" element={<SellerProducts />} />
           <Route path="orders" element={<SellerOrders />} />
         </Route>
