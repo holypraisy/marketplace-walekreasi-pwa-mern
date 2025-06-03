@@ -17,12 +17,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
-import AuthRegisterSeller from "./pages/auth/registerSeller";
+
 
 import SellerDashboardLayout from "./components/seller-dashboard/layout";
 import SellerProducts from "./pages/seller-dashboard/products";
 import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
+import RegisterSeller from "./pages/auth/registerSeller";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -60,7 +61,7 @@ function App() {
         >
           <Route path="login" element={<AuthLogin />} />
           <Route path="register" element={<AuthRegister />} />
-          <Route path="register-seller" element={<AuthRegisterSeller />} />
+          <Route path="register-seller" element={<RegisterSeller />} />
         </Route>
         <Route
           path="/store"

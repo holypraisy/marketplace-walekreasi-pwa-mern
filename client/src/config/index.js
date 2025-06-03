@@ -32,6 +32,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nama lengkap',
     componentType: 'input',
     type: 'text',
+    section: 'Identitas Pemilik Usaha',
   },
   {
     name: 'phoneNumber',
@@ -39,6 +40,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nomor telepon aktif',
     componentType: 'input',
     type: 'text',
+    section: 'Identitas Pemilik Usaha',
   },
   {
     name: 'email',
@@ -46,6 +48,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan email',
     componentType: 'input',
     type: 'email',
+    section: 'Identitas Pemilik Usaha',
   },
   {
     name: 'password',
@@ -53,6 +56,23 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan kata sandi',
     componentType: 'input',
     type: 'password',
+    section: 'Identitas Pemilik Usaha',
+  },
+  {
+    name : 'nik',
+    label :'NIK (Nomor Induk Kependudukan)',
+    placeholder :'Masukkan NIK anda',
+    componentType :'input',
+    type : 'number',
+    section: 'Identitas Pemilik Usaha',
+  },
+  {
+    name : 'domicileAddress',
+    label :'Alamat Domisili',
+    placeholder :'Masukkan Alamat Domisili Anda',
+    componentType :'input',
+    type : 'text',
+    section: 'Identitas Pemilik Usaha',
   },
 
   // Data Usaha / Toko
@@ -62,12 +82,14 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nama usaha',
     componentType: 'input',
     type: 'text',
+    section: 'Data Usaha / Toko',
   },
   {
     name: 'storeDescription',
     label: 'Deskripsi Usaha',
     placeholder: 'Deskripsikan usaha Anda',
     componentType: 'textarea',
+    section: 'Data Usaha / Toko',
   },
   {
     name: 'productionAddress',
@@ -75,6 +97,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan alamat tempat produksi',
     componentType: 'input',
     type: 'text',
+    section: 'Data Usaha / Toko',
   },
 
   // Data Pembayaran
@@ -84,6 +107,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nama pemilik rekening',
     componentType: 'input',
     type: 'text',
+    section: 'Data Pembayaran',
   },
   {
     name: 'bankName',
@@ -91,6 +115,7 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nama bank',
     componentType: 'input',
     type: 'text',
+    section: 'Data Pembayaran',
   },
   {
     name: 'bankAccountNumber',
@@ -98,16 +123,33 @@ export const sellerRegisterFormControls = [
     placeholder: 'Masukkan nomor rekening',
     componentType: 'input',
     type: 'text',
+    section: 'Data Pembayaran',
   },
   {
     name: 'eWallets',
     label: 'Dompet Digital (jika ada)',
     placeholder: 'Contoh: DANA, OVO, GoPay',
-    componentType: 'input', // atau bisa diganti menjadi input array/multi-tag input
+    componentType: 'input',
     type: 'text',
+    section: 'Data Pembayaran',
+  },
+  {
+    name: 'eWalletsAccountOwner',
+    label: 'Nama Pemilik Akun',
+    placeholder: 'Masukkan Nama Dompet Digital',
+    componentType: 'input',
+    type: 'text',
+    section: 'Data Pembayaran',
+  },
+  {
+    name: 'eWalletAccountNumber',
+    label: 'Nomor Dompet Digital',
+    placeholder: 'Masukkan Nomor Dompet Digital',
+    componentType: 'input',
+    type: 'text',
+    section: 'Data Pembayaran',
   },
 ];
-
 
 
 export const loginFormControls = [

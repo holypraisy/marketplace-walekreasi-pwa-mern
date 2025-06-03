@@ -13,7 +13,7 @@ import {
     {
       id: "profil-toko",
       label: "Profil Toko",
-      path: "/store/profil",
+      path: "/store/profile",
       icon: <LayoutDashboard />,
     },
     {
@@ -60,7 +60,7 @@ import {
       // Ambil data toko dari backend
       const fetchStore = async () => {
         try {
-          const res = await axios.get("/api/store/me"); // Pastikan route ini tersedia di backend
+          const res = await axios.get("/api/store/profile"); // Pastikan route ini tersedia di backend
           if (res.data && res.data.store) {
             setStoreName(res.data.store.name);
           }

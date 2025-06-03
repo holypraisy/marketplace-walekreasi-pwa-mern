@@ -44,13 +44,17 @@ const registerSeller = async (req, res) => {
     phoneNumber,
     email,
     password,
+    nik,
+    domicileAddress,
     storeName,
     storeDescription,
     productionAddress,
     accountOwner,
     bankName,
     bankAccountNumber,
-    eWallets,
+    eWalletsAccountOwner,
+    eWallet,
+    eWalletAccountNumber
   } = req.body;
 
   try {
@@ -80,14 +84,18 @@ const registerSeller = async (req, res) => {
       sellerName,
       phoneNumber,
       email,
+      password,
+      nik,
+      domicileAddress,
       storeName,
       storeDescription,
       productionAddress,
-      storeLogo,
       accountOwner,
       bankName,
       bankAccountNumber,
-      eWallets,
+      eWalletsAccountOwner,
+      eWallet,
+      eWalletAccountNumber
     });
     await newSeller.save();
 
