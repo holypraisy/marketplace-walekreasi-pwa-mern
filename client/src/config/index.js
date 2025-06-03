@@ -151,6 +151,23 @@ export const sellerRegisterFormControls = [
   },
 ];
 
+export const sellerProfileFormElements = [
+  { label: "Nama Lengkap", name: "sellerName", type: "text" },
+  { label: "Nomor Telepon", name: "phoneNumber", type: "text" },
+  { label: "Alamat Domisili", name: "domicileAddress", type: "text" },
+  { label: "NIK", name: "nik", type: "text" },
+  { label: "Nama Toko", name: "storeName", type: "text" },
+  { label: "Deskripsi Toko", name: "storeDescription", type: "textarea" },
+  { label: "Alamat Produksi", name: "productionAddress", type: "text" },
+  { label: "Nama Pemilik Rekening", name: "bankAccountOwner", type: "text" },
+  { label: "Nama Bank", name: "bankName", type: "text" },
+  { label: "Nomor Rekening", name: "bankAccountNumber", type: "text" },
+  { label: "Dompet Digital", name: "eWallet", type: "text" },
+  { label: "Pemilik E-Wallet", name: "eWalletsAccountOwner", type: "text" },
+  { label: "Nomor E-Wallet", name: "eWalletAccountNumber", type: "text" },
+];
+
+
 
 export const loginFormControls = [
   {

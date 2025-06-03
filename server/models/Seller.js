@@ -43,6 +43,9 @@ const SellerSchema = new mongoose.Schema({
   storeLogoUrl: {
     type: String,
   },
+  storeBannerUrl: {
+    type: String,
+  },
 
   // Data Pembayaran
   bankAccountOwner: {
