@@ -14,7 +14,7 @@ function CheckAuth({ isAuthenticated, user, children }) {
   // Jika user sudah login dan mencoba akses halaman login/register
   if (isAuthenticated && isLoginOrRegister) {
     if (user?.role === "seller") {
-      return <Navigate to="/store/profil" replace />;
+      return <Navigate to="/store/profile" replace />;
     } else {
       return <Navigate to="/shop/home" replace />;
     }
@@ -41,7 +41,7 @@ function CheckAuth({ isAuthenticated, user, children }) {
       return <Navigate to="/auth/login" replace />;
     }
     return user?.role === "seller"
-      ? <Navigate to="/store/profil" replace />
+      ? <Navigate to="/store/profile  " replace />
       : <Navigate to="/shop/home" replace />;
   }
 

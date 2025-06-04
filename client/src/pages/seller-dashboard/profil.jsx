@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import CommonForm from "@/components/common/form";
 import { sellerProfileFormElements } from "@/config";
+import {  CreditCard, SquarePen, Store, UserCircle } from "lucide-react";
 
 const SellerProfilePage = () => {
   const dispatch = useDispatch();
@@ -34,9 +35,12 @@ const SellerProfilePage = () => {
   };
 
   const isFormValid = () =>
-    Object.values(formData).filter((val, i) => i !== "id" && i !== "logo").every((v) => v !== "");
+    Object.entries(formData)
+      .filter(([key]) => key !== "id" && key !== "logo")
+      .every(([, val]) => val !== "");
 
-  if (isLoading) return <p>Memuat data toko...</p>;
+  // 👉 Pengecekan loading, error, dan data null
+  if (isLoading || !store) return <p>Memuat data toko...</p>;
   if (error) return <p className="text-red-500">Gagal memuat data toko: {error}</p>;
 
   return (
@@ -51,39 +55,62 @@ const SellerProfilePage = () => {
         />
       </div>
 
-      <div className="flex justify-between items-center mt-4">
-        <h2 className="text-3xl font-bold text-gray-800">Halo, {store.sellerName} 👋</h2>
-        <Button onClick={() => setOpenEditProfileSheet(true)}>Edit Profil</Button>
+      <div className="flex justify-end items-center mt-4">
+        <Button 
+        onClick={() => setOpenEditProfileSheet(true)}
+        className="items-center gap-2"
+        > <SquarePen/>  Edit Profil</Button>
       </div>
 
       {/* Informasi Profil */}
-      <div className="grid md:grid-cols-3 gap-6 text-sm">
+      <div className="grid md:grid-cols-2 gap-6 text-sm">
         {/* Data Diri */}
         <div className="bg-white shadow rounded-xl p-4">
-          <h3 className="font-semibold text-lg mb-2">🧍 Data Diri</h3>
-          <p><strong>Nama Lengkap:</strong> {store.sellerName}</p>
-          <p><strong>Nomor Telepon:</strong> {store.phoneNumber}</p>
-          <p><strong>Alamat Domisili:</strong> {store.domicileAddress}</p>
-          <p><strong>NIK:</strong> {store.nik}</p>
+          <div className="flex gap-4 items-center border-b-2 py-1 ">
+            <UserCircle/>
+            <h1 className="font-semibold text-lg   "> Data Diri Penjual </h1>  
+          </div>
+
+          <div className="grid gap-4 mt-4">
+            <p className="flex flex-col font-light ">Nama Lengkap: <span className="text-base font-medium" >{store.sellerName}</span></p>
+            <p className="flex flex-col  font-light " >Nomor Telepon: <span className="text-base font-medium" >{store.phoneNumber}</span> </p>
+            <p className="flex flex-col  font-light">Alamat Domisili: <span className="text-base font-medium">{store.domicileAddress}</span> </p>
+            <p className="flex flex-col  font-light">NIK: <span className="text-base font-medium">{store.nik}</span> </p>
+          </div>
+
         </div>
 
         {/* Data Usaha */}
         <div className="bg-white shadow rounded-xl p-4">
-          <h3 className="font-semibold text-lg mb-2">🏪 Data Usaha</h3>
-          <p><strong>Nama Toko:</strong> {store.storeName}</p>
-          <p><strong>Deskripsi:</strong> {store.storeDescription}</p>
-          <p><strong>Alamat Produksi:</strong> {store.productionAddress}</p>
+          <div className="flex gap-4 items-center border-b-2 py-1 ">
+            <Store  />
+            <h1 className="font-semibold text-lg   "> Data Usaha/Toko </h1>  
+          </div>
+
+          
+          <div className="grid gap-4 mt-4">
+            <p className="flex flex-col font-light ">Nama Toko : <span className="text-base font-medium" >{store.storeName}</span></p>
+            <p className="flex flex-col  font-light " >Deskripsi: <span className="text-base font-medium" >{store.storeDescription}</span> </p>
+            <p className="flex flex-col  font-light">Alamat Produksi: <span className="text-base font-medium">{store.productionAddress}</span> </p>
+          </div>
         </div>
 
         {/* Data Pembayaran */}
         <div className="bg-white shadow rounded-xl p-4">
-          <h3 className="font-semibold text-lg mb-2">💳 Data Pembayaran</h3>
-          <p><strong>Nama Pemilik Rekening:</strong> {store.bankAccountOwner}</p>
-          <p><strong>Nama Bank:</strong> {store.bankName}</p>
-          <p><strong>No Rekening:</strong> {store.bankAccountNumber}</p>
-          <p><strong>Dompet Digital:</strong> {store.eWallet}</p>
-          <p><strong>Pemilik E-Wallet:</strong> {store.eWalletsAccountOwner}</p>
-          <p><strong>No E-Wallet:</strong> {store.eWalletAccountNumber}</p>
+          <div className="flex gap-4 items-center border-b-2 py-1 ">
+            <CreditCard  />
+            <h1 className="font-semibold text-lg   "> Data Pembayaran  </h1>  
+          </div>
+
+                    
+          <div className="grid gap-4 mt-4">
+            <p className="flex flex-col font-light ">Nama Pemilik Rekening : <span className="text-base font-medium" >{store.bankAccountOwner}</span></p>
+            <p className="flex flex-col  font-light " >Nama Bank : <span className="text-base font-medium" >{store.bankName}</span> </p>
+            <p className="flex flex-col  font-light">Nomor Rekening: <span className="text-base font-medium">{store.bankAccountNumber}</span> </p>
+            <p className="flex flex-col  font-light">Dompet Digital (e-Wallet) :  <span className="text-base font-medium">{store.eWallet}</span> </p>
+            <p className="flex flex-col  font-light">Pemilik E-Wallet: <span className="text-base font-medium">{store.eWalletsAccountOwner}</span> </p>
+            <p className="flex flex-col  font-light">Nomor E-Wallet: <span className="text-base font-medium">{store.eWalletAccountNumber}</span> </p>
+          </div>
         </div>
       </div>
 

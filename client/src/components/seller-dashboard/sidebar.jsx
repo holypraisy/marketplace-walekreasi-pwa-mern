@@ -1,29 +1,29 @@
 import {
   BadgeCheck,
-  ChartNoAxesCombined,
   LayoutDashboard,
   ShoppingBasket,
 } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
 const adminSidebarMenuItems = [
   {
     id: "profile",
-    label: "Profile",
+    label: "Profil",
     path: "/store/profile",
     icon: <LayoutDashboard />,
   },
   {
     id: "products",
-    label: "Products",
+    label: "Produk",
     path: "/store/products",
     icon: <ShoppingBasket />,
   },
   {
     id: "orders",
-    label: "Orders",
+    label: "Pesanan",
     path: "/store/orders",
     icon: <BadgeCheck />,
   },
@@ -53,6 +53,7 @@ function MenuItems({ setOpen }) {
 
 function AdminSideBar({ open, setOpen }) {
   const navigate = useNavigate();
+  const { profile: store } = useSelector((state) => state.sellerProfile); 
 
   return (
     <Fragment>
@@ -61,21 +62,26 @@ function AdminSideBar({ open, setOpen }) {
           <div className="flex flex-col h-full">
             <SheetHeader className="border-b">
               <SheetTitle className="flex gap-2 mt-5 mb-5">
-                <ChartNoAxesCombined size={30} />
-                <h1 className="text-2xl font-extrabold">Store Dashboard</h1>
+                
+                <h1 className="text-2xl font-extrabold">
+                  {store?.storeName || "Store Dashboard"} 
+                </h1>
               </SheetTitle>
             </SheetHeader>
             <MenuItems setOpen={setOpen} />
           </div>
         </SheetContent>
       </Sheet>
+
       <aside className="hidden w-64 flex-col border-r bg-background p-6 lg:flex">
         <div
           onClick={() => navigate("/store/profile")}
           className="flex cursor-pointer items-center gap-2"
         >
-          <ChartNoAxesCombined size={30} />
-          <h1 className="text-2xl font-extrabold">Store Dashboard</h1>
+          
+          <h1 className="text-2xl font-extrabold">
+            {store?.storeName || "Store Dashboard"} 
+          </h1>
         </div>
         <MenuItems />
       </aside>
