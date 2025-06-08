@@ -102,7 +102,7 @@ export const sellerRegisterFormControls = [
 
   // Data Pembayaran
   {
-    name: 'accountOwner',
+    name: 'bankAccountOwner',
     label: 'Nama Pemilik Rekening',
     placeholder: 'Masukkan nama pemilik rekening',
     componentType: 'input',
@@ -126,7 +126,7 @@ export const sellerRegisterFormControls = [
     section: 'Data Pembayaran',
   },
   {
-    name: 'eWallets',
+    name: 'eWallet',
     label: 'Dompet Digital (jika ada)',
     placeholder: 'Contoh: DANA, OVO, GoPay',
     componentType: 'input',
@@ -134,7 +134,7 @@ export const sellerRegisterFormControls = [
     section: 'Data Pembayaran',
   },
   {
-    name: 'eWalletsAccountOwner',
+    name: 'eWallet  AccountOwner',
     label: 'Nama Pemilik Akun',
     placeholder: 'Masukkan Nama Dompet Digital',
     componentType: 'input',
