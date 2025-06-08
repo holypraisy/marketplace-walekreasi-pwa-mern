@@ -34,9 +34,12 @@ const SellerProfilePage = () => {
   };
 
   const isFormValid = () =>
-    Object.values(formData).filter((val, i) => i !== "id" && i !== "logo").every((v) => v !== "");
+    Object.entries(formData)
+      .filter(([key]) => key !== "id" && key !== "logo")
+      .every(([, val]) => val !== "");
 
-  if (isLoading) return <p>Memuat data toko...</p>;
+  // 👉 Pengecekan loading, error, dan data null
+  if (isLoading || !store) return <p>Memuat data toko...</p>;
   if (error) return <p className="text-red-500">Gagal memuat data toko: {error}</p>;
 
   return (
@@ -114,5 +117,6 @@ const SellerProfilePage = () => {
     </div>
   );
 };
+
 
 export default SellerProfilePage;
