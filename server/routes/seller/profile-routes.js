@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   getSellerProfile,
   updateSellerProfile,
@@ -11,17 +12,29 @@ const {
   isSeller,
 } = require("../../controllers/auth/auth-controller");
 
-const { upload } = require("../../helpers/cloudinary"); // pakai middleware multer
+const { upload } = require("../../helpers/cloudinary");
 
+// Ambil profil seller
 router.get("/get", authMiddleware, isSeller, getSellerProfile);
-router.put("/edit", authMiddleware, isSeller, updateSellerProfile);
 
-// Upload logo atau banner
+// Update profil seller (sekalian upload logo & banner)
+router.put(
+  "/edit",
+  authMiddleware,
+  isSeller,
+  upload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "banner", maxCount: 1 },
+  ]),
+  updateSellerProfile
+);
+
+// Upload gambar logo/banner secara terpisah (opsional)
 router.post(
   "/upload-image",
   authMiddleware,
   isSeller,
-  upload.single("my_file"), // sesuai field name dari form
+  upload.single("my_file"),
   uploadStoreImage
 );
 

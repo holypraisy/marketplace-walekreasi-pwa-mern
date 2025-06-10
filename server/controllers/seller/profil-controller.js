@@ -27,11 +27,29 @@ const getSellerProfile = async (req, res) => {
   }
 };
 
-// [PUT] Memperbarui profil seller
+// [PUT] Memperbarui profil seller dan upload logo/banner jika ada
 const updateSellerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const updateData = req.body;
+
+    // Upload logo jika tersedia
+    if (req.files?.logo) {
+      const logoFile = req.files.logo[0];
+      const base64 = logoFile.buffer.toString("base64");
+      const dataUri = `data:${logoFile.mimetype};base64,${base64}`;
+      const result = await imageUploadUtil(dataUri);
+      updateData.storeLogoUrl = result.secure_url;
+    }
+
+    // Upload banner jika tersedia
+    if (req.files?.banner) {
+      const bannerFile = req.files.banner[0];
+      const base64 = bannerFile.buffer.toString("base64");
+      const dataUri = `data:${bannerFile.mimetype};base64,${base64}`;
+      const result = await imageUploadUtil(dataUri);
+      updateData.storeBannerUrl = result.secure_url;
+    }
 
     const seller = await Seller.findOneAndUpdate(
       { user: userId },
@@ -60,7 +78,7 @@ const updateSellerProfile = async (req, res) => {
   }
 };
 
-// [POST] Upload logo/banner
+// [POST] Upload satu gambar umum (tidak digunakan langsung di update profil)
 const uploadStoreImage = async (req, res) => {
   try {
     if (!req.file) {

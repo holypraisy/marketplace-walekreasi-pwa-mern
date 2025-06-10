@@ -27,18 +27,23 @@ export const updateSellerProfile = createAsyncThunk(
   "sellerProfile/update",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.put("http://localhost:5000/api/store/profile/edit", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+      const response = await axios.put(
+        "http://localhost:5000/api/store/profile/edit",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(error.response?.data?.message || "Gagal memperbarui profil.");
     }
   }
 );
+
 
 // [POST] Upload gambar logo/banner
 export const uploadStoreImage = createAsyncThunk(
