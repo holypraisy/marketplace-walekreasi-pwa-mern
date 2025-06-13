@@ -72,25 +72,19 @@ function HeaderRightContent() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  function handleLogout() {
-    dispatch(logoutUser());
-  }
-
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [dispatch, user?.id]);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
   return (
-    <div className="flex lg:items-center lg:flex-row flex-col gap-16">
-      <div
-        onClick={() => navigate("/shop/search")}
-        className="flex items-center gap-2 mr-32 px-3 py-2 rounded-full border cursor-pointer bg-white hover:bg-gray-100 transition-colors md:w-96 max-w-xs"
-      >
-        <Search className="w-5 h-5 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Cari produk...</span>
-      </div>
-
-
+    <div className="flex items-center gap-4">
+      {/* 🛒 Cart */}
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
@@ -107,72 +101,88 @@ function HeaderRightContent() {
         <UserCartWrapper
           setOpenCartSheet={setOpenCartSheet}
           cartItems={
-            cartItems && cartItems.items && cartItems.items.length > 0
-              ? cartItems.items
-              : []
+            cartItems?.items?.length > 0 ? cartItems.items : []
           }
         />
       </Sheet>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black">
-            <AvatarFallback className="bg-black text-white font-extrabold">
-              {user?.userName[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" className="w-56">
-          <DropdownMenuLabel>Masuk sebagai {user?.userName}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/shop/account")}>
-            <UserCog className="mr-2 h-4 w-4" />
-            Akun
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Keluar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* 👤 Avatar */}
+      {(user?.userName || user?.name) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="bg-black">
+              <AvatarFallback className="bg-black text-white font-extrabold">
+                {(user?.userName || user?.name || user?.email || "?")[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" className="w-56">
+            <DropdownMenuLabel>
+              Masuk sebagai {user?.userName || user?.name || "Pengguna"}
+            </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+                    <UserCog className="mr-2 h-4 w-4" />
+                    Akun
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Keluar
+                  </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
     </div>
   );
 }
 
 function ShoppingHeader() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
-      <div className="flex h-16 items-center justify-around px-4 lg:px-12">
-        <Link to="/shop/home" className="flex items-center gap-2">
+      <div className="flex h-16 items-center justify-between px-4 lg:px-12 gap-4">
+        {/* 👈 Logo */}
+        <Link to="/shop/home" className="flex items-center gap-2 shrink-0">
           <img
             src={logoWaleKreasi}
             alt="Logo Wale Kreasi"
-            className="w-12 h-12"
+            className="w-8 h-8 "
           />
-          <span className="font-bold text-3xl">Wale Kreasi</span>
+          <span className="font-bold text-xl lg:text-2xl">Wale Kreasi</span>
         </Link>
 
+        {/* 🔍 Search bar (center on desktop) */}
+        <div
+          onClick={() => window.location.href = "/shop/search"}
+          className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition-colors w-full max-w-md cursor-pointer"
+        >
+          <Search className="w-5 h-5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Cari produk...</span>
+        </div>
+
+        {/* 👉 Right content */}
+        <div className="hidden lg:flex items-center gap-4">
+          <HeaderRightContent />
+        </div>
+
+        {/* ☰ Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden">
               <Menu className="h-6 w-6" />
-              <span className="sr-only">Toggle header menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-full max-w-xs">
             <MenuItems />
-            <HeaderRightContent />
+            <div className="mt-4">
+              <HeaderRightContent />
+            </div>
           </SheetContent>
         </Sheet>
-
-        <div className="hidden lg:flex gap-4 items-center">
-          <HeaderRightContent />
-        </div>
       </div>
 
+      {/* 📁 Menu bawah (desktop) */}
       <div className="hidden lg:flex justify-center border-t px-6 py-2">
         <MenuItems />
       </div>
