@@ -1,5 +1,6 @@
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 const Product = require("../../models/Product");
+const Seller = require("../../models/Seller"); 
 
 const handleImageUpload = async (req, res) => {
   try {
@@ -21,8 +22,6 @@ const handleImageUpload = async (req, res) => {
 };
 
 //add a new product
-const Seller = require("../../models/Seller"); // pastikan ini diimport
-
 const addProduct = async (req, res) => {
   const {
     image,
@@ -80,7 +79,7 @@ const addProduct = async (req, res) => {
 //fetch all products (hanya produk milik seller terkait)
 const fetchAllProducts = async (req, res) => {
   try {
-    const listOfProducts = await Product.find({ sellerId: req.user._id });
+    const listOfProducts = await Product.find({ sellerId: req.user.id });
     res.status(200).json({
       success: true,
       data: listOfProducts,
@@ -110,7 +109,7 @@ const editProduct = async (req, res) => {
       averageReview,
     } = req.body;
 
-    const findProduct = await Product.findOne({ _id: id, sellerId: req.user._id });
+    const findProduct = await Product.findOne({ _id: id, sellerId: req.user.id });
     if (!findProduct)
       return res.status(404).json({
         success: false,
@@ -146,7 +145,7 @@ const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findOneAndDelete({ _id: id, sellerId: req.user._id });
+    const product = await Product.findOneAndDelete({ _id: id, sellerId: req.user.id });
 
     if (!product)
       return res.status(404).json({

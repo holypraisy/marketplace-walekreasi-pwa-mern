@@ -6,7 +6,6 @@ const initialState = {
   productList: [],
 };
 
-
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (formData) => {
@@ -17,11 +16,11 @@ export const addNewProduct = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
-        withCredentials: true, 
-      } 
+        withCredentials: true,
+      }
     );
 
-    return result?.data;
+    return result?.data; 
   }
 );
 
@@ -31,7 +30,7 @@ export const fetchAllProducts = createAsyncThunk(
     const result = await axios.get(
       "http://localhost:5000/api/store/products/get",
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
 
@@ -49,7 +48,7 @@ export const editProduct = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
 
@@ -63,7 +62,7 @@ export const deleteProduct = createAsyncThunk(
     const result = await axios.delete(
       `http://localhost:5000/api/store/products/delete/${id}`,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
 
@@ -82,11 +81,18 @@ const sellerProductsSlice = createSlice({
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.productList = action.payload.data;
+        console.log("✅ FETCH SUCCESS:", action.payload);
+        state.productList = action.payload?.data || []; 
       })
       .addCase(fetchAllProducts.rejected, (state) => {
         state.isLoading = false;
         state.productList = [];
+      })
+      .addCase(addNewProduct.fulfilled, (state, action) => {
+        console.log("✅ ADD SUCCESS:", action.payload); 
+        if (action.payload?.success && action.payload?.product) {
+          state.productList.push(action.payload.product);
+        }
       });
   },
 });

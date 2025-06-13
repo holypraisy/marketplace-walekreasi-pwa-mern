@@ -18,6 +18,7 @@ import {
 } from "@/store/seller/products-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { CircleFadingPlus } from "lucide-react";
 
 const initialFormData = {
   image: null,
@@ -106,7 +107,8 @@ function SellerProducts() {
       <div className="mb-5 w-full flex justify-between">
         <h1 className="text-2xl font-semibold text-black">PRODUK</h1>
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
-          Tambah Produk Baru
+          <CircleFadingPlus className="mr-2" />
+          Tambah Produk
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
