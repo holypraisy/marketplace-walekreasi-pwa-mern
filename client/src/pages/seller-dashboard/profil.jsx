@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import logoWaleKreasi from "../../assets/logo-WaleKreasi.png";
-import bannerUrl from "../../assets/banner-1.webp";
+import addPhotoIcon from "../../assets/addPhotoIcon.png";
 import {
   fetchSellerProfile,
   updateSellerProfile,
@@ -71,18 +70,20 @@ const SellerProfilePage = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="relative h-56 md:h-72 rounded-xl overflow-hidden shadow-md">
+      <div className="relative w-full rounded-xl overflow-hidden shadow-md aspect-[16/5] bg-gray-100">
         <img
-          src={store.storeBannerUrl || bannerUrl}
+          src={store.storeBannerUrl || addPhotoIcon}
           alt="Banner Toko"
           className="w-full h-full object-cover"
         />
-        <img
-          src={store.storeLogoUrl || logoWaleKreasi}
-          alt="Logo Toko"
-          className="absolute bottom-4 left-4 w-28 h-28 rounded-full border-4 border-white object-cover shadow-lg bg-white"
-        />
+
+        <div className="absolute bottom-4 left-4 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 border-white bg-white shadow-lg z-10">
+          <img
+            src={store.storeLogoUrl || addPhotoIcon}
+            alt="Logo Toko"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
       <div className="flex justify-end items-center mt-4">
@@ -178,11 +179,30 @@ const SellerProfilePage = () => {
           }
         }}
       >
-        <SheetContent side="right" className="overflow-auto w-full sm:max-w-md">
+        <SheetContent side="right" className="overflow-auto w-full sm:max-w-md flex flex-col">
           <SheetHeader>
             <SheetTitle>Edit Profil Toko</SheetTitle>
           </SheetHeader>
-          <div className="py-6 text-black space-y-4">
+
+          <div className="flex-1 py-6 text-black space-y-4">
+            {/* Pesan Himbauan */}
+            {(!store.storeLogoUrl || !store.storeBannerUrl) && (
+              <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 p-3 rounded-md text-sm">
+                ⚠️ Lengkapi profil toko Anda dengan <strong>mengunggah logo dan banner toko</strong> untuk meningkatkan kepercayaan pembeli.
+              </div>
+            )}
+            {/* Upload Gambar */}
+            <div className="space-y-4 px-2">
+              <div>
+                <label className="block font-medium mb-1">Unggah/Ganti Logo Toko</label>
+                <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files[0])} />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Unggah/Ganti Banner Toko</label>
+                <input type="file" accept="image/*" onChange={(e) => setBannerFile(e.target.files[0])} />
+              </div>
+            </div> 
+            {/* Form Input Teks */}
             <CommonForm
               onSubmit={handleSubmit}
               formData={formData}
@@ -191,18 +211,9 @@ const SellerProfilePage = () => {
               formControls={sellerProfileFormElements}
               isBtnDisabled={!isFormValid()}
             />
-            <div className="space-y-4 px-2">
-              <div>
-                <label className="block font-medium mb-1">Upload Logo Toko</label>
-                <input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files[0])} />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Upload Banner Toko</label>
-                <input type="file" accept="image/*" onChange={(e) => setBannerFile(e.target.files[0])} />
-              </div>
-            </div>
           </div>
         </SheetContent>
+
       </Sheet>
     </div>
   );

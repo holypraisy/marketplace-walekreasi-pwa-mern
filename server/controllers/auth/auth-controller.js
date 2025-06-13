@@ -192,6 +192,7 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
     req.user = decoded;
+    console.log("Decoded JWT:", req.user);
     next();
   } catch (error) {
     res.status(401).json({
@@ -210,7 +211,7 @@ const isAuthenticated = (req, res, next) => {
       success: false,
       message: "Anda harus login terlebih dahulu.",
     });
-  }
+  };
 };
 
 // Mengecek apakah user adalah seller

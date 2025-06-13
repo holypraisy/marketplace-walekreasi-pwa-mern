@@ -46,21 +46,32 @@ function ProductImageUpload({
   }
 
   async function uploadImageToCloudinary() {
-    setImageLoadingState(true);
-    const data = new FormData();
-    data.append("my_file", imageFile);
-    const response = await axios.post(
-      "http://localhost:5000/api/store/products/upload-image",
-      data
-    );
-    console.log(response, "response");
-
-    if (response?.data?.success) {
-      setUploadedImageUrl(response.data.result.url);
+    try {
+      setImageLoadingState(true);
+      const data = new FormData();
+      data.append("my_file", imageFile);
+  
+      const response = await axios.post(
+        "http://localhost:5000/api/store/products/upload-image",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true, // <<< WAJIB!
+        }
+      );
+  
+      if (response?.data?.success) {
+        setUploadedImageUrl(response.data.result.secure_url); // atau result.url
+      }
+    } catch (error) {
+      console.error("Upload gagal:", error);
+    } finally {
       setImageLoadingState(false);
     }
   }
-
+  
   useEffect(() => {
     if (imageFile !== null) uploadImageToCloudinary();
   }, [imageFile]);

@@ -36,8 +36,10 @@ const addProduct = async (req, res) => {
   } = req.body;
 
   try {
-    // Cari data toko berdasarkan sellerId
-    const seller = await Seller.findOne({ owner: req.user._id });
+    console.log("Decoded user:", req.user); // DEBUG
+
+    // Gunakan field `user` dari model Seller
+    const seller = await Seller.findOne({ user: req.user.id });
 
     if (!seller) {
       return res.status(404).json({
@@ -55,8 +57,8 @@ const addProduct = async (req, res) => {
       salePrice,
       totalStock,
       averageReview,
-      sellerId: req.user._id,
-      storeName: store.name, // otomatis ambil dari data toko
+      sellerId: req.user.id,
+      storeName: seller.storeName,
     });
 
     await product.save();
@@ -67,9 +69,10 @@ const addProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Gagal menambahkan produk:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Gagal menambahkan produk" });
+    res.status(500).json({
+      success: false,
+      message: "Gagal menambahkan produk",
+    });
   }
 };
 

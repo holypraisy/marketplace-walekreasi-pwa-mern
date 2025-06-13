@@ -6,6 +6,7 @@ const initialState = {
   productList: [],
 };
 
+
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (formData) => {
@@ -16,7 +17,8 @@ export const addNewProduct = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
-      }
+        withCredentials: true, 
+      } 
     );
 
     return result?.data;
@@ -27,7 +29,10 @@ export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async () => {
     const result = await axios.get(
-      "http://localhost:5000/api/seller/products/get"
+      "http://localhost:5000/api/store/products/get",
+      {
+        withCredentials: true, 
+      }
     );
 
     return result?.data;
@@ -44,6 +49,7 @@ export const editProduct = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true, 
       }
     );
 
@@ -55,7 +61,10 @@ export const deleteProduct = createAsyncThunk(
   "/products/deleteProduct",
   async (id) => {
     const result = await axios.delete(
-      `http://localhost:5000/api/store/products/delete/${id}`
+      `http://localhost:5000/api/store/products/delete/${id}`,
+      {
+        withCredentials: true, 
+      }
     );
 
     return result?.data;
@@ -75,7 +84,7 @@ const sellerProductsSlice = createSlice({
         state.isLoading = false;
         state.productList = action.payload.data;
       })
-      .addCase(fetchAllProducts.rejected, (state, action) => {
+      .addCase(fetchAllProducts.rejected, (state) => {
         state.isLoading = false;
         state.productList = [];
       });
