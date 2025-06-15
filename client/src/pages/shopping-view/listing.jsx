@@ -27,12 +27,9 @@ function createSearchParamsHelper(filterParams) {
   for (const [key, value] of Object.entries(filterParams)) {
     if (Array.isArray(value) && value.length > 0) {
       const paramValue = value.join(",");
-
       queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
     }
   }
-
-  console.log(queryParams, "queryParams");
 
   return queryParams.join("&");
 }
@@ -78,13 +75,15 @@ function ShoppingListing() {
     sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
   }
 
-  function handleGetProductDetails(getCurrentProductId) {
-    console.log(getCurrentProductId);
-    dispatch(fetchProductDetails(getCurrentProductId));
+  // ✅ Sudah menunggu hingga fetch selesai sebelum buka dialog
+  async function handleGetProductDetails(getCurrentProductId) {
+    const result = await dispatch(fetchProductDetails(getCurrentProductId));
+    if (result?.payload) {
+      setOpenDetailsDialog(true);
+    }
   }
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
-    console.log(cartItems);
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {
@@ -98,7 +97,6 @@ function ShoppingListing() {
             title: `Only ${getQuantity} quantity can be added for this item`,
             variant: "destructive",
           });
-
           return;
         }
       }
@@ -139,11 +137,8 @@ function ShoppingListing() {
       );
   }, [dispatch, sort, filters]);
 
-  useEffect(() => {
-    if (productDetails !== null) setOpenDetailsDialog(true);
-  }, [productDetails]);
-
-  console.log(productList, "productListproductListproductList");
+  // ❌ Hapus useEffect pembuka dialog berdasarkan productDetails
+  // ✅ Sekarang pembukaan dialog hanya dikontrol dari handler
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
@@ -170,8 +165,8 @@ function ShoppingListing() {
                 <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
                   {sortOptions.map((sortItem) => (
                     <DropdownMenuRadioItem
-                      value={sortItem.id}
                       key={sortItem.id}
+                      value={sortItem.id}
                     >
                       {sortItem.label}
                     </DropdownMenuRadioItem>
@@ -185,6 +180,7 @@ function ShoppingListing() {
           {productList && productList.length > 0
             ? productList.map((productItem) => (
                 <ShoppingProductTile
+                  key={productItem._id} // ✅ Tambahkan key di sini
                   handleGetProductDetails={handleGetProductDetails}
                   product={productItem}
                   handleAddtoCart={handleAddtoCart}

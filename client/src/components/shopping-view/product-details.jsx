@@ -1,7 +1,7 @@
 import { StarIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,8 +12,13 @@ import { Label } from "../ui/label";
 import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
 import { addReview, getReviews } from "@/store/shop/review-slice";
+import { Link } from "react-router-dom";
+
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
+
+  console.log("productDetails:", productDetails);
+  
   const [reviewMsg, setReviewMsg] = useState("");
   const [rating, setRating] = useState(0);
   const dispatch = useDispatch();
@@ -66,7 +71,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   function handleDialogClose() {
     setOpen(false);
-    dispatch(setProductDetails());
     setRating(0);
     setReviewMsg("");
   }
@@ -117,12 +121,24 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           />
         </div>
         <div className="">
-          <div>
-            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
-            <p className="text-muted-foreground text-2xl mb-5 mt-4">
-              {productDetails?.description}
-            </p>
-          </div>
+        <DialogTitle asChild>
+          <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
+        </DialogTitle>
+
+        {productDetails?.storeName && productDetails?.sellerId && (
+          <p className="text-sm text-muted-foreground mt-2">
+            Dijual oleh:{" "}
+            <Link
+              to={`/shop/store/${productDetails.sellerId}`}
+              className="text-primary font-medium underline hover:opacity-80"
+            >
+              {productDetails.storeName}
+            </Link>
+
+          </p>
+        )}
+
+
           <div className="flex items-center justify-between">
             <p
               className={`text-3xl font-bold text-primary ${

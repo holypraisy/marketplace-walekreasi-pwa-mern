@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-// const {authMiddleware} = require('./controllers/auth/auth-controller');
 const authRouter = require("./routes/auth/auth-routes");
 const SellerProductsRouter = require("./routes/seller/products-routes");
 const SellerOrderRouter = require("./routes/seller/order-routes");
@@ -13,6 +12,7 @@ const shopAddressRouter = require("./routes/shop/address-routes");
 const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
+const shopStoreRouter = require("./routes/shop/store-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
@@ -44,7 +44,6 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
-// app.use(authMiddleware);
 app.use("/api/auth", authRouter);
 app.use("/api/store/products", SellerProductsRouter);
 app.use("/api/store/orders", SellerOrderRouter);
@@ -56,6 +55,7 @@ app.use("/api/shop/address", shopAddressRouter);
 app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
+app.use("/api/shop/store", shopStoreRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
 

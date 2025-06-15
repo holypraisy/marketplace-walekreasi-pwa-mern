@@ -12,7 +12,7 @@ const ProductSchema = new mongoose.Schema(
     averageReview: Number,
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Seller",
       required: true,
     },
     storeName: {

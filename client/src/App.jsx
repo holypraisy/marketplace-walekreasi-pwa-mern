@@ -18,12 +18,14 @@ import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
 
-
 import SellerDashboardLayout from "./components/seller-dashboard/layout";
 import SellerProducts from "./pages/seller-dashboard/products";
 import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
 import RegisterSeller from "./pages/auth/registerSeller";
+
+// ✅ Tambahkan ini:
+import StoreFrontPage from "./pages/shopping-view/store-page";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -51,6 +53,7 @@ function App() {
             ></CheckAuth>
           }
         />
+
         <Route
           path="/auth"
           element={
@@ -63,6 +66,9 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
           <Route path="register-seller" element={<RegisterSeller />} />
         </Route>
+
+
+
         <Route
           path="/store"
           element={
@@ -71,7 +77,7 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="profile" element={< SellerProfilePage/>} />
+          <Route path="profile" element={<SellerProfilePage />} />
           <Route path="products" element={<SellerProducts />} />
           <Route path="orders" element={<SellerOrders />} />
         </Route>
@@ -90,8 +96,10 @@ function App() {
           <Route path="account" element={<ShoppingAccount />} />
           <Route path="paypal-return" element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
-          <Route path="search" element={<SearchProducts />} />                                  
+          <Route path="search" element={<SearchProducts />} />
+          <Route path="store/:sellerId" element={<StoreFrontPage />} />
         </Route>
+
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
