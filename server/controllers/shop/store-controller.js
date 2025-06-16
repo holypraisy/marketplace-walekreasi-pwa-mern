@@ -23,6 +23,7 @@ const getStoreBySellerId = async (req, res) => {
       storeBannerUrl: seller.storeBannerUrl,
       storeDescription: seller.storeDescription,
       productionAddress: seller.productionAddress,
+      phoneNumber: seller.phoneNumber,
       products: products.map((product) => ({
         _id: product._id,
         title: product.title,

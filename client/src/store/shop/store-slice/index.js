@@ -49,6 +49,7 @@ const storeSlice = createSlice({
           storeBannerUrl: action.payload.storeBannerUrl,
           storeDescription: action.payload.storeDescription,
           productionAddress: action.payload.productionAddress,
+          phoneNumber: action.payload.phoneNumber,
         };
 
         // Simpan produk dengan proteksi terhadap kemungkinan undefined

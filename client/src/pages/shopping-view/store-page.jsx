@@ -6,6 +6,9 @@ import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { fetchCartItems, addToCart } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
+import {  MapPin } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
+
 
 const StoreFrontPage = () => {
   const { sellerId } = useParams();
@@ -28,7 +31,7 @@ const StoreFrontPage = () => {
   const handleGetProductDetails = (productId) => {
     const product = products.find((p) => p._id === productId);
     if (product) {
-      setProductDetailsLocal(product); // ✅ Ini cukup, tidak perlu Redux
+      setProductDetailsLocal(product); 
       setOpen(true);
     }
     
@@ -62,52 +65,77 @@ const StoreFrontPage = () => {
   };
 
   return (
-    <div className="p-4">
-      {store?.storeBannerUrl && (
+    <div className="p-8 lg:p-12 grid gap-12">
+      {/* {store?.storeBannerUrl && (
         <img
           src={store.storeBannerUrl}
           alt="Banner Toko"
           className="w-full h-48 object-cover rounded-xl mb-4"
         />
-      )}
+      )} */}
+      
+        <div className="rounded-xl shadow-md border-2 p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-start gap-4">
+            {store?.storeLogoUrl && (
+              <img
+                src={store.storeLogoUrl}
+                alt="Logo Toko"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border"
+              />
+            )}
+            <div>
+              <h1 className="text-lg md:text-2xl font-bold">{store?.storeName}</h1>
+              <p className="text-xs md:text-sm text-gray-600 flex items-center gap-1">
+                <MapPin className="w-3 md:w-4" />
+                {store?.productionAddress}
+              </p>
+            </div>
+          </div>
 
-      <div className="flex items-center gap-4 mb-6">
-        {store?.storeLogoUrl && (
-          <img
-            src={store.storeLogoUrl}
-            alt="Logo Toko"
-            className="w-20 h-20 rounded-full object-cover border"
-          />
-        )}
-        <div>
-          <h1 className="text-2xl font-bold">{store?.storeName}</h1>
-          <p className="text-sm text-gray-600">{store?.productionAddress}</p>
+          {store?.phoneNumber && (
+            <a
+              href={`https://wa.me/${store.phoneNumber.replace(/^0/, '62')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs md:text-sm font-medium px-3 py-2 rounded-md shadow-md"
+            >
+              <FaWhatsapp className="text-base" />
+              Chat Seller
+            </a>
+          )}
         </div>
+
+        {/* Deskripsi Toko */}
+        <div className="text-gray-800">
+          <h1 className="text-sm md:text-base font-medium">Deskripsi :</h1>
+          <p className="text-xs md:text-sm">{store?.storeDescription}</p>
+        </div>
+
+
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Etalase Toko</h2>
+        {Array.isArray(products) && products.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products.map((product) => (
+              <ShoppingProductTile
+                key={product._id}
+                product={product}
+                handleGetProductDetails={handleGetProductDetails}
+                handleAddtoCart={handleAddtoCart}
+              />
+            ))}
+          </div>
+        ) : (
+          <p>Toko ini belum memiliki produk.</p>
+        )}
+
+        <ProductDetailsDialog
+          open={open}
+          setOpen={setOpen}
+          productDetails={productDetails}
+        />
       </div>
 
-      <p className="mb-6 text-gray-800">{store?.storeDescription}</p>
-
-      <h2 className="text-xl font-semibold mb-4">Etalase Produk</h2>
-      {Array.isArray(products) && products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {products.map((product) => (
-            <ShoppingProductTile
-              key={product._id}
-              product={product}
-              handleGetProductDetails={handleGetProductDetails}
-              handleAddtoCart={handleAddtoCart}
-            />
-          ))}
-        </div>
-      ) : (
-        <p>Toko ini belum memiliki produk.</p>
-      )}
-
-      <ProductDetailsDialog
-        open={open}
-        setOpen={setOpen}
-        productDetails={productDetails}
-      />
     </div>
   );
 };
