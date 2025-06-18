@@ -14,7 +14,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
-import PaypalReturnPage from "./pages/shopping-view/paypal-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
 
@@ -24,7 +23,7 @@ import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
 import RegisterSeller from "./pages/auth/registerSeller";
 
-// ✅ Tambahkan ini:
+// ✅ Tetap gunakan
 import StoreFrontPage from "./pages/shopping-view/store-page";
 
 function App() {
@@ -39,18 +38,13 @@ function App() {
 
   if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
 
-  console.log(isLoading, user);
-
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
         <Route
           path="/"
           element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} />
           }
         />
 
@@ -66,8 +60,6 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
           <Route path="register-seller" element={<RegisterSeller />} />
         </Route>
-
-
 
         <Route
           path="/store"
@@ -94,7 +86,6 @@ function App() {
           <Route path="listing" element={<ShoppingListing />} />
           <Route path="checkout" element={<ShoppingCheckout />} />
           <Route path="account" element={<ShoppingAccount />} />
-          <Route path="paypal-return" element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="search" element={<SearchProducts />} />
           <Route path="store/:sellerId" element={<StoreFrontPage />} />

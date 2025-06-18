@@ -2,20 +2,16 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Separator } from "../ui/separator";
-import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
-import { Label } from "../ui/label";
 import { useEffect, useState } from "react";
-import { addReview, getReviews } from "@/store/shop/review-slice";
+import { getReviews } from "@/store/shop/review-slice";
 import { Link } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { Store, ShoppingCart } from "lucide-react";
-import StarRatingComponent from "../common/star-rating"; 
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
-  const [reviewMsg, setReviewMsg] = useState("");
   const [rating, setRating] = useState(0);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -53,26 +49,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   function handleDialogClose() {
     setOpen(false);
     setRating(0);
-    setReviewMsg("");
-  }
-
-  function handleAddReview() {
-    dispatch(
-      addReview({
-        productId: productDetails?._id,
-        userId: user?.id,
-        userName: user?.userName,
-        reviewMessage: reviewMsg,
-        reviewValue: rating,
-      })
-    ).then((data) => {
-      if (data.payload.success) {
-        setRating(0);
-        setReviewMsg("");
-        dispatch(getReviews(productDetails?._id));
-        toast({ title: "Review berhasil ditambahkan!" });
-      }
-    });
   }
 
   useEffect(() => {
@@ -99,7 +75,9 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
         <div>
           <DialogTitle asChild>
-            <h1 className="text-2xl md:text-3xl font-extrabold">{productDetails?.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold">
+              {productDetails?.title}
+            </h1>
           </DialogTitle>
 
           {/* Rating */}
@@ -108,7 +86,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             <span>{averageReview.toFixed(1)}</span>
           </div>
 
-          
           {/* Deskripsi */}
           <div className="mt-4">
             <h2 className="text-sm text-muted-foreground mb-1">Deskripsi:</h2>
@@ -117,14 +94,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             </p>
           </div>
 
-
           {/* Info toko + kunjungi */}
           {productDetails?.storeName && productDetails?.sellerId && (
             <div className="flex justify-between items-center mt-3">
               <div className="text-sm flex items-center gap-1 text-muted-foreground">
                 <Store className="text-primary w-5" />
-                <span className="font-bold text-base  text-gray-800">
-                   {productDetails.storeName}
+                <span className="font-bold text-base text-gray-800">
+                  {productDetails.storeName}
                 </span>
               </div>
               <Link
@@ -143,15 +119,14 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 productDetails?.salePrice > 0 ? "line-through" : ""
               }`}
             >
-              ${productDetails?.price}
+              Rp.{productDetails?.price}
             </p>
             {productDetails?.salePrice > 0 && (
               <p className="text-2xl font-bold text-muted-foreground">
-                ${productDetails.salePrice}
+                Rp.{productDetails.salePrice}
               </p>
             )}
           </div>
-
 
           {/* Tombol Add to Cart */}
           <div className="mt-5 mb-5 grid justify-end">
@@ -166,21 +141,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 }
                 className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md transition-all duration-300 overflow-hidden group"
               >
-                {/* Ikon keranjang */}
                 <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-
-                {/* Teks yang muncul saat hover */}
                 <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
                   Tambah ke Keranjang
                 </span>
               </button>
             )}
           </div>
-
-
-
-
-
 
           <Separator />
 
@@ -209,29 +176,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               ) : (
                 <p className="text-sm text-muted-foreground">Belum ada ulasan.</p>
               )}
-            </div>
-
-            {/* ⭐ Input Review: Tetap 5 bintang */}
-            <div className="mt-8 flex flex-col gap-2">
-              <Label>Berikan Ulasan</Label>
-              <div className="flex gap-1">
-                <StarRatingComponent
-                  rating={rating}
-                  handleRatingChange={(value) => setRating(value)}
-                />
-              </div>
-              <Input
-                name="reviewMsg"
-                value={reviewMsg}
-                onChange={(e) => setReviewMsg(e.target.value)}
-                placeholder="Tulis ulasan Anda..."
-              />
-              <Button
-                onClick={handleAddReview}
-                disabled={reviewMsg.trim() === ""}
-              >
-                Kirim
-              </Button>
             </div>
           </div>
         </div>

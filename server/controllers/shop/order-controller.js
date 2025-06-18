@@ -1,162 +1,138 @@
-const paypal = require("../../helpers/paypal");
+const snap = require("../../helpers/midtrans"); // file konfigurasi Midtrans
 const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 
+// Membuat pesanan dan token Midtrans Snap
 const createOrder = async (req, res) => {
   try {
     const {
       userId,
+      cartId,
       cartItems,
       addressInfo,
-      orderStatus,
-      paymentMethod,
-      paymentStatus,
       totalAmount,
-      orderDate,
-      orderUpdateDate,
-      paymentId,
-      payerId,
-      cartId,
     } = req.body;
 
-    const create_payment_json = {
-      intent: "sale",
-      payer: {
-        payment_method: "paypal",
-      },
-      redirect_urls: {
-        return_url: "http://localhost:5173/shop/paypal-return",
-        cancel_url: "http://localhost:5173/shop/paypal-cancel",
-      },
-      transactions: [
-        {
-          item_list: {
-            items: cartItems.map((item) => ({
-              name: item.title,
-              sku: item.productId,
-              price: item.price.toFixed(2),
-              currency: "USD",
-              quantity: item.quantity,
-            })),
-          },
-          amount: {
-            currency: "USD",
-            total: totalAmount.toFixed(2),
-          },
-          description: "description",
-        },
-      ],
-    };
-
-    paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
-      if (error) {
-        console.log(error);
-
-        return res.status(500).json({
-          success: false,
-          message: "Error while creating paypal payment",
-        });
-      } else {
-        const newlyCreatedOrder = new Order({
-          userId,
-          cartId,
-          cartItems,
-          addressInfo,
-          orderStatus,
-          paymentMethod,
-          paymentStatus,
-          totalAmount,
-          orderDate,
-          orderUpdateDate,
-          paymentId,
-          payerId,
-        });
-
-        await newlyCreatedOrder.save();
-
-        const approvalURL = paymentInfo.links.find(
-          (link) => link.rel === "approval_url"
-        ).href;
-
-        res.status(201).json({
-          success: true,
-          approvalURL,
-          orderId: newlyCreatedOrder._id,
-        });
-      }
+    // Simpan data order sementara dengan status pending
+    const newOrder = new Order({
+      userId,
+      cartId,
+      cartItems,
+      addressInfo,
+      orderStatus: "pending",
+      paymentMethod: "midtrans",
+      paymentStatus: "unpaid",
+      totalAmount,
+      orderDate: new Date(),
     });
-  } catch (e) {
-    console.log(e);
+
+    await newOrder.save();
+
+    const transaction = await snap.createTransaction({
+      transaction_details: {
+        order_id: newOrder._id.toString(),
+        gross_amount: totalAmount,
+      },
+      customer_details: {
+        first_name: userId,
+        phone: addressInfo.phone,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      snapToken: transaction.token,
+      orderId: newOrder._id,
+    });
+  } catch (err) {
+    console.error("Midtrans error:", err);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Gagal membuat pesanan",
     });
   }
 };
 
+// Handler untuk konfirmasi pembayaran manual dari frontend
 const capturePayment = async (req, res) => {
   try {
-    const { paymentId, payerId, orderId } = req.body;
+    const { orderId, transactionStatus } = req.body;
 
-    let order = await Order.findById(orderId);
-
+    const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order can not be found",
+        message: "Order tidak ditemukan",
       });
     }
 
-    order.paymentStatus = "paid";
-    order.orderStatus = "confirmed";
-    order.paymentId = paymentId;
-    order.payerId = payerId;
+    if (["settlement", "capture"].includes(transactionStatus)) {
+      order.paymentStatus = "paid";
+      order.orderStatus = "confirmed";
+      order.orderUpdateDate = new Date();
 
-    for (let item of order.cartItems) {
-      let product = await Product.findById(item.productId);
-
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: `Not enough stock for this product ${product.title}`,
-        });
+      // Kurangi stok produk
+      for (let item of order.cartItems) {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          product.totalStock -= item.quantity;
+          await product.save();
+        }
       }
 
-      product.totalStock -= item.quantity;
-
-      await product.save();
+      // Hapus cart
+      await Cart.findByIdAndDelete(order.cartId);
+      await order.save();
     }
-
-    const getCartId = order.cartId;
-    await Cart.findByIdAndDelete(getCartId);
-
-    await order.save();
 
     res.status(200).json({
       success: true,
-      message: "Order confirmed",
-      data: order,
+      message: "Pembayaran dikonfirmasi",
     });
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.error("Capture error:", err);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Terjadi kesalahan saat memproses pembayaran",
     });
   }
 };
 
+// Handler webhook dari Midtrans
+const midtransCallback = async (req, res) => {
+  try {
+    const { order_id, transaction_status } = req.body;
+
+    const order = await Order.findById(order_id);
+    if (!order) return res.status(404).send("Order not found");
+
+    if (["settlement", "capture"].includes(transaction_status)) {
+      order.paymentStatus = "paid";
+      order.orderStatus = "confirmed";
+      order.orderUpdateDate = new Date();
+
+      await Cart.findByIdAndDelete(order.cartId);
+      await order.save();
+    }
+
+    res.status(200).send("OK");
+  } catch (err) {
+    console.error("Callback error:", err);
+    res.status(500).send("Gagal memproses callback");
+  }
+};
+
+// Mendapatkan semua pesanan berdasarkan userId
 const getAllOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-
     const orders = await Order.find({ userId });
 
     if (!orders.length) {
       return res.status(404).json({
         success: false,
-        message: "No orders found!",
+        message: "Tidak ada pesanan ditemukan",
       });
     }
 
@@ -164,25 +140,25 @@ const getAllOrdersByUser = async (req, res) => {
       success: true,
       data: orders,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.error("Fetch orders error:", err);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Gagal mengambil pesanan",
     });
   }
 };
 
+// Mendapatkan detail pesanan berdasarkan id
 const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
     const order = await Order.findById(id);
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found!",
+        message: "Pesanan tidak ditemukan",
       });
     }
 
@@ -190,11 +166,11 @@ const getOrderDetails = async (req, res) => {
       success: true,
       data: order,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.error("Get order detail error:", err);
     res.status(500).json({
       success: false,
-      message: "Some error occured!",
+      message: "Gagal mengambil detail pesanan",
     });
   }
 };
@@ -204,4 +180,5 @@ module.exports = {
   capturePayment,
   getAllOrdersByUser,
   getOrderDetails,
+  midtransCallback,
 };

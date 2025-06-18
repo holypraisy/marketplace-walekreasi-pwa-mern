@@ -5,63 +5,50 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { Navigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
-  const { approvalURL } = useSelector((state) => state.shopOrder);
-  const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
-  const [isPaymentStart, setIsPaymemntStart] = useState(false);
   const dispatch = useDispatch();
   const { toast } = useToast();
-
-  console.log(currentSelectedAddress, "cartItems");
+  const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
+  const [isPaymentStart, setIsPaymentStart] = useState(false);
 
   const totalCartAmount =
-    cartItems && cartItems.items && cartItems.items.length > 0
+    cartItems?.items?.length > 0
       ? cartItems.items.reduce(
-          (sum, currentItem) =>
+          (sum, item) =>
             sum +
-            (currentItem?.salePrice > 0
-              ? currentItem?.salePrice
-              : currentItem?.price) *
-              currentItem?.quantity,
+            (item?.salePrice && item?.salePrice > 0
+              ? item.salePrice
+              : item.price) * item.quantity,
           0
         )
       : 0;
 
-  function handleInitiatePaypalPayment() {
-    if (cartItems.length === 0) {
-      toast({
-        title: "Your cart is empty. Please add items to proceed",
-        variant: "destructive",
-      });
-
+  function handleInitiateMidtransPayment() {
+    if (!cartItems?.items?.length) {
+      toast({ title: "Keranjang kosong.", variant: "destructive" });
       return;
     }
-    if (currentSelectedAddress === null) {
-      toast({
-        title: "Please select one address to proceed.",
-        variant: "destructive",
-      });
-
+    if (!currentSelectedAddress) {
+      toast({ title: "Pilih alamat pengiriman.", variant: "destructive" });
       return;
     }
 
     const orderData = {
       userId: user?.id,
       cartId: cartItems?._id,
-      cartItems: cartItems.items.map((singleCartItem) => ({
-        productId: singleCartItem?.productId,
-        title: singleCartItem?.title,
-        image: singleCartItem?.image,
+      cartItems: cartItems.items.map((item) => ({
+        productId: item?.productId,
+        title: item?.title,
+        image: item?.image,
         price:
-          singleCartItem?.salePrice > 0
-            ? singleCartItem?.salePrice
-            : singleCartItem?.price,
-        quantity: singleCartItem?.quantity,
+          item?.salePrice && item?.salePrice > 0
+            ? item?.salePrice
+            : item?.price,
+        quantity: item?.quantity,
       })),
       addressInfo: {
         addressId: currentSelectedAddress?._id,
@@ -72,27 +59,39 @@ function ShoppingCheckout() {
         notes: currentSelectedAddress?.notes,
       },
       orderStatus: "pending",
-      paymentMethod: "paypal",
+      paymentMethod: "midtrans",
       paymentStatus: "pending",
-      totalAmount: totalCartAmount,
+      totalAmount: Number(totalCartAmount),
       orderDate: new Date(),
       orderUpdateDate: new Date(),
-      paymentId: "",
-      payerId: "",
     };
 
+    setIsPaymentStart(true);
     dispatch(createNewOrder(orderData)).then((data) => {
-      console.log(data, "sangam");
-      if (data?.payload?.success) {
-        setIsPaymemntStart(true);
+      const snapToken = data?.payload?.snapToken;
+      if (snapToken) {
+        window.snap.pay(snapToken, {
+          onSuccess: () => {
+            window.location.href = "/shop/payment-success";
+          },
+          onPending: () => {
+            toast({ title: "Transaksi tertunda." });
+          },
+          onError: () => {
+            toast({ title: "Pembayaran gagal.", variant: "destructive" });
+          },
+          onClose: () => {
+            toast({ title: "Transaksi dibatalkan." });
+          },
+        });
       } else {
-        setIsPaymemntStart(false);
+        setIsPaymentStart(false);
+        toast({
+          title: "Gagal membuat pesanan atau mengambil snap token.",
+          variant: "destructive",
+        });
       }
     });
-  }
-
-  if (approvalURL) {
-    window.location.href = approvalURL;
   }
 
   return (
@@ -106,11 +105,9 @@ function ShoppingCheckout() {
           setCurrentSelectedAddress={setCurrentSelectedAddress}
         />
         <div className="flex flex-col gap-4">
-          {cartItems && cartItems.items && cartItems.items.length > 0
-            ? cartItems.items.map((item) => (
-                <UserCartItemsContent cartItem={item} />
-              ))
-            : null}
+          {cartItems?.items?.map((item) => (
+            <UserCartItemsContent cartItem={item} key={item.productId} />
+          ))}
           <div className="mt-8 space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Total</span>
@@ -118,10 +115,14 @@ function ShoppingCheckout() {
             </div>
           </div>
           <div className="mt-4 w-full">
-            <Button onClick={handleInitiatePaypalPayment} className="w-full">
+            <Button
+              onClick={handleInitiateMidtransPayment}
+              className="w-full"
+              disabled={isPaymentStart}
+            >
               {isPaymentStart
-                ? "Processing Paypal Payment..."
-                : "Checkout with Paypal"}
+                ? "Memproses Pembayaran..."
+                : "Bayar dengan Midtrans"}
             </Button>
           </div>
         </div>

@@ -64,7 +64,7 @@ const sellerOrderSlice = createSlice({
       .addCase(getAllOrdersForSeller.rejected, (state) => {
         state.isLoading = false;
         state.orderList = [];
-      })
+      }) 
       .addCase(getOrderDetailsForSeller.pending, (state) => {
         state.isLoading = true;
       })

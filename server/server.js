@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
+// Route imports...
 const authRouter = require("./routes/auth/auth-routes");
 const SellerProductsRouter = require("./routes/seller/products-routes");
 const SellerOrderRouter = require("./routes/seller/order-routes");
@@ -13,11 +15,7 @@ const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 const shopStoreRouter = require("./routes/shop/store-routes");
-
 const commonFeatureRouter = require("./routes/common/feature-routes");
-
-//create a database connection -> u can also
-//create a separate file for this and then import/use that file here
 
 mongoose
   .connect("mongodb+srv://lapianholly:marketplaceDatabase@cluster0.vry0zu8.mongodb.net/")
@@ -27,28 +25,28 @@ mongoose
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ✅ Raw body parser khusus untuk Midtrans webhook
+app.use("/api/shop/order/midtrans-callback", express.raw({ type: "*/*" }));
+
+// ✅ JSON parser untuk semua route lainnya
+app.use(express.json());
+
+app.use(cookieParser());
+
 app.use(
   cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "Expires",
-      "Pragma",
-    ],
+    allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "Expires", "Pragma"],
     credentials: true,
   })
 );
 
-app.use(cookieParser());
-app.use(express.json());
+// Route setup
 app.use("/api/auth", authRouter);
 app.use("/api/store/products", SellerProductsRouter);
 app.use("/api/store/orders", SellerOrderRouter);
 app.use("/api/store/profile", SellerProfileRouter);
-
 app.use("/api/shop/products", shopProductsRouter);
 app.use("/api/shop/cart", shopCartRouter);
 app.use("/api/shop/address", shopAddressRouter);
@@ -56,7 +54,6 @@ app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 app.use("/api/shop/store", shopStoreRouter);
-
 app.use("/api/common/feature", commonFeatureRouter);
 
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
