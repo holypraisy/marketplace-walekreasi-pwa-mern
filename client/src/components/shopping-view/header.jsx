@@ -96,7 +96,7 @@ function HeaderRightContent() {
           <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
             {cartItems?.items?.length || 0}
           </span>
-          <span className="sr-only">User cart</span>
+          <span className="sr-only">Keranjang belanja</span>
         </Button>
         <UserCartWrapper
           setOpenCartSheet={setOpenCartSheet}

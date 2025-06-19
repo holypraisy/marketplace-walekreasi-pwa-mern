@@ -1,4 +1,4 @@
-const snap = require("../../helpers/midtrans"); // file konfigurasi Midtrans
+const snap = require("../../helpers/midtrans");
 const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");

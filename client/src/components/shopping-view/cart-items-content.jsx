@@ -31,7 +31,7 @@ function UserCartItemsContent({ cartItem }) {
           const getQuantity = getCartItems[indexOfCurrentCartItem].quantity;
           if (getQuantity + 1 > getTotalStock) {
             toast({
-              title: `Only ${getQuantity} quantity can be added for this item`,
+              title: `Item ini hanya bisa ditambahkan sebanyak ${getQuantity}.`,
               variant: "destructive",
             });
 
@@ -53,7 +53,7 @@ function UserCartItemsContent({ cartItem }) {
     ).then((data) => {
       if (data?.payload?.success) {
         toast({
-          title: "Cart item is updated successfully",
+          title: "Isi keranjang sudah diperbarui.",
         });
       }
     });
@@ -65,7 +65,7 @@ function UserCartItemsContent({ cartItem }) {
     ).then((data) => {
       if (data?.payload?.success) {
         toast({
-          title: "Cart item is deleted successfully",
+          title: "Barang di keranjang berhasil dihapus.",
         });
       }
     });
