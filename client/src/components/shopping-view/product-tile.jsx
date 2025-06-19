@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { categoryOptionsMap } from "@/config";
 import { Badge } from "../ui/badge";
+import { ShoppingCart } from "lucide-react";
 
 function ShoppingProductTile({
   product,
@@ -61,14 +62,17 @@ function ShoppingProductTile({
       <CardFooter>
         {product?.totalStock === 0 ? (
           <Button className="w-full opacity-60 cursor-not-allowed">
-            Out Of Stock
+            Stok Habis
           </Button>
         ) : (
           <Button
             onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
-            className="w-full"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md transition-all duration-300 overflow-hidden group"
           >
-            Add to cart
+            <ShoppingCart className="h-5 w-5 flex-shrink-0" />
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
+                  Tambah ke Keranjang
+              </span>
           </Button>
         )}
       </CardFooter>

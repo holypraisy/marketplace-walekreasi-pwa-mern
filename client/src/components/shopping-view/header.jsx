@@ -142,7 +142,6 @@ function ShoppingHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="flex h-16 items-center justify-between px-4 lg:px-12 gap-4">
-        {/* 👈 Logo */}
         <Link to="/shop/home" className="flex items-center gap-2 shrink-0">
           <img
             src={logoWaleKreasi}
@@ -152,7 +151,6 @@ function ShoppingHeader() {
           <span className="font-bold text-xl lg:text-2xl">Wale Kreasi</span>
         </Link>
 
-        {/* 🔍 Search bar (center on desktop) */}
         <div
           onClick={() => window.location.href = "/shop/search"}
           className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition-colors w-full max-w-md cursor-pointer"
@@ -161,7 +159,6 @@ function ShoppingHeader() {
           <span className="text-sm text-muted-foreground">Cari produk...</span>
         </div>
 
-        {/* 👉 Right content */}
         <div className="hidden lg:flex items-center gap-4">
           <HeaderRightContent />
         </div>
@@ -182,7 +179,6 @@ function ShoppingHeader() {
         </Sheet>
       </div>
 
-      {/* 📁 Menu bawah (desktop) */}
       <div className="hidden lg:flex justify-center border-t px-6 py-2">
         <MenuItems />
       </div>

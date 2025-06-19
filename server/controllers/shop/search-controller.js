@@ -5,8 +5,8 @@ const searchProducts = async (req, res) => {
     const { keyword } = req.params;
     if (!keyword || typeof keyword !== "string") {
       return res.status(400).json({
-        succes: false,
-        message: "Keyword is required and must be in string format",
+        success: false,
+        message: "Kata kunci wajib diisi dan harus berupa teks.",
       });
     }
 
@@ -31,7 +31,7 @@ const searchProducts = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan saat melakukan pencarian.",
     });
   }
 };

@@ -58,15 +58,11 @@ function ShoppingCheckout() {
         phone: currentSelectedAddress?.phone,
         notes: currentSelectedAddress?.notes,
       },
-      orderStatus: "pending",
-      paymentMethod: "midtrans",
-      paymentStatus: "pending",
       totalAmount: Number(totalCartAmount),
-      orderDate: new Date(),
-      orderUpdateDate: new Date(),
     };
 
     setIsPaymentStart(true);
+
     dispatch(createNewOrder(orderData)).then((data) => {
       const snapToken = data?.payload?.snapToken;
       if (snapToken) {
@@ -111,7 +107,7 @@ function ShoppingCheckout() {
           <div className="mt-8 space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Total</span>
-              <span className="font-bold">${totalCartAmount}</span>
+              <span className="font-bold">Rp{totalCartAmount.toLocaleString("id-ID")}</span>
             </div>
           </div>
           <div className="mt-4 w-full">
@@ -122,7 +118,7 @@ function ShoppingCheckout() {
             >
               {isPaymentStart
                 ? "Memproses Pembayaran..."
-                : "Bayar dengan Midtrans"}
+                : "Bayar"}
             </Button>
           </div>
         </div>

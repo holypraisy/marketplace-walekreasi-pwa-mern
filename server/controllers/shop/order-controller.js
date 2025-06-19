@@ -14,47 +14,52 @@ const createOrder = async (req, res) => {
       totalAmount,
     } = req.body;
 
-    // Simpan data order sementara dengan status pending
+    // Simpan pesanan sementara dengan status pending
     const newOrder = new Order({
       userId,
       cartId,
       cartItems,
       addressInfo,
-      orderStatus: "pending",
-      paymentMethod: "midtrans",
-      paymentStatus: "unpaid",
+      orderStatus: "Menunggu Konfirmasi",
+      paymentStatus: "Belum Dibayar",
       totalAmount,
       orderDate: new Date(),
     });
 
     await newOrder.save();
 
+    // Buat transaksi Midtrans
     const transaction = await snap.createTransaction({
       transaction_details: {
         order_id: newOrder._id.toString(),
         gross_amount: totalAmount,
       },
-      customer_details: {
-        first_name: userId,
-        phone: addressInfo.phone,
+      credit_card: {
+        secure: true
       },
+      customer_details: {
+        first_name: addressInfo?.receiverName,
+        phone: addressInfo?.phone,
+        email: addressInfo?.email
+      }
     });
 
     res.status(201).json({
       success: true,
       snapToken: transaction.token,
+      redirectUrl: transaction.redirect_url,
       orderId: newOrder._id,
     });
   } catch (err) {
     console.error("Midtrans error:", err);
     res.status(500).json({
       success: false,
-      message: "Gagal membuat pesanan",
+      message: "Gagal membuat pesanan. Silakan coba lagi nanti.",
     });
   }
 };
 
-// Handler untuk konfirmasi pembayaran manual dari frontend
+// Konfirmasi pembayaran manual (jika tidak menggunakan webhook)
 const capturePayment = async (req, res) => {
   try {
     const { orderId, transactionStatus } = req.body;
@@ -63,13 +68,13 @@ const capturePayment = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order tidak ditemukan",
+        message: "Pesanan tidak ditemukan.",
       });
     }
 
     if (["settlement", "capture"].includes(transactionStatus)) {
-      order.paymentStatus = "paid";
-      order.orderStatus = "confirmed";
+      order.paymentStatus = "Terbayar";
+      order.orderStatus = "Dikonfirmasi";
       order.orderUpdateDate = new Date();
 
       // Kurangi stok produk
@@ -81,45 +86,45 @@ const capturePayment = async (req, res) => {
         }
       }
 
-      // Hapus cart
+      // Hapus keranjang
       await Cart.findByIdAndDelete(order.cartId);
       await order.save();
     }
 
     res.status(200).json({
       success: true,
-      message: "Pembayaran dikonfirmasi",
+      message: "Pembayaran berhasil dikonfirmasi.",
     });
   } catch (err) {
     console.error("Capture error:", err);
     res.status(500).json({
       success: false,
-      message: "Terjadi kesalahan saat memproses pembayaran",
+      message: "Terjadi kesalahan saat memproses pembayaran.",
     });
   }
 };
 
-// Handler webhook dari Midtrans
+// Webhook dari Midtrans
 const midtransCallback = async (req, res) => {
   try {
     const { order_id, transaction_status } = req.body;
 
     const order = await Order.findById(order_id);
-    if (!order) return res.status(404).send("Order not found");
+    if (!order) return res.status(404).send("Pesanan tidak ditemukan.");
 
     if (["settlement", "capture"].includes(transaction_status)) {
-      order.paymentStatus = "paid";
-      order.orderStatus = "confirmed";
+      order.paymentStatus = "Terbayar";
+      order.orderStatus = "Dikonfirmasi";
       order.orderUpdateDate = new Date();
 
       await Cart.findByIdAndDelete(order.cartId);
       await order.save();
     }
 
-    res.status(200).send("OK");
+    res.status(200).send("Callback berhasil diproses.");
   } catch (err) {
     console.error("Callback error:", err);
-    res.status(500).send("Gagal memproses callback");
+    res.status(500).send("Gagal memproses callback.");
   }
 };
 
@@ -132,7 +137,7 @@ const getAllOrdersByUser = async (req, res) => {
     if (!orders.length) {
       return res.status(404).json({
         success: false,
-        message: "Tidak ada pesanan ditemukan",
+        message: "Tidak ada pesanan yang ditemukan.",
       });
     }
 
@@ -144,12 +149,12 @@ const getAllOrdersByUser = async (req, res) => {
     console.error("Fetch orders error:", err);
     res.status(500).json({
       success: false,
-      message: "Gagal mengambil pesanan",
+      message: "Gagal mengambil daftar pesanan.",
     });
   }
 };
 
-// Mendapatkan detail pesanan berdasarkan id
+// Mendapatkan detail pesanan berdasarkan ID
 const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
@@ -158,7 +163,7 @@ const getOrderDetails = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Pesanan tidak ditemukan",
+        message: "Detail pesanan tidak ditemukan.",
       });
     }
 
@@ -170,7 +175,7 @@ const getOrderDetails = async (req, res) => {
     console.error("Get order detail error:", err);
     res.status(500).json({
       success: false,
-      message: "Gagal mengambil detail pesanan",
+      message: "Gagal mengambil detail pesanan.",
     });
   }
 };

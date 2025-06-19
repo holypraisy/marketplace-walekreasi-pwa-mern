@@ -2,22 +2,23 @@ const Address = require("../../models/Address");
 
 const addAddress = async (req, res) => {
   try {
-    const { userId, address, city, pincode, phone, notes } = req.body;
+    const { userId, receiverName, address, city, pincode, phone, notes } = req.body;
 
-    if (!userId || !address || !city || !pincode || !phone || !notes) {
+    if (!userId || !receiverName || !address || !city || !pincode || !phone || !notes) {
       return res.status(400).json({
         success: false,
-        message: "Invalid data provided!",
+        message: "Data yang diberikan tidak valid!",
       });
     }
 
     const newlyCreatedAddress = new Address({
       userId,
+      receiverName,
       address,
       city,
       pincode,
-      notes,
       phone,
+      notes,
     });
 
     await newlyCreatedAddress.save();
@@ -30,10 +31,11 @@ const addAddress = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
+
 
 const fetchAllAddress = async (req, res) => {
   try {
@@ -41,7 +43,7 @@ const fetchAllAddress = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User id is required!",
+        message: "ID pengguna wajib diisi!",
       });
     }
 
@@ -55,7 +57,7 @@ const fetchAllAddress = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
@@ -68,7 +70,7 @@ const editAddress = async (req, res) => {
     if (!userId || !addressId) {
       return res.status(400).json({
         success: false,
-        message: "User and address id is required!",
+        message: "ID pengguna dan ID alamat wajib diisi!",
       });
     }
 
@@ -84,7 +86,7 @@ const editAddress = async (req, res) => {
     if (!address) {
       return res.status(404).json({
         success: false,
-        message: "Address not found",
+        message: "Alamat tidak ditemukan.",
       });
     }
 
@@ -96,7 +98,7 @@ const editAddress = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
@@ -107,7 +109,7 @@ const deleteAddress = async (req, res) => {
     if (!userId || !addressId) {
       return res.status(400).json({
         success: false,
-        message: "User and address id is required!",
+        message: "ID pengguna dan ID alamat wajib diisi!",
       });
     }
 
@@ -116,19 +118,19 @@ const deleteAddress = async (req, res) => {
     if (!address) {
       return res.status(404).json({
         success: false,
-        message: "Address not found",
+        message: "Alamat tidak ditemukan.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Address deleted successfully",
+      message: "Alamat berhasil dihapus.",
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };

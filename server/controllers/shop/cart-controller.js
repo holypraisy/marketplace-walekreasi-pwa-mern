@@ -8,7 +8,7 @@ const addToCart = async (req, res) => {
     if (!userId || !productId || quantity <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Invalid data provided!",
+        message: "Data yang diberikan tidak valid!",
       });
     }
 
@@ -17,7 +17,7 @@ const addToCart = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Produk tidak ditemukan.",
       });
     }
 
@@ -46,7 +46,7 @@ const addToCart = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
@@ -58,7 +58,7 @@ const fetchCartItems = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User id is manadatory!",
+        message: "ID pengguna wajib diisi!",
       });
     }
 
@@ -70,7 +70,7 @@ const fetchCartItems = async (req, res) => {
     if (!cart) {
       return res.status(404).json({
         success: false,
-        message: "Cart not found!",
+        message: "Keranjang tidak ditemukan.",
       });
     }
 
@@ -103,7 +103,7 @@ const fetchCartItems = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
@@ -115,7 +115,7 @@ const updateCartItemQty = async (req, res) => {
     if (!userId || !productId || quantity <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Invalid data provided!",
+        message: "Data yang diberikan tidak valid!",
       });
     }
 
@@ -123,7 +123,7 @@ const updateCartItemQty = async (req, res) => {
     if (!cart) {
       return res.status(404).json({
         success: false,
-        message: "Cart not found!",
+        message: "Keranjang tidak ditemukan.",
       });
     }
 
@@ -134,7 +134,7 @@ const updateCartItemQty = async (req, res) => {
     if (findCurrentProductIndex === -1) {
       return res.status(404).json({
         success: false,
-        message: "Cart item not present !",
+        message: "Produk tidak ditemukan di keranjang.",
       });
     }
 
@@ -149,7 +149,7 @@ const updateCartItemQty = async (req, res) => {
     const populateCartItems = cart.items.map((item) => ({
       productId: item.productId ? item.productId._id : null,
       image: item.productId ? item.productId.image : null,
-      title: item.productId ? item.productId.title : "Product not found",
+      title: item.productId ? item.productId.title : "Produk tidak ditemukan",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
       quantity: item.quantity,
@@ -166,7 +166,7 @@ const updateCartItemQty = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };
@@ -177,7 +177,7 @@ const deleteCartItem = async (req, res) => {
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
-        message: "Invalid data provided!",
+        message: "Data yang diberikan tidak valid!",
       });
     }
 
@@ -189,7 +189,7 @@ const deleteCartItem = async (req, res) => {
     if (!cart) {
       return res.status(404).json({
         success: false,
-        message: "Cart not found!",
+        message: "Keranjang tidak ditemukan.",
       });
     }
 
@@ -207,7 +207,7 @@ const deleteCartItem = async (req, res) => {
     const populateCartItems = cart.items.map((item) => ({
       productId: item.productId ? item.productId._id : null,
       image: item.productId ? item.productId.image : null,
-      title: item.productId ? item.productId.title : "Product not found",
+      title: item.productId ? item.productId.title : "Produk tidak ditemukan",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
       quantity: item.quantity,
@@ -224,7 +224,7 @@ const deleteCartItem = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan pada server.",
     });
   }
 };

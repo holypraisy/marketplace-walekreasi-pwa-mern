@@ -23,9 +23,10 @@ function AddressCard({
       }`}
     >
       <CardContent className="grid p-4 gap-4">
+        <Label>Nama Penerima: {addressInfo?.receiverName}</Label> 
         <Label>Alamat: {addressInfo?.address}</Label>
         <Label>Kota/Kabupaten: {addressInfo?.city}</Label>
-        <Label>Kode POs: {addressInfo?.pincode}</Label>
+        <Label>Kode Pos: {addressInfo?.pincode}</Label>
         <Label>Nomor Telepon: {addressInfo?.phone}</Label>
         <Label>Catatan: {addressInfo?.notes}</Label>
       </CardContent>

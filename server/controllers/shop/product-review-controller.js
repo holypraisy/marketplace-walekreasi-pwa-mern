@@ -4,8 +4,7 @@ const ProductReview = require("../../models/Review");
 
 const addProductReview = async (req, res) => {
   try {
-    const { productId, userId, userName, reviewMessage, reviewValue } =
-      req.body;
+    const { productId, userId, userName, reviewMessage, reviewValue } = req.body;
 
     const order = await Order.findOne({
       userId,
@@ -16,19 +15,19 @@ const addProductReview = async (req, res) => {
     if (!order) {
       return res.status(403).json({
         success: false,
-        message: "You need to purchase product to review it.",
+        message: "Anda harus membeli produk ini terlebih dahulu sebelum memberikan ulasan.",
       });
     }
 
-    const checkExistinfReview = await ProductReview.findOne({
+    const existingReview = await ProductReview.findOne({
       productId,
       userId,
     });
 
-    if (checkExistinfReview) {
+    if (existingReview) {
       return res.status(400).json({
         success: false,
-        message: "You already reviewed this product!",
+        message: "Anda sudah pernah memberikan ulasan untuk produk ini.",
       });
     }
 
@@ -45,8 +44,7 @@ const addProductReview = async (req, res) => {
     const reviews = await ProductReview.find({ productId });
     const totalReviewsLength = reviews.length;
     const averageReview =
-      reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
-      totalReviewsLength;
+      reviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) / totalReviewsLength;
 
     await Product.findByIdAndUpdate(productId, { averageReview });
 
@@ -58,7 +56,7 @@ const addProductReview = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Terjadi kesalahan saat menyimpan ulasan.",
     });
   }
 };
@@ -76,7 +74,7 @@ const getProductReviews = async (req, res) => {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Gagal mengambil daftar ulasan.",
     });
   }
 };

@@ -13,6 +13,7 @@ import AddressCard from "./address-card";
 import { useToast } from "../ui/use-toast";
 
 const initialAddressFormData = {
+  receiverName: "",
   address: "",
   city: "",
   phone: "",
@@ -91,6 +92,7 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     setCurrentEditedId(getCuurentAddress?._id);
     setFormData({
       ...formData,
+      receiverName: getCuurentAddress?.receiverName,
       address: getCuurentAddress?.address,
       city: getCuurentAddress?.city,
       phone: getCuurentAddress?.phone,
@@ -101,9 +103,10 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
 
   function isFormValid() {
     return Object.keys(formData)
-      .map((key) => formData[key].trim() !== "")
+      .map((key) => (formData[key] || "").trim() !== "")
       .every((item) => item);
   }
+
 
   useEffect(() => {
     dispatch(fetchAllAddresses(user?.id));

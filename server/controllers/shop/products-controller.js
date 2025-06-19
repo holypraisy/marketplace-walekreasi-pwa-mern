@@ -1,6 +1,5 @@
 const Product = require("../../models/Product");
-const Seller = require("../../models/Seller"); 
-
+const Seller = require("../../models/Seller");
 
 const getFilteredProducts = async (req, res) => {
   try {
@@ -15,7 +14,6 @@ const getFilteredProducts = async (req, res) => {
 
     // Sorting
     let sort = {};
-
     switch (sortBy) {
       case "price-lowtohigh":
         sort.price = 1;
@@ -45,39 +43,36 @@ const getFilteredProducts = async (req, res) => {
     console.error("Error in getFilteredProducts:", error);
     res.status(500).json({
       success: false,
-      message: "Some error occurred",
+      message: "Terjadi kesalahan saat mengambil produk.",
     });
   }
 };
-
 
 const getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findById(id); // 🚫 Tanpa populate
+    const product = await Product.findById(id); // Tanpa populate
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found!",
+        message: "Produk tidak ditemukan.",
       });
     }
 
     res.status(200).json({
       success: true,
-      data: product, // ✅ Kirim seluruh dokumen, termasuk storeName
+      data: product,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Some error occurred",
+      message: "Terjadi kesalahan saat mengambil detail produk.",
     });
   }
 };
-
-
 
 module.exports = {
   getFilteredProducts,

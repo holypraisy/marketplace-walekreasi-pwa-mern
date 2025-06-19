@@ -311,6 +311,14 @@ export const sortOptions = [
 
 export const addressFormControls = [
   {
+    label : "Nama Penerima",
+    name : "receiverName",
+    componentType: "input",
+    type: "text",
+    placeholder: "Masukkan Nama Penerima",
+    maxLength: 50,
+  },
+  {
     label: "Alamat",
     name: "address",
     componentType: "input",
@@ -318,7 +326,7 @@ export const addressFormControls = [
     placeholder: "Masukkan Alamat Anda",
   },
   {
-    label: "Kota",
+    label: "Kota/Kabupaten",
     name: "city",
     componentType: "input",
     type: "text",

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialState = {
-  approvalURL: null,
+  snapToken: null,
   isLoading: false,
   orderId: null,
   orderList: [],
@@ -15,22 +15,6 @@ export const createNewOrder = createAsyncThunk(
     const response = await axios.post(
       "http://localhost:5000/api/shop/order/create",
       orderData
-    );
-
-    return response.data;
-  }
-);
-
-export const capturePayment = createAsyncThunk(
-  "/order/capturePayment",
-  async ({ paymentId, payerId, orderId }) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/shop/order/capture",
-      {
-        paymentId,
-        payerId,
-        orderId,
-      }
     );
 
     return response.data;
@@ -74,7 +58,7 @@ const shoppingOrderSlice = createSlice({
       })
       .addCase(createNewOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.approvalURL = action.payload.approvalURL;
+        state.snapToken = action.payload.snapToken;
         state.orderId = action.payload.orderId;
         sessionStorage.setItem(
           "currentOrderId",
@@ -83,7 +67,7 @@ const shoppingOrderSlice = createSlice({
       })
       .addCase(createNewOrder.rejected, (state) => {
         state.isLoading = false;
-        state.approvalURL = null;
+        state.snapToken = null;
         state.orderId = null;
       })
       .addCase(getAllOrdersByUserId.pending, (state) => {

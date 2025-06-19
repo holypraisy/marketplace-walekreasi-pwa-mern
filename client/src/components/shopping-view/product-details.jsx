@@ -135,7 +135,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 Stok Habis
               </Button>
             ) : (
-              <button
+              <Button
                 onClick={() =>
                   handleAddToCart(productDetails?._id, productDetails?.totalStock)
                 }
@@ -145,7 +145,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
                   Tambah ke Keranjang
                 </span>
-              </button>
+              </Button>
             )}
           </div>
 

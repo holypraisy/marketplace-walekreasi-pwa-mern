@@ -5,14 +5,14 @@ const {
   getAllOrdersByUser,
   getOrderDetails,
   capturePayment,
-  midtransCallback, // ✅ Tambahan untuk Midtrans
+  midtransCallback, 
 } = require("../../controllers/shop/order-controller");
 
 const router = express.Router();
 
 router.post("/create", createOrder);
 router.post("/capture", capturePayment);
-router.post("/midtrans-callback", midtransCallback); // ✅ Tambahkan ini
+router.post("/midtrans-callback", midtransCallback); 
 router.get("/list/:userId", getAllOrdersByUser);
 router.get("/details/:id", getOrderDetails);
 

@@ -21,11 +21,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Total Harga</p>
-            <Label>${orderDetails?.totalAmount}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Metode Pembayaran</p>
-            <Label>{orderDetails?.paymentMethod}</Label>
+            <Label>Rp.{orderDetails?.totalAmount}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Status Pembayaran</p>
@@ -58,7 +54,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                     <li className="flex items-center justify-between">
                       <span>Nama Produk: {item.title}</span>
                       <span>Jumlah: {item.quantity}</span>
-                      <span>Harga: ${item.price}</span>
+                      <span>Harga: Rp.{item.price}</span>
                     </li>
                   ))
                 : null}
