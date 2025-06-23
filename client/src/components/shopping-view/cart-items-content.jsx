@@ -12,43 +12,29 @@ function UserCartItemsContent({ cartItem }) {
   const { toast } = useToast();
 
   function handleUpdateQuantity(getCartItem, typeOfAction) {
-    if (typeOfAction == "plus") {
-      let getCartItems = cartItems.items || [];
+    if (typeOfAction === "plus") {
+      const index = productList.findIndex(
+        (product) => product._id === getCartItem.productId
+      );
+      const getTotalStock = productList[index]?.totalStock || 0;
 
-      if (getCartItems.length) {
-        const indexOfCurrentCartItem = getCartItems.findIndex(
-          (item) => item.productId === getCartItem?.productId
-        );
-
-        const getCurrentProductIndex = productList.findIndex(
-          (product) => product._id === getCartItem?.productId
-        );
-        const getTotalStock = productList[getCurrentProductIndex].totalStock;
-
-        console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
-
-        if (indexOfCurrentCartItem > -1) {
-          const getQuantity = getCartItems[indexOfCurrentCartItem].quantity;
-          if (getQuantity + 1 > getTotalStock) {
-            toast({
-              title: `Item ini hanya bisa ditambahkan sebanyak ${getQuantity}.`,
-              variant: "destructive",
-            });
-
-            return;
-          }
-        }
+      if (getCartItem.quantity + 1 > getTotalStock) {
+        toast({
+          title: `Item ini hanya bisa ditambahkan sebanyak ${getCartItem.quantity}.`,
+          variant: "destructive",
+        });
+        return;
       }
     }
 
     dispatch(
       updateCartQuantity({
         userId: user?.id,
-        productId: getCartItem?.productId,
+        productId: getCartItem.productId,
         quantity:
           typeOfAction === "plus"
-            ? getCartItem?.quantity + 1
-            : getCartItem?.quantity - 1,
+            ? getCartItem.quantity + 1
+            : getCartItem.quantity - 1,
       })
     ).then((data) => {
       if (data?.payload?.success) {
@@ -61,12 +47,10 @@ function UserCartItemsContent({ cartItem }) {
 
   function handleCartItemDelete(getCartItem) {
     dispatch(
-      deleteCartItem({ userId: user?.id, productId: getCartItem?.productId })
+      deleteCartItem({ userId: user?.id, productId: getCartItem.productId })
     ).then((data) => {
       if (data?.payload?.success) {
-        toast({
-          title: "Barang di keranjang berhasil dihapus.",
-        });
+        toast({ title: "Barang di keranjang berhasil dihapus." });
       }
     });
   }
@@ -99,7 +83,7 @@ function UserCartItemsContent({ cartItem }) {
             onClick={() => handleUpdateQuantity(cartItem, "plus")}
           >
             <Plus className="w-4 h-4" />
-            <span className="sr-only">Decrease</span>
+            <span className="sr-only">Increase</span>
           </Button>
         </div>
       </div>
@@ -107,7 +91,7 @@ function UserCartItemsContent({ cartItem }) {
         <p className="font-semibold">
           Rp.
           {(
-            (cartItem?.salePrice > 0 ? cartItem?.salePrice : cartItem?.price) *
+            (cartItem?.salePrice > 0 ? cartItem.salePrice : cartItem.price) *
             cartItem?.quantity
           ).toFixed(2)}
         </p>

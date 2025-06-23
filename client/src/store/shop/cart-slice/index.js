@@ -2,7 +2,7 @@ import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
-  cartItems: [],
+  cartData: [], // sebelumnya cartItems
   isLoading: false,
 };
 
@@ -17,7 +17,6 @@ export const addToCart = createAsyncThunk(
         quantity,
       }
     );
-
     return response.data;
   }
 );
@@ -28,7 +27,6 @@ export const fetchCartItems = createAsyncThunk(
     const response = await axios.get(
       `http://localhost:5000/api/shop/cart/get/${userId}`
     );
-
     return response.data;
   }
 );
@@ -39,7 +37,6 @@ export const deleteCartItem = createAsyncThunk(
     const response = await axios.delete(
       `http://localhost:5000/api/shop/cart/${userId}/${productId}`
     );
-
     return response.data;
   }
 );
@@ -55,7 +52,6 @@ export const updateCartQuantity = createAsyncThunk(
         quantity,
       }
     );
-
     return response.data;
   }
 );
@@ -71,44 +67,44 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.cartItems = action.payload.data;
+        state.cartData = action.payload.data.itemsByStore || [];
       })
       .addCase(addToCart.rejected, (state) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.cartData = [];
       })
       .addCase(fetchCartItems.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.cartItems = action.payload.data;
+        state.cartData = action.payload.data.itemsByStore || [];
       })
       .addCase(fetchCartItems.rejected, (state) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.cartData = [];
       })
       .addCase(updateCartQuantity.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.cartItems = action.payload.data;
+        state.cartData = action.payload.data.itemsByStore || [];
       })
       .addCase(updateCartQuantity.rejected, (state) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.cartData = [];
       })
       .addCase(deleteCartItem.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(deleteCartItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.cartItems = action.payload.data;
+        state.cartData = action.payload.data.itemsByStore || [];
       })
       .addCase(deleteCartItem.rejected, (state) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.cartData = [];
       });
   },
 });

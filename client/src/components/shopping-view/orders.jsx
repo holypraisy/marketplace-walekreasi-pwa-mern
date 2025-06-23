@@ -47,58 +47,66 @@ function ShoppingOrders() {
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Kode Pesanan</TableHead>
-              <TableHead>Tanggal</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>
-                <span className="sr-only">Detail</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orderList && orderList.length > 0
-              ? orderList.map((orderItem) => (
-                  <TableRow>
-                    <TableCell>{orderItem?._id}</TableCell>
-                    <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
-                            ? "bg-green-500"
-                            : orderItem?.orderStatus === "rejected"
-                            ? "bg-red-600"
-                            : "bg-black"
-                        }`}
-                      >
-                        {orderItem?.orderStatus}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>Rp.{orderItem?.totalAmount}</TableCell>
-                    <TableCell>
-                      <Dialog
-                        open={openDetailsDialog}
-                        onOpenChange={() => {
-                          setOpenDetailsDialog(false);
-                          dispatch(resetOrderDetails());
-                        }}
-                      >
-                        <Button
-                          onClick={() =>
-                            handleFetchOrderDetails(orderItem?._id)
-                          }
-                        >
-                          Lihat Detail
-                        </Button>
-                        <ShoppingOrderDetailsView orderDetails={orderDetails} />
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))
-              : null}
-          </TableBody>
+          <TableRow>
+            <TableHead>Kode Pesanan</TableHead>
+            <TableHead>Nama Produk</TableHead>
+            <TableHead>Tanggal</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Total</TableHead>
+            
+            <TableHead>
+              <span className="sr-only">Detail</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orderList && orderList.length > 0
+            ? orderList.map((orderItem) => (
+                <TableRow key={orderItem._id}>
+                  <TableCell>{orderItem?._id}</TableCell>
+                  <TableCell>
+                    <ul className="list-disc ml-4">
+                      {orderItem?.cartItems?.map((item, index) => (
+                        <li key={index}>{item.title}</li>
+                      ))}
+                    </ul>
+                  </TableCell>
+
+                  <TableCell>{orderItem?.orderDate?.split("T")[0]}</TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`py-1 px-3 ${
+                        orderItem?.orderStatus === "confirmed"
+                          ? "bg-green-500"
+                          : orderItem?.orderStatus === "rejected"
+                          ? "bg-red-600"
+                          : "bg-black"
+                      }`}
+                    >
+                      {orderItem?.orderStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>Rp.{orderItem?.totalAmount}</TableCell>
+
+                  <TableCell>
+                    <Dialog
+                      open={openDetailsDialog}
+                      onOpenChange={() => {
+                        setOpenDetailsDialog(false);
+                        dispatch(resetOrderDetails());
+                      }}
+                    >
+                      <Button onClick={() => handleFetchOrderDetails(orderItem?._id)}>
+                        Lihat Detail
+                      </Button>
+                      <ShoppingOrderDetailsView orderDetails={orderDetails} />
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            : null}
+        </TableBody>
+
         </Table>
       </CardContent>
     </Card>

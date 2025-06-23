@@ -2,23 +2,33 @@ const snap = require("../../helpers/midtrans");
 const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
+const User = require("../../models/User");
+const Seller = require("../../models/Seller");
 
 // Membuat pesanan dan token Midtrans Snap
 const createOrder = async (req, res) => {
   try {
-    const {
-      userId,
-      cartId,
-      cartItems,
-      addressInfo,
-      totalAmount,
-    } = req.body;
+    const { userId, cartId, cartItems, addressInfo, totalAmount } = req.body;
 
-    // Simpan pesanan sementara dengan status pending
+    // Ambil email user dari model User
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User tidak ditemukan" });
+
+    // Lengkapi cartItems dengan storeName dari Seller
+    const updatedCartItems = await Promise.all(cartItems.map(async (item) => {
+      const product = await Product.findById(item.productId);
+      const seller = await Seller.findById(product?.sellerId);
+      return {
+        ...item,
+        storeName: seller?.storeName || "Toko Tidak Diketahui",
+      };
+    }));
+
+    // Simpan order ke database
     const newOrder = new Order({
       userId,
       cartId,
-      cartItems,
+      cartItems: updatedCartItems,
       addressInfo,
       orderStatus: "Menunggu Konfirmasi",
       paymentStatus: "Belum Dibayar",
@@ -28,20 +38,24 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
 
-    // Buat transaksi Midtrans
+    // Transaksi Midtrans
     const transaction = await snap.createTransaction({
       transaction_details: {
         order_id: newOrder._id.toString(),
         gross_amount: totalAmount,
       },
-      credit_card: {
-        secure: true
-      },
+      item_details: updatedCartItems.map((item) => ({
+        id: item.productId,
+        price: item.price,
+        quantity: item.quantity,
+        name: `${item.title} | Toko: ${item.storeName}`,
+      })),
       customer_details: {
         first_name: addressInfo?.receiverName,
         phone: addressInfo?.phone,
-        email: addressInfo?.email
-      }
+        email: user.email,
+      },
+      custom_field1: updatedCartItems[0]?.storeName || "Toko Tidak Diketahui",
     });
 
     res.status(201).json({
@@ -59,7 +73,7 @@ const createOrder = async (req, res) => {
   }
 };
 
-// Konfirmasi pembayaran manual (jika tidak menggunakan webhook)
+// Konfirmasi manual (jika tidak pakai webhook)
 const capturePayment = async (req, res) => {
   try {
     const { orderId, transactionStatus } = req.body;
@@ -77,7 +91,6 @@ const capturePayment = async (req, res) => {
       order.orderStatus = "Dikonfirmasi";
       order.orderUpdateDate = new Date();
 
-      // Kurangi stok produk
       for (let item of order.cartItems) {
         const product = await Product.findById(item.productId);
         if (product) {
@@ -86,7 +99,6 @@ const capturePayment = async (req, res) => {
         }
       }
 
-      // Hapus keranjang
       await Cart.findByIdAndDelete(order.cartId);
       await order.save();
     }
@@ -104,7 +116,7 @@ const capturePayment = async (req, res) => {
   }
 };
 
-// Webhook dari Midtrans
+// Webhook Midtrans
 const midtransCallback = async (req, res) => {
   try {
     const { order_id, transaction_status } = req.body;

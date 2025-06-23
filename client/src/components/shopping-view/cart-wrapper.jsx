@@ -1,3 +1,4 @@
+// Updated UserCartWrapper component to show grouped items by store
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
@@ -5,19 +6,17 @@ import UserCartItemsContent from "./cart-items-content";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
+  const itemsByStore = cartItems?.itemsByStore || [];
 
-  const totalCartAmount =
-    cartItems && cartItems.length > 0
-      ? cartItems.reduce(
-          (sum, currentItem) =>
-            sum +
-            (currentItem?.salePrice > 0
-              ? currentItem?.salePrice
-              : currentItem?.price) *
-              currentItem?.quantity,
-          0
-        )
-      : 0;
+  const totalCartAmount = itemsByStore.reduce((sum, store) => {
+    return (
+      sum +
+      store.items.reduce((storeSum, item) => {
+        const price = item?.salePrice > 0 ? item.salePrice : item.price;
+        return storeSum + price * item.quantity;
+      }, 0)
+    );
+  }, 0);
 
   return (
     <SheetContent className="sm:max-w-md">
@@ -25,8 +24,15 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
         <SheetTitle>Keranjang Anda</SheetTitle>
       </SheetHeader>
       <div className="mt-8 space-y-4">
-        {cartItems && cartItems.length > 0
-          ? cartItems.map((item) => <UserCartItemsContent cartItem={item} />)
+        {itemsByStore.length > 0
+          ? itemsByStore.map((storeGroup) => (
+              <div key={storeGroup.storeId} className="mb-6">
+                <h3 className="font-bold text-lg mb-2">{storeGroup.storeName}</h3>
+                {storeGroup.items.map((item) => (
+                  <UserCartItemsContent cartItem={item} key={item.productId} />
+                ))}
+              </div>
+            ))
           : null}
       </div>
       <div className="mt-8 space-y-4">

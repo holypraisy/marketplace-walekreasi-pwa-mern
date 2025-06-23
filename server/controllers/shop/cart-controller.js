@@ -1,5 +1,6 @@
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
+const Seller = require("../../models/Seller");
 
 const addToCart = async (req, res) => {
   try {
@@ -13,7 +14,6 @@ const addToCart = async (req, res) => {
     }
 
     const product = await Product.findById(productId);
-
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -21,29 +21,45 @@ const addToCart = async (req, res) => {
       });
     }
 
-    let cart = await Cart.findOne({ userId });
-
-    if (!cart) {
-      cart = new Cart({ userId, items: [] });
+    const seller = await Seller.findById(product.sellerId);
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Toko tidak ditemukan.",
+      });
     }
 
-    const findCurrentProductIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, itemsByStore: [] });
+    }
+
+    const storeIndex = cart.itemsByStore.findIndex(
+      (entry) => entry.storeId.toString() === seller._id.toString()
     );
 
-    if (findCurrentProductIndex === -1) {
-      cart.items.push({ productId, quantity });
+    if (storeIndex === -1) {
+      cart.itemsByStore.push({
+        storeId: seller._id,
+        storeName: seller.storeName,
+        items: [{ productId, quantity }],
+      });
     } else {
-      cart.items[findCurrentProductIndex].quantity += quantity;
+      const productIndex = cart.itemsByStore[storeIndex].items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
+
+      if (productIndex === -1) {
+        cart.itemsByStore[storeIndex].items.push({ productId, quantity });
+      } else {
+        cart.itemsByStore[storeIndex].items[productIndex].quantity += quantity;
+      }
     }
 
     await cart.save();
-    res.status(200).json({
-      success: true,
-      data: cart,
-    });
+    res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Terjadi kesalahan pada server.",
@@ -62,10 +78,7 @@ const fetchCartItems = async (req, res) => {
       });
     }
 
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "items.productId",
-      select: "image title price salePrice",
-    });
+    const cart = await Cart.findOne({ userId });
 
     if (!cart) {
       return res.status(404).json({
@@ -74,30 +87,19 @@ const fetchCartItems = async (req, res) => {
       });
     }
 
-    const validItems = cart.items.filter(
-      (productItem) => productItem.productId
-    );
-
-    if (validItems.length < cart.items.length) {
-      cart.items = validItems;
-      await cart.save();
+    // Populate product data manually
+    for (const storeGroup of cart.itemsByStore) {
+      for (const item of storeGroup.items) {
+        const product = await Product.findById(item.productId).select(
+          "image title price salePrice"
+        );
+        item.productData = product;
+      }
     }
-
-    const populateCartItems = validItems.map((item) => ({
-      productId: item.productId._id,
-      image: item.productId.image,
-      title: item.productId.title,
-      price: item.productId.price,
-      salePrice: item.productId.salePrice,
-      quantity: item.quantity,
-    }));
 
     res.status(200).json({
       success: true,
-      data: {
-        ...cart._doc,
-        items: populateCartItems,
-      },
+      data: cart,
     });
   } catch (error) {
     console.log(error);
@@ -127,40 +129,32 @@ const updateCartItemQty = async (req, res) => {
       });
     }
 
-    const findCurrentProductIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
-    );
+    for (const storeGroup of cart.itemsByStore) {
+      const itemIndex = storeGroup.items.findIndex(
+        (item) => item.productId.toString() === productId
+      );
 
-    if (findCurrentProductIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: "Produk tidak ditemukan di keranjang.",
-      });
+      if (itemIndex !== -1) {
+        storeGroup.items[itemIndex].quantity = quantity;
+        break;
+      }
     }
 
-    cart.items[findCurrentProductIndex].quantity = quantity;
     await cart.save();
 
-    await cart.populate({
-      path: "items.productId",
-      select: "image title price salePrice",
-    });
-
-    const populateCartItems = cart.items.map((item) => ({
-      productId: item.productId ? item.productId._id : null,
-      image: item.productId ? item.productId.image : null,
-      title: item.productId ? item.productId.title : "Produk tidak ditemukan",
-      price: item.productId ? item.productId.price : null,
-      salePrice: item.productId ? item.productId.salePrice : null,
-      quantity: item.quantity,
-    }));
+    // Repopulate after update
+    for (const storeGroup of cart.itemsByStore) {
+      for (const item of storeGroup.items) {
+        const product = await Product.findById(item.productId).select(
+          "image title price salePrice"
+        );
+        item.productData = product;
+      }
+    }
 
     res.status(200).json({
       success: true,
-      data: {
-        ...cart._doc,
-        items: populateCartItems,
-      },
+      data: cart,
     });
   } catch (error) {
     console.log(error);
@@ -181,10 +175,7 @@ const deleteCartItem = async (req, res) => {
       });
     }
 
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "items.productId",
-      select: "image title price salePrice",
-    });
+    const cart = await Cart.findOne({ userId });
 
     if (!cart) {
       return res.status(404).json({
@@ -193,32 +184,30 @@ const deleteCartItem = async (req, res) => {
       });
     }
 
-    cart.items = cart.items.filter(
-      (item) => item.productId._id.toString() !== productId
+    cart.itemsByStore.forEach((storeGroup) => {
+      storeGroup.items = storeGroup.items.filter(
+        (item) => item.productId.toString() !== productId
+      );
+    });
+
+    cart.itemsByStore = cart.itemsByStore.filter(
+      (storeGroup) => storeGroup.items.length > 0
     );
 
     await cart.save();
 
-    await cart.populate({
-      path: "items.productId",
-      select: "image title price salePrice",
-    });
-
-    const populateCartItems = cart.items.map((item) => ({
-      productId: item.productId ? item.productId._id : null,
-      image: item.productId ? item.productId.image : null,
-      title: item.productId ? item.productId.title : "Produk tidak ditemukan",
-      price: item.productId ? item.productId.price : null,
-      salePrice: item.productId ? item.productId.salePrice : null,
-      quantity: item.quantity,
-    }));
+    for (const storeGroup of cart.itemsByStore) {
+      for (const item of storeGroup.items) {
+        const product = await Product.findById(item.productId).select(
+          "image title price salePrice"
+        );
+        item.productData = product;
+      }
+    }
 
     res.status(200).json({
       success: true,
-      data: {
-        ...cart._doc,
-        items: populateCartItems,
-      },
+      data: cart,
     });
   } catch (error) {
     console.log(error);
