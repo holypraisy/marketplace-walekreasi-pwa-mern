@@ -67,8 +67,12 @@ function MenuItems() {
 
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const cartData = useSelector((state) => state.shopCart.cartData || []);
   const [openCartSheet, setOpenCartSheet] = useState(false);
+  const totalItems = cartData.reduce(
+    (total, store) => total + (store.items?.length || 0),
+    0
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -94,16 +98,12 @@ function HeaderRightContent() {
         >
           <ShoppingCart className="w-6 h-6" />
           <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
-            {cartItems?.items?.length || 0}
+            {totalItems}
           </span>
+
           <span className="sr-only">Keranjang belanja</span>
         </Button>
-        <UserCartWrapper
-          setOpenCartSheet={setOpenCartSheet}
-          cartItems={
-            cartItems?.items?.length > 0 ? cartItems.items : []
-          }
-        />
+        <UserCartWrapper setOpenCartSheet={setOpenCartSheet} />
       </Sheet>
 
       {/* 👤 Avatar */}

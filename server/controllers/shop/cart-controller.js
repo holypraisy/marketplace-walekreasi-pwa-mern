@@ -29,6 +29,13 @@ const addToCart = async (req, res) => {
       });
     }
 
+    if (product.totalStock < quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Stok tidak mencukupi. Maksimum hanya tersedia ${product.totalStock} item.`,
+      });
+    }
+
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId, itemsByStore: [] });
@@ -52,7 +59,17 @@ const addToCart = async (req, res) => {
       if (productIndex === -1) {
         cart.itemsByStore[storeIndex].items.push({ productId, quantity });
       } else {
-        cart.itemsByStore[storeIndex].items[productIndex].quantity += quantity;
+        const currentQty = cart.itemsByStore[storeIndex].items[productIndex].quantity;
+        const newQty = currentQty + quantity;
+
+        if (newQty > product.totalStock) {
+          return res.status(400).json({
+            success: false,
+            message: `Stok tidak mencukupi. Maksimum hanya tersedia ${product.totalStock} item.`,
+          });
+        }
+
+        cart.itemsByStore[storeIndex].items[productIndex].quantity = newQty;
       }
     }
 
@@ -78,23 +95,16 @@ const fetchCartItems = async (req, res) => {
       });
     }
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "itemsByStore.items.productId",
+      select: "image title price salePrice totalStock", // ✅ totalStock ditambahkan
+    });
 
     if (!cart) {
       return res.status(404).json({
         success: false,
         message: "Keranjang tidak ditemukan.",
       });
-    }
-
-    // Populate product data manually
-    for (const storeGroup of cart.itemsByStore) {
-      for (const item of storeGroup.items) {
-        const product = await Product.findById(item.productId).select(
-          "image title price salePrice"
-        );
-        item.productData = product;
-      }
     }
 
     res.status(200).json({
@@ -121,6 +131,21 @@ const updateCartItemQty = async (req, res) => {
       });
     }
 
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Produk tidak ditemukan.",
+      });
+    }
+
+    if (quantity > product.totalStock) {
+      return res.status(400).json({
+        success: false,
+        message: `Stok tidak mencukupi. Maksimum hanya tersedia ${product.totalStock} item.`,
+      });
+    }
+
     const cart = await Cart.findOne({ userId });
     if (!cart) {
       return res.status(404).json({
@@ -129,29 +154,28 @@ const updateCartItemQty = async (req, res) => {
       });
     }
 
-    for (const storeGroup of cart.itemsByStore) {
-      const itemIndex = storeGroup.items.findIndex(
+    let itemUpdated = false;
+
+    for (let store of cart.itemsByStore) {
+      const itemIndex = store.items.findIndex(
         (item) => item.productId.toString() === productId
       );
 
       if (itemIndex !== -1) {
-        storeGroup.items[itemIndex].quantity = quantity;
+        store.items[itemIndex].quantity = quantity;
+        itemUpdated = true;
         break;
       }
     }
 
-    await cart.save();
-
-    // Repopulate after update
-    for (const storeGroup of cart.itemsByStore) {
-      for (const item of storeGroup.items) {
-        const product = await Product.findById(item.productId).select(
-          "image title price salePrice"
-        );
-        item.productData = product;
-      }
+    if (!itemUpdated) {
+      return res.status(404).json({
+        success: false,
+        message: "Produk tidak ditemukan di keranjang.",
+      });
     }
 
+    await cart.save();
     res.status(200).json({
       success: true,
       data: cart,
@@ -168,6 +192,7 @@ const updateCartItemQty = async (req, res) => {
 const deleteCartItem = async (req, res) => {
   try {
     const { userId, productId } = req.params;
+
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
@@ -184,27 +209,21 @@ const deleteCartItem = async (req, res) => {
       });
     }
 
-    cart.itemsByStore.forEach((storeGroup) => {
+    for (let i = 0; i < cart.itemsByStore.length; i++) {
+      const storeGroup = cart.itemsByStore[i];
+      const originalLength = storeGroup.items.length;
+
       storeGroup.items = storeGroup.items.filter(
         (item) => item.productId.toString() !== productId
       );
-    });
 
-    cart.itemsByStore = cart.itemsByStore.filter(
-      (storeGroup) => storeGroup.items.length > 0
-    );
-
-    await cart.save();
-
-    for (const storeGroup of cart.itemsByStore) {
-      for (const item of storeGroup.items) {
-        const product = await Product.findById(item.productId).select(
-          "image title price salePrice"
-        );
-        item.productData = product;
+      if (storeGroup.items.length === 0 && originalLength > 0) {
+        cart.itemsByStore.splice(i, 1);
+        i--; // Adjust index after splice
       }
     }
 
+    await cart.save();
     res.status(200).json({
       success: true,
       data: cart,
@@ -220,7 +239,7 @@ const deleteCartItem = async (req, res) => {
 
 module.exports = {
   addToCart,
+  fetchCartItems,
   updateCartItemQty,
   deleteCartItem,
-  fetchCartItems,
 };

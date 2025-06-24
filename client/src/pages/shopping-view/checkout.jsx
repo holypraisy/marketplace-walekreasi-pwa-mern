@@ -8,7 +8,8 @@ import { createNewOrder } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
 
 function ShoppingCheckout() {
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const { cartData } = useSelector((state) => state.shopCart);
+  const { productList } = useSelector((state) => state.shopProducts);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -16,19 +17,20 @@ function ShoppingCheckout() {
   const [isPaymentStart, setIsPaymentStart] = useState(false);
 
   const totalCartAmount =
-    cartItems?.items?.length > 0
-      ? cartItems.items.reduce(
-          (sum, item) =>
-            sum +
-            (item?.salePrice && item?.salePrice > 0
-              ? item.salePrice
-              : item.price) * item.quantity,
-          0
-        )
-      : 0;
+    cartData?.reduce((sum, storeGroup) => {
+      return (
+        sum +
+        storeGroup.items.reduce((storeSum, item) => {
+          const product = productList.find((p) => p._id === item.productId);
+          const price =
+            product?.salePrice > 0 ? product.salePrice : product?.price || 0;
+          return storeSum + price * item.quantity;
+        }, 0)
+      );
+    }, 0) || 0;
 
   function handleInitiateMidtransPayment() {
-    if (!cartItems?.items?.length) {
+    if (!cartData?.length) {
       toast({ title: "Keranjang kosong.", variant: "destructive" });
       return;
     }
@@ -37,19 +39,22 @@ function ShoppingCheckout() {
       return;
     }
 
+    const allItems = cartData.flatMap((storeGroup) =>
+      storeGroup.items.map((item) => {
+        const product = productList.find((p) => p._id === item.productId);
+        return {
+          productId: item.productId,
+          title: product?.title || "Produk",
+          image: product?.image || "",
+          price: product?.salePrice > 0 ? product.salePrice : product?.price || 0,
+          quantity: item.quantity,
+        };
+      })
+    );
+
     const orderData = {
       userId: user?.id,
-      cartId: cartItems?._id,
-      cartItems: cartItems.items.map((item) => ({
-        productId: item?.productId,
-        title: item?.title,
-        image: item?.image,
-        price:
-          item?.salePrice && item?.salePrice > 0
-            ? item?.salePrice
-            : item?.price,
-        quantity: item?.quantity,
-      })),
+      cartItems: allItems,
       addressInfo: {
         addressId: currentSelectedAddress?._id,
         address: currentSelectedAddress?.address,
@@ -101,14 +106,26 @@ function ShoppingCheckout() {
           setCurrentSelectedAddress={setCurrentSelectedAddress}
         />
         <div className="flex flex-col gap-4">
-          {cartItems?.items?.map((item) => (
-            <UserCartItemsContent cartItem={item} key={item.productId} />
-          ))}
-          <div className="mt-8 space-y-4">
-            <div className="flex justify-between">
-              <span className="font-bold">Total</span>
-              <span className="font-bold">Rp{totalCartAmount.toLocaleString("id-ID")}</span>
+          {cartData?.map((storeGroup) => (
+            <div key={storeGroup.storeId}>
+              <h3 className="font-bold mb-2">{storeGroup.storeName}</h3>
+              {storeGroup.items.map((item) => {
+                const product = productList.find((p) => p._id === item.productId);
+                return (
+                  <UserCartItemsContent
+                    cartItem={{ ...item, product }}
+                    key={item.productId}
+                  />
+                );
+              })}
             </div>
+          ))}
+
+          <div className="mt-4 flex justify-between">
+            <span className="font-bold">Total</span>
+            <span className="font-bold">
+              Rp {totalCartAmount.toLocaleString("id-ID")}
+            </span>
           </div>
           <div className="mt-4 w-full">
             <Button
@@ -116,9 +133,7 @@ function ShoppingCheckout() {
               className="w-full"
               disabled={isPaymentStart}
             >
-              {isPaymentStart
-                ? "Memproses Pembayaran..."
-                : "Bayar"}
+              {isPaymentStart ? "Memproses Pembayaran..." : "Bayar"}
             </Button>
           </div>
         </div>

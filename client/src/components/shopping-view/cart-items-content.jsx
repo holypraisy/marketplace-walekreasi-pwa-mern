@@ -1,103 +1,117 @@
 import { Minus, Plus, Trash } from "lucide-react";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";
+import {
+  deleteCartItem,
+  updateCartQuantity,
+  fetchCartItems,
+} from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
 
 function UserCartItemsContent({ cartItem }) {
   const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { productList } = useSelector((state) => state.shopProducts);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  function handleUpdateQuantity(getCartItem, typeOfAction) {
-    if (typeOfAction === "plus") {
-      const index = productList.findIndex(
-        (product) => product._id === getCartItem.productId
-      );
-      const getTotalStock = productList[index]?.totalStock || 0;
+  // Pastikan product hasil populate
+  const product = cartItem.productId;
+  if (!product || typeof product !== "object") return null;
 
-      if (getCartItem.quantity + 1 > getTotalStock) {
+  const currentQty = cartItem.quantity;
+  const totalStock = product?.totalStock || 0;
+  const unitPrice =
+    product.salePrice > 0 ? product.salePrice : product.price || 0;
+  const totalPrice = unitPrice * currentQty;
+
+  const handleUpdateQuantity = async (type) => {
+    if (!user?.id || !product?._id) return;
+
+    let newQty = currentQty;
+
+    if (type === "plus") {
+      if (currentQty >= totalStock) {
         toast({
-          title: `Item ini hanya bisa ditambahkan sebanyak ${getCartItem.quantity}.`,
+          title: `Stok tidak mencukupi. Maksimum ${totalStock} item.`,
           variant: "destructive",
         });
         return;
       }
+      newQty = currentQty + 1;
+    } else if (type === "minus") {
+      if (currentQty <= 1) {
+        handleCartItemDelete();
+        return;
+      }
+      newQty = currentQty - 1;
     }
 
-    dispatch(
+    const res = await dispatch(
       updateCartQuantity({
-        userId: user?.id,
-        productId: getCartItem.productId,
-        quantity:
-          typeOfAction === "plus"
-            ? getCartItem.quantity + 1
-            : getCartItem.quantity - 1,
+        userId: user.id,
+        productId: product._id,
+        quantity: newQty,
       })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        toast({
-          title: "Isi keranjang sudah diperbarui.",
-        });
-      }
-    });
-  }
+    );
 
-  function handleCartItemDelete(getCartItem) {
-    dispatch(
-      deleteCartItem({ userId: user?.id, productId: getCartItem.productId })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        toast({ title: "Barang di keranjang berhasil dihapus." });
-      }
-    });
-  }
+    if (res?.payload?.success) {
+      dispatch(fetchCartItems(user.id)); // ✅ Ambil ulang cart yang lengkap dengan populate
+      toast({ title: "Jumlah item diperbarui." });
+    } else {
+      toast({ title: "Gagal memperbarui item.", variant: "destructive" });
+    }
+  };
+
+  const handleCartItemDelete = async () => {
+    if (!user?.id || !product?._id) return;
+
+    const res = await dispatch(
+      deleteCartItem({ userId: user.id, productId: product._id })
+    );
+
+    if (res?.payload?.success) {
+      dispatch(fetchCartItems(user.id)); // ✅ Ambil ulang cart
+      toast({ title: "Barang dihapus dari keranjang." });
+    } else {
+      toast({ title: "Gagal menghapus item.", variant: "destructive" });
+    }
+  };
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-4 py-3 border-b">
       <img
-        src={cartItem?.image}
-        alt={cartItem?.title}
+        src={product.image}
+        alt={product.title}
         className="w-20 h-20 rounded object-cover"
       />
       <div className="flex-1">
-        <h3 className="font-extrabold">{cartItem?.title}</h3>
+        <h3 className="font-extrabold text-base">{product.title}</h3>
         <div className="flex items-center gap-2 mt-1">
           <Button
             variant="outline"
             className="h-8 w-8 rounded-full"
             size="icon"
-            disabled={cartItem?.quantity === 1}
-            onClick={() => handleUpdateQuantity(cartItem, "minus")}
+            onClick={() => handleUpdateQuantity("minus")}
           >
             <Minus className="w-4 h-4" />
-            <span className="sr-only">Decrease</span>
           </Button>
-          <span className="font-semibold">{cartItem?.quantity}</span>
+          <span className="font-semibold">{currentQty}</span>
           <Button
             variant="outline"
             className="h-8 w-8 rounded-full"
             size="icon"
-            onClick={() => handleUpdateQuantity(cartItem, "plus")}
+            onClick={() => handleUpdateQuantity("plus")}
           >
             <Plus className="w-4 h-4" />
-            <span className="sr-only">Increase</span>
           </Button>
         </div>
       </div>
       <div className="flex flex-col items-end">
         <p className="font-semibold">
-          Rp.
-          {(
-            (cartItem?.salePrice > 0 ? cartItem.salePrice : cartItem.price) *
-            cartItem?.quantity
-          ).toFixed(2)}
+          Rp {totalPrice.toLocaleString("id-ID")}
         </p>
         <Trash
-          onClick={() => handleCartItemDelete(cartItem)}
-          className="cursor-pointer mt-1"
+          onClick={handleCartItemDelete}
+          className="cursor-pointer mt-1 text-red-500"
           size={20}
         />
       </div>

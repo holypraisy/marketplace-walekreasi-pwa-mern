@@ -15,16 +15,24 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const [rating, setRating] = useState(0);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const { cartData } = useSelector((state) => state.shopCart);
   const { reviews } = useSelector((state) => state.shopReview);
   const { toast } = useToast();
 
   function handleAddToCart(productId, totalStock) {
-    const existingItems = cartItems.items || [];
-    const cartItem = existingItems.find((item) => item.productId === productId);
-    const quantity = cartItem ? cartItem.quantity : 0;
+    // Gabungkan semua item dari cartData yang dikelompokkan per toko
+    const allItems = cartData?.flatMap((group) => group.items) || [];
 
-    if (quantity + 1 > totalStock) {
+    // Cek apakah produk sudah ada di keranjang
+    const existingItem = allItems.find(
+      (item) =>
+        item?.productId?._id?.toString?.() === productId ||
+        item?.productId?.toString?.() === productId
+    );
+
+    const currentQty = existingItem?.quantity || 0;
+
+    if (currentQty + 1 > totalStock) {
       toast({
         title: `Hanya tersedia ${totalStock} item.`,
         variant: "destructive",
@@ -42,6 +50,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       if (data?.payload?.success) {
         dispatch(fetchCartItems(user?.id));
         toast({ title: "Produk ditambahkan ke keranjang." });
+      } else {
+        toast({
+          title: data?.payload?.message || "Gagal menambahkan produk.",
+          variant: "destructive",
+        });
       }
     });
   }
@@ -119,11 +132,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 productDetails?.salePrice > 0 ? "line-through" : ""
               }`}
             >
-              Rp.{productDetails?.price}
+              Rp. {productDetails?.price?.toLocaleString("id-ID")}
             </p>
             {productDetails?.salePrice > 0 && (
               <p className="text-2xl font-bold text-muted-foreground">
-                Rp.{productDetails.salePrice}
+                Rp. {productDetails.salePrice?.toLocaleString("id-ID")}
               </p>
             )}
           </div>
@@ -169,7 +182,9 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                         <FaStar className="text-yellow-400 mr-1" />
                         {review?.reviewValue}
                       </div>
-                      <p className="text-muted-foreground">{review.reviewMessage}</p>
+                      <p className="text-muted-foreground">
+                        {review.reviewMessage}
+                      </p>
                     </div>
                   </div>
                 ))
