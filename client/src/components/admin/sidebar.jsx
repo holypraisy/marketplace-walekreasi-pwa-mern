@@ -1,15 +1,36 @@
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Wallet, BarChartBig, Store, User2 } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
+// ✅ Tambahkan item menu Dashboard ke sini
 const adminSidebarMenuItems = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    path: "/admin",
+    icon: <BarChartBig />,
+  },
   {
     id: "payout",
     label: "Pembayaran ke Seller",
     path: "/admin/payout",
-    icon: <LayoutDashboard />,
+    icon: <Wallet />,
   },
+  {
+    id: "sellers",
+    label: "Daftar Seller",
+    path: "/admin/sellers",
+    icon: <Store />,
+  },
+
+  {
+    id: "customers",
+    label: "Daftar Customer",
+    path: "/admin/customers",
+    icon: <User2 />, 
+  }
+  
 ];
 
 function MenuItems({ setOpen }) {
@@ -56,7 +77,7 @@ function AdminSideBar({ open, setOpen }) {
       {/* Sidebar untuk desktop */}
       <aside className="hidden w-64 flex-col border-r bg-background p-6 lg:flex">
         <div
-          onClick={() => navigate("/admin/payouts")}
+          onClick={() => navigate("/admin")}
           className="flex cursor-pointer items-center gap-2"
         >
           <h1 className="text-2xl font-extrabold">Admin Dashboard</h1>

@@ -13,7 +13,9 @@ import shopReviewSlice from "./shop/review-slice";
 import shopStoreSlice from "./shop/store-slice"; 
 import commonFeatureSlice from "./common-slice";
 import payoutSlice from "./admin/payout-slice" ;
-
+import adminDashboardSlice from "./admin/dashboard-slice";
+import sellersInfoSlice from "./admin/sellers-slice";
+import customersSlice from "./admin/customers-slice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -29,8 +31,12 @@ const store = configureStore({
     shopSearch: shopSearchSlice,
     shopReview: shopReviewSlice,
     shopStore: shopStoreSlice,
+
     payout: payoutSlice,
     commonFeature: commonFeatureSlice,
+    adminDashboard : adminDashboardSlice,
+    sellersInfo : sellersInfoSlice,
+    customersInfo : customersSlice
   },
 });
 

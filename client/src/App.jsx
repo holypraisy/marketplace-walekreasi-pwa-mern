@@ -27,10 +27,14 @@ import SellerDashboardLayout from "./components/seller-dashboard/layout";
 import SellerProducts from "./pages/seller-dashboard/products";
 import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
+import  SellerDetailPage from "./pages/admin/sellerDetail";
 
 // 🔻 Admin Dashboard (❗Kamu harus buat file/folder ini)
 import AdminDashboardLayout from "./components/admin/layout";
 import PayoutPage from "./pages/admin/PayoutPage";
+import AdminDashboardPage from "./pages/admin/dashboard";
+import SellersInfoPage from "./pages/admin/sellersInfo";
+import CustomersInfoPage from "./pages/admin/customersInfo";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -102,7 +106,12 @@ function App() {
             </CheckAuth>
           }
         >
+          <Route index element={<AdminDashboardPage />} />
           <Route path="payout" element={<PayoutPage />} />
+          <Route path="sellers" element={<SellersInfoPage />} />
+          <Route path="seller/:id" element={<SellerDetailPage />} />
+          <Route path="customers" element={<CustomersInfoPage />} />
+
         </Route>
 
         <Route path="/unauth-page" element={<UnauthPage />} />

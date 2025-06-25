@@ -1,21 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Ambil pesanan yang belum dibayar ke seller
 export const fetchUnpaidOrders = createAsyncThunk(
   "payout/fetchUnpaidOrders",
   async () => {
-    const res = await axios.get("http://localhost:5000/api/payout/unpaid", { withCredentials: true });
+    const res = await axios.get("http://localhost:5000/api/admin/payout/unpaid", { withCredentials: true });
     return res.data.data;
   }
 );
 
-// Tandai pesanan seller sebagai sudah dibayar
+
 export const markOrdersAsPaid = createAsyncThunk(
   "payout/markOrdersAsPaid",
   async (sellerId) => {
     const res = await axios.post(
-      "http://localhost:5000/api/payout/mark-paid",
+      "http://localhost:5000/api/admin/payout/mark-paid",
       { sellerId },
       { withCredentials: true }
     );
@@ -23,16 +22,16 @@ export const markOrdersAsPaid = createAsyncThunk(
   }
 );
 
-// (Opsional) Ambil histori payout jika dibutuhkan nanti
+
 export const fetchPayoutHistory = createAsyncThunk(
   "payout/fetchPayoutHistory",
   async () => {
-    const res = await axios.get("http://localhost:5000/api/payout/history", { withCredentials: true });
+    const res = await axios.get("http://localhost:5000/api/admin/payout/history", { withCredentials: true });
     return res.data.data;
   }
 );
 
-// Slice utama
+
 const payoutSlice = createSlice({
   name: "payout",
   initialState: {
@@ -40,10 +39,9 @@ const payoutSlice = createSlice({
     payoutHistory: [],
     loading: false,
     error: null,
-    payoutSuccess: null, // untuk pesan sukses
+    payoutSuccess: null, 
   },
   reducers: {
-    // Untuk mereset status sukses setelah beberapa detik
     clearPayoutStatus: (state) => {
       state.payoutSuccess = null;
     },
@@ -72,6 +70,6 @@ const payoutSlice = createSlice({
   },
 });
 
-// Export reducer dan action tambahan
+
 export const { clearPayoutStatus } = payoutSlice.actions;
 export default payoutSlice.reducer;
