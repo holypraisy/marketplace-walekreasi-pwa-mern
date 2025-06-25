@@ -134,7 +134,7 @@ export const sellerRegisterFormControls = [
     section: 'Data Pembayaran',
   },
   {
-    name: 'eWallet  AccountOwner',
+    name: 'eWalletsAccountOwner',
     label: 'Nama Pemilik Akun',
     placeholder: 'Masukkan Nama Dompet Digital',
     componentType: 'input',

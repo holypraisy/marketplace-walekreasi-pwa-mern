@@ -8,23 +8,28 @@ const Seller = require("../../models/Seller");
 // Membuat pesanan dan token Midtrans Snap
 const createOrder = async (req, res) => {
   try {
-    const { userId, cartId, cartItems, addressInfo, totalAmount } = req.body;
+    const { userId, cartId, cartItems, addressInfo } = req.body;
 
-    // Ambil email user dari model User
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: "User tidak ditemukan" });
 
-    // Lengkapi cartItems dengan storeName dari Seller
     const updatedCartItems = await Promise.all(cartItems.map(async (item) => {
       const product = await Product.findById(item.productId);
       const seller = await Seller.findById(product?.sellerId);
+
       return {
         ...item,
         storeName: seller?.storeName || "Toko Tidak Diketahui",
+        title: product?.title || "Produk",
+        price: product?.salePrice > 0 ? product.salePrice : product.price,
       };
     }));
 
-    // Simpan order ke database
+    const totalAmount = updatedCartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
     const newOrder = new Order({
       userId,
       cartId,
@@ -38,17 +43,16 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
 
-    // Transaksi Midtrans
     const transaction = await snap.createTransaction({
       transaction_details: {
         order_id: newOrder._id.toString(),
         gross_amount: totalAmount,
       },
       item_details: updatedCartItems.map((item) => ({
-        id: item.productId,
+        id: item.productId.toString(),
         price: item.price,
         quantity: item.quantity,
-        name: `${item.title} | Toko: ${item.storeName}`,
+        name: `${item.title} | Toko: ${item.storeName}`.slice(0, 50), // max 50 chars
       })),
       customer_details: {
         first_name: addressInfo?.receiverName,
