@@ -4,7 +4,6 @@ function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
   const path = location.pathname;
 
-  // Halaman publik tanpa perlu login
   const publicPaths = ["/auth/login", "/auth/register", "/auth/register-seller"];
 
   // ✅ Jika user belum login & mencoba akses halaman privat
@@ -14,40 +13,45 @@ function CheckAuth({ isAuthenticated, user, children }) {
 
   // ✅ Jika user sudah login tapi mencoba buka login/register lagi
   if (isAuthenticated && publicPaths.includes(path)) {
-    return user?.role === "seller"
-      ? <Navigate to="/store/profile" replace />
-      : <Navigate to="/shop/home" replace />;
+    if (user?.role === "seller") return <Navigate to="/store/profile" replace />;
+    if (user?.role === "admin") return <Navigate to="/admin" replace />;
+    return <Navigate to="/shop/home" replace />;
   }
 
-  // ✅ Validasi role terhadap path
   if (isAuthenticated) {
-    const isSeller = user?.role === "seller";
+    const role = user?.role;
+    const isSeller = role === "seller";
+    const isAdmin = role === "admin";
+    const isCustomer = role === "customer";
 
-    const isAccessingSellerPage =
-      path.startsWith("/store") || path.startsWith("/seller");
-
+    const isAccessingSellerPage = path.startsWith("/store");
     const isAccessingCustomerShop = path.startsWith("/shop");
+    const isAccessingAdminPage = path.startsWith("/admin");
 
-    // ❌ Customer mencoba buka dashboard seller
+    // ❌ Customer atau Admin mencoba buka dashboard seller
     if (!isSeller && isAccessingSellerPage) {
       return <Navigate to="/unauth-page" replace />;
     }
 
-    // ❌ Seller mencoba buka halaman shop customer
-    if (isSeller && isAccessingCustomerShop) {
-      return <Navigate to="/store/profile" replace />;
+    // ❌ Seller atau Admin mencoba buka halaman customer (/shop)
+    if (!isCustomer && isAccessingCustomerShop) {
+      return <Navigate to="/unauth-page" replace />;
+    }
+
+    // ❌ Seller atau Customer mencoba buka dashboard admin
+    if (!isAdmin && isAccessingAdminPage) {
+      return <Navigate to="/unauth-page" replace />;
     }
   }
 
   // ✅ Redirect dari root "/"
   if (path === "/") {
     if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
-    return user?.role === "seller"
-      ? <Navigate to="/store/profile" replace />
-      : <Navigate to="/shop/home" replace />;
+    if (user?.role === "seller") return <Navigate to="/store/profile" replace />;
+    if (user?.role === "admin") return <Navigate to="/admin" replace />;
+    return <Navigate to="/shop/home" replace />;
   }
 
-  // ✅ Jika semuanya valid, tampilkan konten
   return <>{children}</>;
 }
 

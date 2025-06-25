@@ -11,27 +11,36 @@ const createOrder = async (req, res) => {
     const { userId, cartId, cartItems, addressInfo } = req.body;
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ success: false, message: "User tidak ditemukan" });
+    if (!user) return res.status(404).json({ success: false, message: "User tidak ditemukan." });
 
-    const updatedCartItems = await Promise.all(cartItems.map(async (item) => {
-      const product = await Product.findById(item.productId);
-      const seller = await Seller.findById(product?.sellerId);
+    // Perbarui setiap item dalam keranjang
+    const updatedCartItems = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        if (!product) throw new Error(`Produk tidak ditemukan: ${item.productId}`);
 
-      return {
-        ...item,
-        storeName: seller?.storeName || "Toko Tidak Diketahui",
-        title: product?.title || "Produk",
-        price: product?.salePrice > 0 ? product.salePrice : product.price,
-      };
-    }));
+        const seller = await Seller.findById(product.sellerId);
+
+        return {
+          ...item,
+          sellerId: product.sellerId, // Tambahkan sellerId untuk pelacakan
+          storeName: seller?.storeName || "Toko Tidak Diketahui",
+          title: product?.title || "Produk",
+          price: product?.salePrice > 0 ? product.salePrice : product.price,
+        };
+      })
+    );
 
     const totalAmount = updatedCartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
 
+    const sellerId = updatedCartItems[0]?.sellerId;
+
     const newOrder = new Order({
       userId,
+      sellerId, // Tambahkan sellerId di level order
       cartId,
       cartItems: updatedCartItems,
       addressInfo,
@@ -43,6 +52,7 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
 
+    // Buat transaksi Midtrans
     const transaction = await snap.createTransaction({
       transaction_details: {
         order_id: newOrder._id.toString(),
@@ -52,7 +62,7 @@ const createOrder = async (req, res) => {
         id: item.productId.toString(),
         price: item.price,
         quantity: item.quantity,
-        name: `${item.title} | Toko: ${item.storeName}`.slice(0, 50), // max 50 chars
+        name: `${item.title} | Toko: ${item.storeName}`.slice(0, 50), // Batas 50 karakter
       })),
       customer_details: {
         first_name: addressInfo?.receiverName,
@@ -72,12 +82,12 @@ const createOrder = async (req, res) => {
     console.error("Midtrans error:", err);
     res.status(500).json({
       success: false,
-      message: "Gagal membuat pesanan. Silakan coba lagi nanti.",
+      message: err.message || "Gagal membuat pesanan. Silakan coba lagi nanti.",
     });
   }
 };
 
-// Konfirmasi manual (jika tidak pakai webhook)
+// Konfirmasi manual (tanpa webhook)
 const capturePayment = async (req, res) => {
   try {
     const { orderId, transactionStatus } = req.body;
@@ -95,6 +105,7 @@ const capturePayment = async (req, res) => {
       order.orderStatus = "Dikonfirmasi";
       order.orderUpdateDate = new Date();
 
+      // Kurangi stok produk
       for (let item of order.cartItems) {
         const product = await Product.findById(item.productId);
         if (product) {
@@ -144,7 +155,7 @@ const midtransCallback = async (req, res) => {
   }
 };
 
-// Mendapatkan semua pesanan berdasarkan userId
+// Mendapatkan semua pesanan berdasarkan user
 const getAllOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;

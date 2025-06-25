@@ -21,13 +21,20 @@ function ShoppingCheckout() {
       return (
         sum +
         storeGroup.items.reduce((storeSum, item) => {
-          const product = productList.find((p) => p._id === item.productId);
+          const product = item.productId?._id ? item.productId : productList.find(
+            (p) => p._id === item.productId
+          );
+
+          if (!product) return storeSum;
+
           const price =
-            product?.salePrice > 0 ? product.salePrice : product?.price || 0;
+            product.salePrice > 0 ? product.salePrice : product.price || 0;
+
           return storeSum + price * item.quantity;
         }, 0)
       );
     }, 0) || 0;
+
 
   function handleInitiateMidtransPayment() {
     if (!cartData?.length) {
@@ -41,12 +48,15 @@ function ShoppingCheckout() {
 
     const allItems = cartData.flatMap((storeGroup) =>
       storeGroup.items.map((item) => {
-        const product = productList.find((p) => p._id === item.productId);
+        const product = productList.find(
+          (p) => p?._id?.toString() === item?.productId?.toString()
+        );
         return {
           productId: item.productId,
           title: product?.title || "Produk",
           image: product?.image || "",
-          price: product?.salePrice > 0 ? product.salePrice : product?.price || 0,
+          price:
+            product?.salePrice > 0 ? product.salePrice : product?.price || 0,
           quantity: item.quantity,
         };
       })
@@ -110,7 +120,9 @@ function ShoppingCheckout() {
             <div key={storeGroup.storeId}>
               <h3 className="font-bold mb-2">{storeGroup.storeName}</h3>
               {storeGroup.items.map((item) => {
-                const product = productList.find((p) => p._id === item.productId);
+                const product = productList.find(
+                  (p) => p?._id?.toString() === item?.productId?.toString()
+                );
                 return (
                   <UserCartItemsContent
                     cartItem={{ ...item, product }}

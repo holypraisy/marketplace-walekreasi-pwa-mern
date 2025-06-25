@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
   userId: String,
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Seller",
+    required: true,
+  },
   cartId: String,
   cartItems: [
     {
@@ -28,6 +33,14 @@ const OrderSchema = new mongoose.Schema({
   orderUpdateDate: Date,
   paymentId: String,
   payerId: String,
+
+  isPaidToSeller: {
+    type: Boolean,
+    default: false,
+  },
+  paidToSellerAt: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("Order", OrderSchema);

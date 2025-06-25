@@ -226,6 +226,19 @@ const isSeller = (req, res, next) => {
   }
 };
 
+// Mengecek apakah user adalah admin
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Akses ditolak. Hanya admin yang diizinkan.",
+    });
+  }
+};
+
+
 
 module.exports = {
   registerUser,
@@ -234,5 +247,6 @@ module.exports = {
   logoutUser,
   authMiddleware,
   isAuthenticated,
-  isSeller
+  isSeller,
+  isAdmin,
 };

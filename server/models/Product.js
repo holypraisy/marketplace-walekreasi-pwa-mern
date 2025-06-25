@@ -15,14 +15,8 @@ const ProductSchema = new mongoose.Schema(
       ref: "Seller",
       required: true,
     },
-    storeName: {
-      type: String,
-      required: true,
-    },
   },
-
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Product", ProductSchema);
-

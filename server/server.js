@@ -16,6 +16,7 @@ const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 const shopStoreRouter = require("./routes/shop/store-routes");
 const commonFeatureRouter = require("./routes/common/feature-routes");
+const payoutRoutes = require("./routes/admin/payout-routes");
 
 mongoose
   .connect("mongodb+srv://lapianholly:marketplaceDatabase@cluster0.vry0zu8.mongodb.net/")
@@ -42,6 +43,7 @@ app.use(
   })
 );
 
+
 // Route setup
 app.use("/api/auth", authRouter);
 app.use("/api/store/products", SellerProductsRouter);
@@ -55,5 +57,6 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 app.use("/api/shop/store", shopStoreRouter);
 app.use("/api/common/feature", commonFeatureRouter);
+app.use("/api/payout", payoutRoutes);
 
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
