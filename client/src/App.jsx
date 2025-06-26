@@ -35,6 +35,9 @@ import PayoutPage from "./pages/admin/PayoutPage";
 import AdminDashboardPage from "./pages/admin/dashboard";
 import SellersInfoPage from "./pages/admin/sellersInfo";
 import CustomersInfoPage from "./pages/admin/customersInfo";
+import TransactionsPage from "./pages/admin/transactionsPage";
+import TransactionDetailPage from "./pages/admin/transactionsDetailPage";
+import AdminSettingPage from "./pages/admin/settingPage";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -111,6 +114,11 @@ function App() {
           <Route path="sellers" element={<SellersInfoPage />} />
           <Route path="seller/:id" element={<SellerDetailPage />} />
           <Route path="customers" element={<CustomersInfoPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="transactions/:id" element={<TransactionDetailPage />} />
+          <Route path="/admin/setting" element={<AdminSettingPage />} />
+
+
 
         </Route>
 

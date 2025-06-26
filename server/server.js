@@ -18,7 +18,8 @@ const shopStoreRouter = require("./routes/shop/store-routes");
 const commonFeatureRouter = require("./routes/common/feature-routes");
 const payoutRoutes = require("./routes/admin/payout-routes");
 const adminDashboardRoutes = require ("./routes/admin/dashboard-route");
-const userInfoRoutes = require ("./routes/admin/userInfo-routes");
+const infoRoutes = require ("./routes/admin/Info-routes");
+const bannerRoutes = require("./routes/admin/banner-route");
 
 mongoose
   .connect("mongodb+srv://lapianholly:marketplaceDatabase@cluster0.vry0zu8.mongodb.net/")
@@ -61,6 +62,8 @@ app.use("/api/shop/store", shopStoreRouter);
 app.use("/api/common/feature", commonFeatureRouter);
 app.use("/api/admin/payout", payoutRoutes);
 app.use("/api/admin/dashboard" , adminDashboardRoutes);
-app.use("/api/admin/info" , userInfoRoutes);
+app.use("/api/admin/info" , infoRoutes);
+app.use("/api/admin/banner", bannerRoutes);
+
 
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));

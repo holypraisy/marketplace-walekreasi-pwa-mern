@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { fetchSellerById } from "@/store/admin/sellers-slice";
+import { ArrowLeft } from "lucide-react";
 
 function SellerDetailPage() {
   const dispatch = useDispatch();
@@ -22,6 +23,14 @@ function SellerDetailPage() {
 
   return (
     <div className="p-4">
+      <Link
+        to="/admin/sellers"
+        className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-md shadow-sm transition"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+            Kembali ke daftar
+        </Link>
+
       <h1 className="text-2xl font-bold mb-4">Detail Seller</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <p><strong>Nama Toko:</strong> {s.storeName}</p>

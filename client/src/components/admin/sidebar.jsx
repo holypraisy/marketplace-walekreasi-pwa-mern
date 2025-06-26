@@ -1,4 +1,4 @@
-import { LayoutDashboard, Wallet, BarChartBig, Store, User2 } from "lucide-react";
+import { LayoutDashboard, Wallet, BarChartBig, Store, User2, Handshake, Settings } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
@@ -29,7 +29,21 @@ const adminSidebarMenuItems = [
     label: "Daftar Customer",
     path: "/admin/customers",
     icon: <User2 />, 
-  }
+  },
+
+  {
+    id: "transactions",
+    label: "Transaksi",
+    path: "/admin/transactions",
+    icon: <Handshake />, 
+  },
+  {
+    id: "setting",
+    label: "Pengaturan",
+    path: "/admin/setting ",
+    icon: <Settings />, 
+  },
+
   
 ];
 

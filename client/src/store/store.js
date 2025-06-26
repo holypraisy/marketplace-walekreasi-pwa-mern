@@ -16,6 +16,9 @@ import payoutSlice from "./admin/payout-slice" ;
 import adminDashboardSlice from "./admin/dashboard-slice";
 import sellersInfoSlice from "./admin/sellers-slice";
 import customersSlice from "./admin/customers-slice";
+import transactionsSlice from "./admin/trasactions-slice";
+import bannerSlice from "./admin/banner-slice";
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -36,7 +39,9 @@ const store = configureStore({
     commonFeature: commonFeatureSlice,
     adminDashboard : adminDashboardSlice,
     sellersInfo : sellersInfoSlice,
-    customersInfo : customersSlice
+    customersInfo : customersSlice,
+    transactionsInfo : transactionsSlice, 
+    bannerSlice : bannerSlice
   },
 });
 
