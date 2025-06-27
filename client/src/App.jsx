@@ -1,9 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// ...import lainnya
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
@@ -27,9 +28,9 @@ import SellerDashboardLayout from "./components/seller-dashboard/layout";
 import SellerProducts from "./pages/seller-dashboard/products";
 import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
-import  SellerDetailPage from "./pages/admin/sellerDetail";
+import SellerDetailPage from "./pages/admin/sellerDetail";
 
-// 🔻 Admin Dashboard (❗Kamu harus buat file/folder ini)
+// 🔻 Admin Dashboard
 import AdminDashboardLayout from "./components/admin/layout";
 import PayoutPage from "./pages/admin/PayoutPage";
 import AdminDashboardPage from "./pages/admin/dashboard";
@@ -43,20 +44,40 @@ function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
   useEffect(() => {
     dispatch(checkAuth());
+
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, [dispatch]);
 
   if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
 
   return (
-    <div className="flex flex-col overflow-hidden bg-white">
+    <div className="flex flex-col overflow-hidden bg-white min-h-screen">
+      {/* Banner Offline */}
+      {isOffline && (
+        <div className="bg-red-500 text-white text-center py-2 text-sm font-semibold z-50">
+          🔌 Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
+        </div>
+      )}
+
       <Routes>
+        {/* Seluruh routing yang kamu tulis tetap sama */}
         <Route
           path="/"
           element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />}
         />
-
         <Route
           path="/auth"
           element={
@@ -100,7 +121,6 @@ function App() {
           <Route path="store/:sellerId" element={<StoreFrontPage />} />
         </Route>
 
-
         <Route
           path="/admin"
           element={
@@ -117,9 +137,6 @@ function App() {
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="transactions/:id" element={<TransactionDetailPage />} />
           <Route path="/admin/setting" element={<AdminSettingPage />} />
-
-
-
         </Route>
 
         <Route path="/unauth-page" element={<UnauthPage />} />
