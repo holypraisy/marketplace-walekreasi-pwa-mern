@@ -1,7 +1,7 @@
 const Banner = require("../../models/Banner");
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 
-// Upload banner baru
+
 const uploadBanner = async (req, res) => {
   try {
     const { type, caption, redirectUrl } = req.body;
@@ -10,7 +10,9 @@ const uploadBanner = async (req, res) => {
       return res.status(400).json({ success: false, message: "Gambar tidak ditemukan" });
     }
 
-    const uploaded = await imageUploadUtil(req.file.buffer.toString("base64"));
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const uploaded = await imageUploadUtil(base64Image);
 
     const newBanner = new Banner({
       type,
@@ -27,11 +29,12 @@ const uploadBanner = async (req, res) => {
       data: newBanner,
     });
   } catch (err) {
+    console.error("Upload Banner Error:", err.message); 
     res.status(500).json({ success: false, message: "Gagal upload banner", error: err.message });
   }
 };
 
-// Ambil semua banner
+
 const getAllBanners = async (req, res) => {
   try {
     const banners = await Banner.find().sort({ createdAt: -1 });
@@ -41,7 +44,6 @@ const getAllBanners = async (req, res) => {
   }
 };
 
-// Hapus banner
 const deleteBanner = async (req, res) => {
   try {
     await Banner.findByIdAndDelete(req.params.id);

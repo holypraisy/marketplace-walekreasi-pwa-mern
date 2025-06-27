@@ -1,5 +1,7 @@
 import { Outlet } from "react-router-dom";
 import ShoppingHeader from "./header";
+import Footer from "./footer";
+import InstallButton from "../common/installButton";
 
 function ShoppingLayout() {
   return (
@@ -9,6 +11,8 @@ function ShoppingLayout() {
       <main className="flex flex-col w-full">
         <Outlet />
       </main>
+      <InstallButton/>
+      <Footer/>
     </div>
   );
 }
