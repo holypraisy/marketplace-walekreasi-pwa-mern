@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
- userName: {
+  userName: {
     type: String,
     required: true,
   },
@@ -22,10 +22,12 @@ const UserSchema = new mongoose.Schema({
   storeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Store",
+  },
+  fcmToken: {
+    type: String,
+    default: null,
   }
-},
-  { timestamps: true }
-);
+}, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

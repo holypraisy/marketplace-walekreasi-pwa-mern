@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { Toast } from "@/components/ui/toast";
 // ...import lainnya
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
@@ -40,6 +40,8 @@ import TransactionsPage from "./pages/admin/transactionsPage";
 import TransactionDetailPage from "./pages/admin/transactionsDetailPage";
 import AdminSettingPage from "./pages/admin/settingPage";
 
+import { requestForToken, onMessageListener } from "@/firebase/firebase-config";
+
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -60,6 +62,21 @@ function App() {
       window.removeEventListener("offline", handleOffline);
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user?.role === "customer") {
+      requestForToken(); // minta token & kirim ke backend
+  
+      onMessageListener().then((payload) => {
+        console.log("📩 Notifikasi diterima (foreground):", payload);
+        Toast({
+          title: payload.notification?.title,
+          description: payload.notification?.body,
+        });
+      });
+    }
+  }, [user]);
+  
 
   if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
 

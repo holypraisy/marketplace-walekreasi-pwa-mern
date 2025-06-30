@@ -20,6 +20,8 @@ const payoutRoutes = require("./routes/admin/payout-routes");
 const adminDashboardRoutes = require ("./routes/admin/dashboard-route");
 const infoRoutes = require ("./routes/admin/Info-routes");
 const bannerRoutes = require("./routes/admin/banner-route");
+const notificationRoutes = require("./routes/common/notification-routes");
+
 
 mongoose
   .connect("mongodb+srv://lapianholly:marketplaceDatabase@cluster0.vry0zu8.mongodb.net/")
@@ -64,6 +66,9 @@ app.use("/api/admin/payout", payoutRoutes);
 app.use("/api/admin/dashboard" , adminDashboardRoutes);
 app.use("/api/admin/info" , infoRoutes);
 app.use("/api/admin/banner", bannerRoutes);
+app.use("/api/common/notification", notificationRoutes);
+app.use("/api/common/notification", notificationRoutes);
+
 
 
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
