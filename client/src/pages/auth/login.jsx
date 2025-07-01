@@ -36,22 +36,21 @@ function AuthLogin() {
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="lg:hidden flex justify-center gap-1 items-center">
+      <div className="flex justify-center gap-1">
         <img src={logoWaleKreasi} alt="Logo Wale Kreasi"
-        className="h-20 w-20"  />
+        className="w-16"  />
         <div> 
-          <h1 className="text-3xl font-bold">Wale Kreasi .</h1>
-          <p>Lorem ipsum dolor sit amet.</p>
+          <h1 className="text-2xl font-bold">Wale <br /> Kreasi .</h1>
         </div>
       </div>
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+      <div className="text-left">
+        <h1 className="text-xl lg:text-3xl font-light tracking-tight text-foreground">
           Masuk ke akun anda
         </h1>
-        <p className="mt-2">
+        <p className="mt-2 text-xs lg:text-base font-bold">
           Belum punya akun ?
           <Link
-            className="font-medium ml-2 text-primary hover:underline"
+            className="font-bold ml-2 text-primary hover:underline"
             to="/auth/register"
           >
             Mendaftar

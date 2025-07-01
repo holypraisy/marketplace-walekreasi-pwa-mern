@@ -15,7 +15,6 @@ const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes");
 const shopReviewRouter = require("./routes/shop/review-routes");
 const shopStoreRouter = require("./routes/shop/store-routes");
-const commonFeatureRouter = require("./routes/common/feature-routes");
 const payoutRoutes = require("./routes/admin/payout-routes");
 const adminDashboardRoutes = require ("./routes/admin/dashboard-route");
 const infoRoutes = require ("./routes/admin/Info-routes");
@@ -61,13 +60,12 @@ app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 app.use("/api/shop/store", shopStoreRouter);
-app.use("/api/common/feature", commonFeatureRouter);
 app.use("/api/admin/payout", payoutRoutes);
 app.use("/api/admin/dashboard" , adminDashboardRoutes);
 app.use("/api/admin/info" , infoRoutes);
 app.use("/api/admin/banner", bannerRoutes);
-app.use("/api/common/notification", notificationRoutes);
-app.use("/api/common/notification", notificationRoutes);
+app.use("/api/admin/notification", notificationRoutes);
+
 
 
 

@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 
 function BannerList() {
   const dispatch = useDispatch();
-  const { banners, isLoading } = useSelector((state) => state.bannerSlice);
+  const { banners, isLoading } = useSelector((state) => state.banner);
 
   if (isLoading) return <p>Memuat banner...</p>;
 

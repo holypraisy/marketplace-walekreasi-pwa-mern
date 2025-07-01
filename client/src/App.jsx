@@ -40,7 +40,7 @@ import TransactionsPage from "./pages/admin/transactionsPage";
 import TransactionDetailPage from "./pages/admin/transactionsDetailPage";
 import AdminSettingPage from "./pages/admin/settingPage";
 
-import { requestForToken, onMessageListener } from "@/firebase/firebase-config";
+import { requestForToken, onMessageListener } from "./firebase/firebase.config";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -65,7 +65,7 @@ function App() {
 
   useEffect(() => {
     if (user?.role === "customer") {
-      requestForToken(); // minta token & kirim ke backend
+      requestForToken(user.id); // minta token & kirim ke backend
   
       onMessageListener().then((payload) => {
         console.log("📩 Notifikasi diterima (foreground):", payload);

@@ -20,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
 // Minta token FCM dari user
-const requestForToken = async () => {
+const requestForToken = async (userId) => {
   try {
     const currentToken = await getToken(messaging, {
       vapidKey: "BF1azTsD0hTD93ilVDdP7sqhDFgKIwY1E3l2AhyH6Vn-RxSGquZ71kHAMGTyRxLHoV3hOZI6Ylh6Xyij_nI04pQ",
@@ -28,14 +28,16 @@ const requestForToken = async () => {
 
     if (currentToken) {
       console.log("✅ FCM Token:", currentToken);
-      // Kirim ke backend jika diperlukan
-      await fetch("http://localhost:5000/api/common/notification/save-token", {
+      await fetch("http://localhost:5000/api/admin/notification/save-token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ fcmToken: currentToken }),
+        body: JSON.stringify({
+          fcmToken: currentToken,
+          userId, // wajib
+        }),
       });
     } else {
       console.warn("⚠️ Tidak ada token tersedia. Izin belum diberikan.");
@@ -44,6 +46,7 @@ const requestForToken = async () => {
     console.error("❌ Gagal mendapatkan token FCM:", err);
   }
 };
+
 
 // Listener notifikasi saat app di foreground
 const onMessageListener = () =>

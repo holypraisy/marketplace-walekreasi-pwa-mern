@@ -18,6 +18,7 @@ import sellersInfoSlice from "./admin/sellers-slice";
 import customersSlice from "./admin/customers-slice";
 import transactionsSlice from "./admin/trasactions-slice";
 import bannerSlice from "./admin/banner-slice";
+import notificationSlice from "./admin/notification-slice";
 
 const store = configureStore({
   reducer: {
@@ -41,7 +42,8 @@ const store = configureStore({
     sellersInfo : sellersInfoSlice,
     customersInfo : customersSlice,
     transactionsInfo : transactionsSlice, 
-    bannerSlice : bannerSlice
+    banner : bannerSlice,
+    sendNotification : notificationSlice
   },
 });
 
