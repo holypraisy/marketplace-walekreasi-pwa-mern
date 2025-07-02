@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import logoWaleKreasi from "../../assets/logo-WaleKreasi.png";
 
 const sections = [
   {
@@ -56,10 +57,20 @@ export default function TermsSection({ onAgree }) {
   const [agreed, setAgreed] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-6 px-4 md:px-0">
-      <h1 className="text-2xl lg:text-3xl font-bold text-center">Syarat & Ketentuan Pendaftaran Seller</h1>
-
-      <div className="space-y-6 text-foreground max-h-96 overflow-y-auto text-justify text-sm">
+    <div className="w-full space-y-14">
+      <div className="flex flex-col items-center mt-6">
+        <div className="lg:hidden text-center">
+          <img
+            src={logoWaleKreasi}
+            alt="Logo Wale Kreasi"
+            className="h-20 w-20 mb-4"
+          />
+        </div>
+        <div className="text-center text-2xl md:text-3xl font-bold text-gray-900">
+          <h1>Syarat & Ketentuan Pendaftaran </h1>
+        </div>
+      </div>
+      <div className="space-y-6 text-foreground max-h-96 overflow-y-auto text-justify text-base">
         <p>
           Terima kasih telah berminat untuk menjadi Seller di platform kami. Dengan mendaftar sebagai Seller, Anda
           menyetujui semua syarat dan ketentuan yang berlaku berikut ini:
@@ -86,7 +97,7 @@ export default function TermsSection({ onAgree }) {
           onChange={(e) => setAgreed(e.target.checked)}
           className="mt-1"
         />
-        <label htmlFor="agree" className="text-sm text-gray-800">
+        <label htmlFor="agree" className="text-base text-gray-800">
           Saya sudah membaca dan bersedia memenuhi syarat & ketentuan yang berlaku.
         </label>
       </div>

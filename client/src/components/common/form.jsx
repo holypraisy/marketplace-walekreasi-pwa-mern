@@ -6,9 +6,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  } from "../ui/select";
+} from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { useState } from "react";
 
 function CommonForm({
   formControls,
@@ -18,103 +19,135 @@ function CommonForm({
   buttonText,
   isBtnDisabled,
 }) {
-  function renderInputsByComponentType(getControlItem) {
-    let element = null;
-    const value = formData[getControlItem.name] || "";
+  const [errors, setErrors] = useState({});
 
-    switch (getControlItem.componentType) {
+  // Validasi saat submit
+  const validate = () => {
+    const newErrors = {};
+
+    formControls.forEach((control) => {
+      const value = formData[control.name];
+
+      if (!value || value.trim() === "") {
+        newErrors[control.name] = `${control.label} wajib diisi`;
+      }
+
+      // Validasi email
+      if (control.name === "email" && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          newErrors.email = "Format email tidak valid";
+        }
+      }
+
+      // Validasi password minimal 8 karakter
+      if (control.name === "password" && value.length < 8) {
+        newErrors.password = "Kata sandi minimal 8 karakter";
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Menangani perubahan field
+  const handleChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    setErrors({
+      ...errors,
+      [name]: "", // reset error saat diubah
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      onSubmit(e);
+    }
+  };
+
+  function renderInputsByComponentType(control) {
+    const value = formData[control.name] || "";
+    const isInvalid = !!errors[control.name];
+    const inputClass = isInvalid
+      ? "border-red-500 focus-visible:ring-red-500"
+      : "";
+
+    switch (control.componentType) {
       case "input":
-        element = (
+        return (
           <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
+            name={control.name}
+            placeholder={control.placeholder}
+            id={control.name}
+            type={control.type}
             value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
+            onChange={(e) => handleChange(control.name, e.target.value)}
+            className={inputClass}
           />
         );
 
-        break;
       case "select":
-        element = (
+        return (
           <Select
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: value,
-              })
-            }
+            onValueChange={(val) => handleChange(control.name, val)}
             value={value}
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={getControlItem.label} />
+            <SelectTrigger className={`w-full ${inputClass}`}>
+              <SelectValue placeholder={control.label} />
             </SelectTrigger>
             <SelectContent>
-              {getControlItem.options && getControlItem.options.length > 0
-                ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.id}>
-                      {optionItem.label}
-                    </SelectItem>
-                  ))
-                : null}
+              {control.options?.map((optionItem) => (
+                <SelectItem key={optionItem.id} value={optionItem.id}>
+                  {optionItem.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         );
 
-        break;
       case "textarea":
-        element = (
+        return (
           <Textarea
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.id}
+            name={control.name}
+            placeholder={control.placeholder}
+            id={control.name}
             value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
+            onChange={(e) => handleChange(control.name, e.target.value)}
+            className={inputClass}
           />
         );
-
-        break;
 
       default:
-        element = (
+        return (
           <Input
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.name}
-            type={getControlItem.type}
+            name={control.name}
+            placeholder={control.placeholder}
+            id={control.name}
+            type={control.type}
             value={value}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                [getControlItem.name]: event.target.value,
-              })
-            }
+            onChange={(e) => handleChange(control.name, e.target.value)}
+            className={inputClass}
           />
         );
-        break;
     }
-
-    return element;
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-3">
         {formControls.map((controlItem) => (
           <div className="grid w-full gap-1.5" key={controlItem.name}>
             <Label className="mb-1">{controlItem.label}</Label>
             {renderInputsByComponentType(controlItem)}
+            {errors[controlItem.name] && (
+              <span className="text-red-500 text-xs mt-1">
+                {errors[controlItem.name]}
+              </span>
+            )}
           </div>
         ))}
       </div>

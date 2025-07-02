@@ -13,10 +13,16 @@ function CheckAuth({ isAuthenticated, user, children }) {
 
   // ✅ Jika user sudah login tapi mencoba buka login/register lagi
   if (isAuthenticated && publicPaths.includes(path)) {
+    // Jika customer ingin akses register seller → izinkan
+    if (path === "/auth/register-seller" && user?.role === "customer") {
+      return <>{children}</>;
+    }
+  
     if (user?.role === "seller") return <Navigate to="/store/profile" replace />;
     if (user?.role === "admin") return <Navigate to="/admin" replace />;
     return <Navigate to="/shop/home" replace />;
   }
+  
 
   if (isAuthenticated) {
     const role = user?.role;

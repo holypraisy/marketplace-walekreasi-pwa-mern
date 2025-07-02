@@ -1,19 +1,32 @@
 import { Outlet } from "react-router-dom";
 import ShoppingHeader from "./header";
 import Footer from "./footer";
+import MobileHeaderFooterLayout from "./mobile-header-footer";
 import InstallButton from "../common/installButton";
 
 function ShoppingLayout() {
   return (
-    <div className="flex flex-col bg-white overflow-hidden">
-      {/* common header */}
-      <ShoppingHeader />
-      <main className="flex flex-col w-full">
-        <Outlet />
-      </main>
-      <InstallButton/>
-      <Footer/>
-    </div>
+    <>
+      {/* 👇 Mobile layout */}
+      <div className="md:hidden">
+        <MobileHeaderFooterLayout>
+        <main className="flex-1 w-full">
+          <Outlet />
+        </main>
+          <Footer />
+        </MobileHeaderFooterLayout>
+      </div>
+
+      {/* 👇 Desktop / tablet layout */}
+      <div className="hidden md:flex flex-col bg-white overflow-hidden min-h-screen">
+        <ShoppingHeader />
+        <main className="flex-1 w-full">
+          <Outlet />
+        </main>
+        <InstallButton />
+        <Footer />
+      </div>
+    </>
   );
 }
 

@@ -4,16 +4,15 @@ import { useEffect, useState } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toast } from "@/components/ui/toast";
-// ...import lainnya
+
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
-import RegisterSeller from "./pages/auth/registerSeller";
+import RegisterSeller from "./pages/auth/registerSeller"; // tetap
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
 import NotFound from "./pages/not-found";
 
-// 🔻 Shopping View
 import ShoppingLayout from "./components/shopping-view/layout";
 import ShoppingHome from "./pages/shopping-view/home";
 import ShoppingListing from "./pages/shopping-view/listing";
@@ -23,14 +22,12 @@ import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import SearchProducts from "./pages/shopping-view/search";
 import StoreFrontPage from "./pages/shopping-view/store-page";
 
-// 🔻 Seller Dashboard
 import SellerDashboardLayout from "./components/seller-dashboard/layout";
 import SellerProducts from "./pages/seller-dashboard/products";
 import SellerProfilePage from "./pages/seller-dashboard/profil";
 import SellerOrders from "./pages/seller-dashboard/orders";
 import SellerDetailPage from "./pages/admin/sellerDetail";
 
-// 🔻 Admin Dashboard
 import AdminDashboardLayout from "./components/admin/layout";
 import PayoutPage from "./pages/admin/PayoutPage";
 import AdminDashboardPage from "./pages/admin/dashboard";
@@ -65,10 +62,8 @@ function App() {
 
   useEffect(() => {
     if (user?.role === "customer") {
-      requestForToken(user.id); // minta token & kirim ke backend
-  
+      requestForToken(user.id);
       onMessageListener().then((payload) => {
-        console.log("📩 Notifikasi diterima (foreground):", payload);
         Toast({
           title: payload.notification?.title,
           description: payload.notification?.body,
@@ -76,13 +71,11 @@ function App() {
       });
     }
   }, [user]);
-  
 
   if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
 
   return (
     <div className="flex flex-col overflow-hidden bg-white min-h-screen">
-      {/* Banner Offline */}
       {isOffline && (
         <div className="bg-red-500 text-white text-center py-2 text-sm font-semibold z-50">
           🔌 Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
@@ -90,11 +83,20 @@ function App() {
       )}
 
       <Routes>
-        {/* Seluruh routing yang kamu tulis tetap sama */}
+        {/* Root redirect */}
+        <Route path="/" element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />} />
+
+        {/* ✅ Register Seller FULLSCREEN tanpa AuthLayout */}
         <Route
-          path="/"
-          element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />}
+          path="/auth/register-seller"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <RegisterSeller />
+            </CheckAuth>
+          }
         />
+
+        {/* ✅ Halaman Auth biasa */}
         <Route
           path="/auth"
           element={
@@ -105,9 +107,9 @@ function App() {
         >
           <Route path="login" element={<AuthLogin />} />
           <Route path="register" element={<AuthRegister />} />
-          <Route path="register-seller" element={<RegisterSeller />} />
         </Route>
 
+        {/* ✅ Seller */}
         <Route
           path="/store"
           element={
@@ -121,6 +123,7 @@ function App() {
           <Route path="orders" element={<SellerOrders />} />
         </Route>
 
+        {/* ✅ Customer */}
         <Route
           path="/shop"
           element={
@@ -138,6 +141,7 @@ function App() {
           <Route path="store/:sellerId" element={<StoreFrontPage />} />
         </Route>
 
+        {/* ✅ Admin */}
         <Route
           path="/admin"
           element={
@@ -153,7 +157,7 @@ function App() {
           <Route path="customers" element={<CustomersInfoPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="transactions/:id" element={<TransactionDetailPage />} />
-          <Route path="/admin/setting" element={<AdminSettingPage />} />
+          <Route path="setting" element={<AdminSettingPage />} />
         </Route>
 
         <Route path="/unauth-page" element={<UnauthPage />} />
