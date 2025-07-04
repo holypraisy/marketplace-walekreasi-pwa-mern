@@ -106,14 +106,13 @@ function UserCartItemsContent({ cartItem }) {
             </Button>
           </div>
         </div>
-        <div className="flex gap-14 md:gap-0 mt-1 md:flex md:flex-col md:items-end">
-          <p className="font-semibold mt-1">
+        <div className="flex gap-16 md:gap-0 mt-1 md:flex md:flex-col md:items-end">
+          <p className="font-semibold text-sm md:text-base mt-1">
             Rp {totalPrice.toLocaleString("id-ID")}
           </p>
           <Trash
             onClick={handleCartItemDelete}
-            className="cursor-pointer mt-1 text-red-500"
-            size={20}
+            className="cursor-pointer mt-1 w-4 md:w-5 h-auto text-red-500"
           />
         </div>
       </div>

@@ -100,7 +100,7 @@ function SearchProducts() {
       {!searchResults.length ? (
         <h1 className="text-3xl lg:text-4xl font-extrabold">Tidak ada hasil yang ditemukan</h1>
       ) : null}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {searchResults.map((item) => (
           <ShoppingProductTile
             handleAddtoCart={handleAddtoCart}

@@ -22,6 +22,8 @@ import {
   Shirt,
   Brush,
   Sprout,
+  ArrowBigRight,
+  MoveRight,
 } from "lucide-react";
 
 const categoriesWithIcon = [
@@ -95,9 +97,9 @@ function ShoppingHome() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className=" md:container flex flex-col min-h-screen">
       {/* Banner Section */}
-      <div className="relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
+      <div className="  relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
         {landingBanners && landingBanners.length > 0 ? (
           landingBanners.map((slide, index) => (
             <div key={index}>
@@ -142,9 +144,9 @@ function ShoppingHome() {
       </div>
 
       {/* Category Section */}
-      <section className="md:container py-8 bg-gray-50">
-        <div className="mx-auto px-4">
-          <h2 className="text-xl md:text-3xl font-bold text-center">
+      <section className=" mt-6  bg-gray-50 rounded-xl md:p-2">
+        <div className="mx-auto p-6 ">
+          <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
             Belanja Berdasarkan Kategori
           </h2>
           <div className="grid grid-cols-3 lg:grid-cols-5 gap-4 py-4">
@@ -155,8 +157,8 @@ function ShoppingHome() {
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <CardContent className="flex flex-col items-center justify-center text-center p-3 md:p-6">
-                  <item.icon className="w-8 h-8 md:w-12 md:h-12 mb-4 text-primary" />
-                  <span className="font-bold text-sm md:text-base">
+                  <item.icon className="w-6 h-6 md:w-12 md:h-12 mb-4 text-primary" />
+                  <span className="font-bold text-xs md:text-base">
                     {item.label}
                   </span>
                 </CardContent>
@@ -167,12 +169,12 @@ function ShoppingHome() {
       </section>
 
       {/* Produk Unggulan */}
-      <section className="py-6 md:container md:py-12">
-        <div className="mx-auto px-4">
-          <h2 className="text-xl md:text-3xl font-bold text-center mb-8">
+      <section className=" mt-4  md:py-8">
+        <div className="mx-auto px-6">
+          <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
             Produk Unggulan
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 py-3 md:py-6">
             {latestProducts && latestProducts.length > 0 ? (
               latestProducts.map((product) => (
                 <ShoppingProductTile
@@ -187,9 +189,11 @@ function ShoppingHome() {
             )}
           </div>
 
-          <div className="text-center mt-8">
-            <Button onClick={() => navigate("/shop/listing")}>
+          <div className="mt-8">
+            <Button onClick={() => navigate("/shop/listing")}
+                    className ="flex gap-2 hover:shadow-lg">
               Lihat Semua
+              <MoveRight/>
             </Button>
           </div>
         </div>
