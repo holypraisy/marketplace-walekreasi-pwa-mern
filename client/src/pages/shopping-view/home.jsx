@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchAllFilteredProducts,
+  fetchLatestProducts,
   fetchProductDetails,
 } from "@/store/shop/products-slice";
 import {
@@ -19,8 +19,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Lamp,
   Gift,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Shirt,
   Brush,
   Sprout,
@@ -43,7 +41,7 @@ function ShoppingHome() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
-  const { productList, productDetails } = useSelector(
+  const { latestProducts, productDetails } = useSelector(
     (state) => state.shopProducts
   );
   const landingBanners = useSelector(selectLandingBanners);
@@ -52,17 +50,12 @@ function ShoppingHome() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % landingBanners.length);
-    }, 15000);
+    }, 3000);
     return () => clearInterval(timer);
   }, [landingBanners]);
 
   useEffect(() => {
-    dispatch(
-      fetchAllFilteredProducts({
-        filterParams: {},
-        sortParams: "price-lowtohigh",
-      })
-    );
+    dispatch(fetchLatestProducts());
   }, [dispatch]);
 
   useEffect(() => {
@@ -104,19 +97,19 @@ function ShoppingHome() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Banner Section */}
-      <div className="relative w-full h-[600px] overflow-hidden">
+      <div className="relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
         {landingBanners && landingBanners.length > 0 ? (
           landingBanners.map((slide, index) => (
             <div key={index}>
               <img
                 src={slide?.imageUrl}
                 alt={slide?.caption || "Banner"}
-                className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
+                className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                  index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+                }`}
               />
               {index === currentSlide && slide.caption && (
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center px-4">
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center px-4 z-20">
                   <h2 className="text-white text-2xl md:text-4xl font-bold drop-shadow text-center">
                     {slide.caption}
                   </h2>
@@ -125,57 +118,47 @@ function ShoppingHome() {
             </div>
           ))
         ) : (
-          <div className="flex items-center justify-center h-full bg-gray-200 text-gray-600">
-            Tidak ada banner landing tersedia.
+          <div className="flex items-center justify-center w-full h-full text-gray-600">
+            Tidak ada banner tersedia.
           </div>
         )}
 
-        {/* Navigation Buttons */}
+        {/* Dot Indicators */}
         {landingBanners.length > 1 && (
-          <>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentSlide(
-                  (prev) =>
-                    (prev - 1 + landingBanners.length) % landingBanners.length
-                )
-              }
-              className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80"
-            >
-              <ChevronLeftIcon className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentSlide((prev) => (prev + 1) % landingBanners.length)
-              }
-              className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80"
-            >
-              <ChevronRightIcon className="w-4 h-4" />
-            </Button>
-          </>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
+            {landingBanners.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full border transition-all duration-300 ${
+                  index === currentSlide
+                    ? "bg-white border-white"
+                    : "bg-white/50 border-white/50"
+                }`}
+              />
+            ))}
+          </div>
         )}
       </div>
 
       {/* Category Section */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">
+      <section className="md:container py-8 bg-gray-50">
+        <div className="mx-auto px-4">
+          <h2 className="text-xl md:text-3xl font-bold text-center">
             Belanja Berdasarkan Kategori
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-3 lg:grid-cols-5 gap-4 py-4">
             {categoriesWithIcon.map((item) => (
               <Card
                 key={item.id}
                 onClick={() => handleNavigateToListingPage(item, "category")}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
-                <CardContent className="flex flex-col items-center justify-center text-center p-6">
-                  <item.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{item.label}</span>
+                <CardContent className="flex flex-col items-center justify-center text-center p-3 md:p-6">
+                  <item.icon className="w-8 h-8 md:w-12 md:h-12 mb-4 text-primary" />
+                  <span className="font-bold text-sm md:text-base">
+                    {item.label}
+                  </span>
                 </CardContent>
               </Card>
             ))}
@@ -184,14 +167,14 @@ function ShoppingHome() {
       </section>
 
       {/* Produk Unggulan */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">
+      <section className="py-6 md:container md:py-12">
+        <div className="mx-auto px-4">
+          <h2 className="text-xl md:text-3xl font-bold text-center mb-8">
             Produk Unggulan
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productList && productList.length > 0 ? (
-              productList.map((product) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {latestProducts && latestProducts.length > 0 ? (
+              latestProducts.map((product) => (
                 <ShoppingProductTile
                   key={product._id}
                   product={product}
@@ -202,6 +185,12 @@ function ShoppingHome() {
             ) : (
               <p className="col-span-full text-center">Tidak ada produk</p>
             )}
+          </div>
+
+          <div className="text-center mt-8">
+            <Button onClick={() => navigate("/shop/listing")}>
+              Lihat Semua
+            </Button>
           </div>
         </div>
       </section>

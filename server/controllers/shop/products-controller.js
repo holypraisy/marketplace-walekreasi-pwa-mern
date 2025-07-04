@@ -49,7 +49,11 @@ const createProduct = async (req, res) => {
 // Ambil semua produk dengan filter dan sort
 const getFilteredProducts = async (req, res) => {
   try {
-    const { category = "", sortBy = "price-lowtohigh" } = req.query;
+    const {
+      category = "",
+      sortBy = "price-lowtohigh",
+      limit, // ✅ ambil limit dari query string
+    } = req.query;
 
     let filters = {};
     if (typeof category === "string" && category.trim() !== "") {
@@ -71,13 +75,25 @@ const getFilteredProducts = async (req, res) => {
       case "title-ztoa":
         sort.title = -1;
         break;
+      case "newest":
+        sort.createdAt = -1;
+        break;
       default:
         sort.price = 1;
     }
+    
 
-    const products = await Product.find(filters)
-      .sort(sort)
-      .populate("sellerId", "storeName storeLogoUrl");
+    // ✅ Apply limit jika ada
+    const query = Product.find(filters).sort(sort).populate("sellerId", "storeName storeLogoUrl");
+
+    if (limit) {
+      const limitNum = parseInt(limit);
+      if (!isNaN(limitNum) && limitNum > 0) {
+        query.limit(limitNum);
+      }
+    }
+
+    const products = await query;
 
     res.status(200).json({ success: true, data: products });
   } catch (error) {

@@ -1,8 +1,7 @@
 import { Card, CardContent, CardFooter } from "../ui/card";
-import { Button } from "../ui/button";
-import { categoryOptionsMap } from "@/config";
 import { Badge } from "../ui/badge";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Star } from "lucide-react";
+import { categoryOptionsMap } from "@/config";
 
 function ShoppingProductTile({
   product,
@@ -10,70 +9,76 @@ function ShoppingProductTile({
   handleAddtoCart,
 }) {
   return (
-    <Card className="w-full max-w-sm mx-auto">
-      <div onClick={() => handleGetProductDetails(product?._id)}>
+    <Card className="w-full max-w-[220px] mx-auto group overflow-hidden relative">
+      <div
+        onClick={() => handleGetProductDetails(product?._id)}
+        className="cursor-pointer"
+      >
         <div className="relative">
           <img
             src={product?.image}
             alt={product?.title}
-            className="w-full h-[300px] object-cover rounded-t-lg"
+            className="w-full h-32 md:h-40 object-cover"
           />
-          {product?.totalStock === 0 ? (  
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Out Of Stock
+
+          {product?.totalStock === 0 ? (
+            <Badge className="absolute top-2 left-2 bg-red-500 text-xs">
+              Stok Habis
             </Badge>
           ) : product?.totalStock < 10 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              {`Only ${product?.totalStock} items left`}
+            <Badge className="absolute top-2 left-2 bg-red-500 text-xs">
+              Sisa {product?.totalStock}
             </Badge>
           ) : product?.salePrice > 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Sale
-            </Badge>
+            <Badge className="absolute top-2 left-2 bg-red-500 text-xs">Promo</Badge>
           ) : null}
         </div>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
 
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[16px] text-muted-foreground">
-              {categoryOptionsMap[product?.category]}
-            </span>
+        <CardContent className="px-3 py-2">
+          <h2 className="text-sm font-semibold truncate">{product?.title}</h2>
+          <p className="text-xs text-muted-foreground truncate">
+            {categoryOptionsMap[product?.category]}
+          </p>
+
+          {/* Harga */}
+          <div className="flex flex-wrap items-center gap-1 text-sm mt-1 font-bold text-foreground">
+            {product?.salePrice > 0 ? (
+              <>
+                <span className="line-through text-muted-foreground">
+                  Rp.{product?.price}
+                </span>
+                <span>Rp.{product?.salePrice}</span>
+              </>
+            ) : (
+              <span>Rp.{product?.price}</span>
+            )}
           </div>
 
-          <div className="flex justify-between items-center mb-2">
-            <span
-              className={`${
-                product?.salePrice > 0 ? "line-through" : ""
-              } text-lg font-semibold text-primary`}
-            >
-              Rp.{product?.price}
-            </span>
-            {product?.salePrice > 0 ? (
-              <span className="text-lg font-semibold text-primary">
-                Rp.{product?.salePrice}
+          {/* ⭐ Rating */}
+          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+            <Star className="fill-yellow-400 stroke-yellow-400 w-4 h-4" />
+            <span>{(product?.rating || 0.0).toFixed(1)}</span>
+            {product?.totalReview && (
+              <span className="text-gray-400 ml-1">
+                | {product?.totalReview} ulasan
               </span>
-            ) : null}
+            )}
           </div>
         </CardContent>
-
-
       </div>
-      <CardFooter>
-        {product?.totalStock === 0 ? (
-          <Button className="w-full opacity-60 cursor-not-allowed">
-            Stok Habis
-          </Button>
-        ) : (
-          <Button
-            onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md transition-all duration-300 overflow-hidden group"
+
+      <CardFooter className="px-3 pb-3 pt-0 flex justify-end">
+        {product?.totalStock > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // supaya tidak trigger handleGetProductDetails
+              handleAddtoCart(product?._id, product?.totalStock);
+            }}
+            className="bg-primary hover:bg-primary/90 text-white rounded-full p-2 flex items-center justify-center"
+            title="Tambah ke Keranjang"
           >
-            <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
-                  Tambah ke Keranjang
-              </span>
-          </Button>
+            <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
+          </button>
         )}
       </CardFooter>
     </Card>

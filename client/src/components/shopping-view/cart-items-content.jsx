@@ -77,43 +77,45 @@ function UserCartItemsContent({ cartItem }) {
   };
 
   return (
-    <div className="flex items-center space-x-4 py-3 border-b">
+    <div className="flex items-center space-x-4 py-2 border-b">
       <img
         src={product.image}
         alt={product.title}
         className="w-20 h-20 rounded object-cover"
       />
-      <div className="flex-1">
-        <h3 className="font-extrabold text-base">{product.title}</h3>
-        <div className="flex items-center gap-2 mt-1">
-          <Button
-            variant="outline"
-            className="h-8 w-8 rounded-full"
-            size="icon"
-            onClick={() => handleUpdateQuantity("minus")}
-          >
-            <Minus className="w-4 h-4" />
-          </Button>
-          <span className="font-semibold">{currentQty}</span>
-          <Button
-            variant="outline"
-            className="h-8 w-8 rounded-full"
-            size="icon"
-            onClick={() => handleUpdateQuantity("plus")}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+      <div className="md:flex md:flex-1 ">
+        <div className="flex-1 ">
+          <h3 className="font-extrabold text-base">{product.title}</h3>
+          <div className="flex items-center gap-2 mt-1">
+            <Button
+              variant="outline"
+              className="h-8 w-8 rounded-full"
+              size="icon"
+              onClick={() => handleUpdateQuantity("minus")}
+            >
+              <Minus className="w-3 h-3 md:w-4 md:h-4" />
+            </Button>
+            <span className="font-semibold text-sm md:text-base ">{currentQty}</span>
+            <Button
+              variant="outline"
+              className="h-8 w-8 rounded-full"
+              size="icon"
+              onClick={() => handleUpdateQuantity("plus")}
+            >
+              <Plus className="w-3 h-3 md:w-4 md:h-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col items-end">
-        <p className="font-semibold">
-          Rp {totalPrice.toLocaleString("id-ID")}
-        </p>
-        <Trash
-          onClick={handleCartItemDelete}
-          className="cursor-pointer mt-1 text-red-500"
-          size={20}
-        />
+        <div className="flex gap-14 md:gap-0 mt-1 md:flex md:flex-col md:items-end">
+          <p className="font-semibold mt-1">
+            Rp {totalPrice.toLocaleString("id-ID")}
+          </p>
+          <Trash
+            onClick={handleCartItemDelete}
+            className="cursor-pointer mt-1 text-red-500"
+            size={20}
+          />
+        </div>
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ function ShoppingLayout() {
   return (
     <>
       {/* 👇 Mobile layout */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <MobileHeaderFooterLayout>
         <main className="flex-1 w-full">
           <Outlet />
@@ -18,7 +18,7 @@ function ShoppingLayout() {
       </div>
 
       {/* 👇 Desktop / tablet layout */}
-      <div className="hidden md:flex flex-col bg-white overflow-hidden min-h-screen">
+      <div className="hidden lg:flex flex-col bg-white overflow-hidden min-h-screen">
         <ShoppingHeader />
         <main className="flex-1 w-full">
           <Outlet />

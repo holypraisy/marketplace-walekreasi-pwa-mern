@@ -35,16 +35,16 @@ export default function MobileHeaderFooterLayout({ children }) {
         </div>
         <div className="flex items-center gap-4">
           <Link to="/shop/search">
-            <FiSearch className="w-5 h-5" />
+            <FiSearch className="w-6 h-6" />
           </Link>
 
           {/* Sheet for Cart */}
           <Sheet open={openCart} onOpenChange={setOpenCart}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
-                <FiShoppingCart className="w-5 h-5" />
+                <FiShoppingCart className="w-6 h-6" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
@@ -58,10 +58,14 @@ export default function MobileHeaderFooterLayout({ children }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4">{children}</main>
+      <main className="flex-1">{children}</main>
 
       {/* Fixed Footer */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow flex justify-around py-2">
+        <Link to="/auth/register-seller" className="flex flex-col items-center text-sm">
+          <FiBriefcase className="w-5 h-5 mb-1" />
+          <span>Jualan</span>
+        </Link>
         <Link to="/shop/home" className="flex flex-col items-center text-sm">
           <FiHome className="w-5 h-5 mb-1" />
           <span>Beranda</span>
@@ -69,10 +73,6 @@ export default function MobileHeaderFooterLayout({ children }) {
         <Link to="/shop/account" className="flex flex-col items-center text-sm">
           <FiUser className="w-5 h-5 mb-1" />
           <span>Akun</span>
-        </Link>
-        <Link to="/auth/register-seller" className="flex flex-col items-center text-sm">
-          <FiBriefcase className="w-5 h-5 mb-1" />
-          <span>Jualan</span>
         </Link>
       </nav>
     </div>

@@ -75,7 +75,6 @@ function ShoppingListing() {
     sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
   }
 
-  // ✅ Sudah menunggu hingga fetch selesai sebelum buka dialog
   async function handleGetProductDetails(getCurrentProductId) {
     const result = await dispatch(fetchProductDetails(getCurrentProductId));
     if (result?.payload) {
@@ -137,18 +136,21 @@ function ShoppingListing() {
       );
   }, [dispatch, sort, filters]);
 
-  // ❌ Hapus useEffect pembuka dialog berdasarkan productDetails
-  // ✅ Sekarang pembukaan dialog hanya dikontrol dari handler
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
-      <ProductFilter filters={filters} handleFilter={handleFilter} />
+    <div className="flex flex-col md:grid md:grid-cols-[220px_1fr] gap-4 md:gap-6 px-2 sm:px-4 md:px-6 py-4">
+      {/* Filter Sidebar (di atas di mobile) */}
+      <div className="md:block">
+        <ProductFilter filters={filters} handleFilter={handleFilter} />
+      </div>
+
+      {/* Konten Utama */}
       <div className="bg-background w-full rounded-lg shadow-sm">
-        <div className="p-4 border-b flex items-center justify-between">
-          <h2 className="text-lg font-extrabold">All Products</h2>
-          <div className="flex items-center gap-3">
-            <span className="text-muted-foreground">
-              {productList?.length} Products
+        {/* Header */}
+        <div className="p-3 sm:p-4 border-b flex flex-col sm:flex-row gap-2 sm:gap-0 sm:items-center sm:justify-between">
+          <h2 className="text-base sm:text-lg font-bold">Semua Produk</h2>
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+            <span className="text-sm text-muted-foreground">
+              {productList?.length} Produk
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -158,10 +160,10 @@ function ShoppingListing() {
                   className="flex items-center gap-1"
                 >
                   <ArrowUpDownIcon className="h-4 w-4" />
-                  <span>Sort by</span>
+                  <span className="text-sm">Sortir</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuContent align="end" className="w-44">
                 <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
                   {sortOptions.map((sortItem) => (
                     <DropdownMenuRadioItem
@@ -176,19 +178,27 @@ function ShoppingListing() {
             </DropdownMenu>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {productList && productList.length > 0
-            ? productList.map((productItem) => (
-                <ShoppingProductTile
-                  key={productItem._id} // ✅ Tambahkan key di sini
-                  handleGetProductDetails={handleGetProductDetails}
-                  product={productItem}
-                  handleAddtoCart={handleAddtoCart}
-                />
-              ))
-            : null}
+
+        {/* Grid Produk */}
+        <div className="grid grid-cols-2  md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 p-3 sm:p-4">
+          {productList && productList.length > 0 ? (
+            productList.map((productItem) => (
+              <ShoppingProductTile
+                key={productItem._id}
+                handleGetProductDetails={handleGetProductDetails}
+                product={productItem}
+                handleAddtoCart={handleAddtoCart}
+              />
+            ))
+          ) : (
+            <p className="text-muted-foreground col-span-full text-center py-6">
+              Tidak ada produk ditemukan.
+            </p>
+          )}
         </div>
       </div>
+
+      {/* Dialog Detail */}
       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}

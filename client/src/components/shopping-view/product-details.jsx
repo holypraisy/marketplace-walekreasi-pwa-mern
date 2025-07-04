@@ -19,17 +19,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { reviews } = useSelector((state) => state.shopReview);
   const { toast } = useToast();
 
-  function handleAddToCart(productId, totalStock) {
-    // Gabungkan semua item dari cartData yang dikelompokkan per toko
+  const handleAddToCart = (productId, totalStock) => {
     const allItems = cartData?.flatMap((group) => group.items) || [];
-
-    // Cek apakah produk sudah ada di keranjang
     const existingItem = allItems.find(
       (item) =>
         item?.productId?._id?.toString?.() === productId ||
         item?.productId?.toString?.() === productId
     );
-
     const currentQty = existingItem?.quantity || 0;
 
     if (currentQty + 1 > totalStock) {
@@ -57,16 +53,18 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         });
       }
     });
-  }
+  };
 
-  function handleDialogClose() {
-    setOpen(false);
-    setRating(0);
-  }
+  const handleDialogClose = (isOpen) => {
+    if (!isOpen) {
+      setOpen(false);
+      setRating(0);
+    }
+  };
 
   useEffect(() => {
-    if (productDetails !== null) {
-      dispatch(getReviews(productDetails?._id));
+    if (productDetails) {
+      dispatch(getReviews(productDetails._id));
     }
   }, [productDetails]);
 
@@ -77,18 +75,20 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:p-8 max-w-[90vw] md:max-w-[70vw]">
+      <DialogContent className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:px-6 sm:py-8 max-w-[95vw] lg:max-w-[80vw]">
+        {/* Gambar Produk */}
         <div className="relative overflow-hidden rounded-lg">
           <img
             src={productDetails?.image}
             alt={productDetails?.title}
-            className="aspect-square w-full object-cover"
+            className="aspect-square w-full object-cover rounded-lg"
           />
         </div>
 
-        <div>
+        {/* Konten Detail */}
+        <div className="flex flex-col">
           <DialogTitle asChild>
-            <h1 className="text-2xl md:text-3xl font-extrabold">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug">
               {productDetails?.title}
             </h1>
           </DialogTitle>
@@ -101,26 +101,26 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
           {/* Deskripsi */}
           <div className="mt-4">
-            <h2 className="text-sm text-muted-foreground mb-1">Deskripsi:</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground mb-1">Deskripsi:</h2>
             <p className="text-sm text-gray-700">
               {productDetails?.description || "Tidak ada deskripsi produk."}
             </p>
           </div>
 
-          {/* Info toko + kunjungi */}
+          {/* Info Toko */}
           {productDetails?.storeName && productDetails?.sellerId && (
-            <div className="flex justify-between items-center mt-3">
+            <div className="flex flex-wrap items-center justify-between mt-4 gap-2">
               <div className="text-sm flex items-center gap-1 text-muted-foreground">
-                <Store className="text-primary w-5" />
-                <span className="font-bold text-base text-gray-800">
+                <Store className="text-primary w-5 h-5" />
+                <span className="font-semibold text-gray-800">
                   {productDetails.storeName}
                 </span>
               </div>
               <Link
                 to={`/shop/store/${productDetails.sellerId}`}
-                className="text-sm bg-primary text-white px-2 py-1 rounded hover:opacity-90"
+                className="text-xs sm:text-sm bg-primary text-white px-3 py-1 rounded hover:opacity-90"
               >
-                Kunjungi
+                Kunjungi Toko
               </Link>
             </div>
           )}
@@ -128,61 +128,59 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
           {/* Harga */}
           <div className="flex items-center justify-between mt-4">
             <p
-              className={`text-3xl font-bold text-primary ${
+              className={`text-2xl font-bold text-primary ${
                 productDetails?.salePrice > 0 ? "line-through" : ""
               }`}
             >
               Rp. {productDetails?.price?.toLocaleString("id-ID")}
             </p>
             {productDetails?.salePrice > 0 && (
-              <p className="text-2xl font-bold text-muted-foreground">
+              <p className="text-xl font-bold text-muted-foreground">
                 Rp. {productDetails.salePrice?.toLocaleString("id-ID")}
               </p>
             )}
           </div>
 
           {/* Tombol Add to Cart */}
-          <div className="mt-5 mb-5 grid justify-end">
+          <div className="mt-5">
             {productDetails?.totalStock === 0 ? (
-              <Button className="opacity-60 cursor-not-allowed">
+              <Button className="opacity-60 cursor-not-allowed w-full">
                 Stok Habis
               </Button>
             ) : (
               <Button
                 onClick={() =>
-                  handleAddToCart(productDetails?._id, productDetails?.totalStock)
+                  handleAddToCart(productDetails._id, productDetails.totalStock)
                 }
-                className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md transition-all duration-300 overflow-hidden group"
+                className="flex items-center justify-center gap-2 w-full bg-primary text-white px-4 py-2 rounded-md transition-all duration-300"
               >
-                <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-                <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">
-                  Tambah ke Keranjang
-                </span>
+                <ShoppingCart className="h-5 w-5" />
+                <span className="text-sm">Tambah ke Keranjang</span>
               </Button>
             )}
           </div>
 
-          <Separator />
+          <Separator className="my-5" />
 
           {/* Review Section */}
-          <div className="max-h-[300px] overflow-auto mt-4">
-            <h2 className="text-xl font-bold mb-2">Ulasan</h2>
-            <div className="grid gap-6">
+          <div className="max-h-[250px] overflow-y-auto">
+            <h2 className="text-lg font-bold mb-3">Ulasan</h2>
+            <div className="grid gap-4">
               {reviews && reviews.length > 0 ? (
                 reviews.map((review) => (
-                  <div className="flex gap-4" key={review._id}>
+                  <div className="flex gap-3" key={review._id}>
                     <Avatar className="w-10 h-10 border">
                       <AvatarFallback>
-                        {review?.userName[0].toUpperCase()}
+                        {review?.userName?.[0]?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="grid gap-1">
-                      <h3 className="font-bold">{review?.userName}</h3>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-semibold">{review?.userName}</span>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <FaStar className="text-yellow-400 mr-1" />
                         {review?.reviewValue}
                       </div>
-                      <p className="text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {review.reviewMessage}
                       </p>
                     </div>

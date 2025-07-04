@@ -29,7 +29,7 @@ function UserCartWrapper({ setOpenCartSheet }) {
         {itemsByStore.length > 0 ? (
           itemsByStore.map((storeGroup) => (
             <div key={storeGroup.storeId} className="mb-6">
-              <h3 className="font-bold text-lg mb-2">{storeGroup.storeName}</h3>
+              <h3 className="font-bold text-base md:text-lg">{storeGroup.storeName}</h3>
               {storeGroup.items.map((item) => (
                 <UserCartItemsContent cartItem={item} key={item.productId._id || item.productId} />
               ))}

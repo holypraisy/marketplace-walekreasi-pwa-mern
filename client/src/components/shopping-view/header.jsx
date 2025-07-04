@@ -87,17 +87,27 @@ function HeaderRightContent() {
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-6">
+      <div className="">
+        <Button 
+        onClick={() => window.location.href = "/shop/search"}
+        variant="none"
+        size="icon"
+        >
+          <Search className="w-6 h-6"/>
+        </Button>
+            
+      </div>
       {/* 🛒 Cart */}
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
-          variant="outline"
+          variant="none"
           size="icon"
           className="relative"
         >
           <ShoppingCart className="w-6 h-6" />
-          <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
+          <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
             {totalItems}
           </span>
 
@@ -110,8 +120,8 @@ function HeaderRightContent() {
       {(user?.userName || user?.name) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="bg-black">
-              <AvatarFallback className="bg-black text-white font-extrabold">
+            <Avatar className="bg-primary">
+              <AvatarFallback className="bg-primary text-white font-extrabold">
                 {(user?.userName || user?.name || user?.email || "?")[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -150,14 +160,6 @@ function ShoppingHeader() {
           />
           <span className="font-bold text-xl lg:text-2xl">Wale Kreasi</span>
         </Link>
-
-        <div
-          onClick={() => window.location.href = "/shop/search"}
-          className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition-colors w-full max-w-md cursor-pointer"
-        >
-          <Search className="w-5 h-5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Cari produk...</span>
-        </div>
 
         <div className="hidden lg:flex items-center gap-4">
           <HeaderRightContent />

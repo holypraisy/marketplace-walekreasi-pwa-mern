@@ -93,12 +93,12 @@ function SearchProducts() {
             name="keyword"
             onChange={(event) => setKeyword(event.target.value)}
             className="py-6"
-            placeholder="Search Products..."
+            placeholder="Ketik Pencarian Anda disini..."
           />
         </div>
       </div>
       {!searchResults.length ? (
-        <h1 className="text-5xl font-extrabold">No result found!</h1>
+        <h1 className="text-3xl lg:text-4xl font-extrabold">Tidak ada hasil yang ditemukan</h1>
       ) : null}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {searchResults.map((item) => (
