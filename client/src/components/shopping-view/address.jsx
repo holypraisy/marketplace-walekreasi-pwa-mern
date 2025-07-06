@@ -11,6 +11,15 @@ import {
 } from "@/store/shop/address-slice";
 import AddressCard from "./address-card";
 import { useToast } from "../ui/use-toast";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { CirclePlus } from "lucide-react";
 
 const initialAddressFormData = {
   receiverName: "",
@@ -24,81 +33,78 @@ const initialAddressFormData = {
 function Address({ setCurrentSelectedAddress, selectedId }) {
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
+  const [openFormDialog, setOpenFormDialog] = useState(false); // 👈 kontrol dialog
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
   const { toast } = useToast();
 
+  useEffect(() => {
+    dispatch(fetchAllAddresses(user?.id));
+  }, [dispatch, user?.id]);
+
+  const handleOpenAddForm = () => {
+    setCurrentEditedId(null);
+    setFormData(initialAddressFormData);
+    setOpenFormDialog(true);
+  };
+
   function handleManageAddress(event) {
     event.preventDefault();
 
     if (addressList.length >= 3 && currentEditedId === null) {
-      setFormData(initialAddressFormData);
       toast({
         title: "Anda dapat menambahkan maksimal 3 alamat.",
         variant: "destructive",
       });
-
       return;
     }
 
-    currentEditedId !== null
-      ? dispatch(
-          editaAddress({
-            userId: user?.id,
-            addressId: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
-            setCurrentEditedId(null);
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Alamat Berhasil Diperbaharui",
-            });
-          }
+    const action = currentEditedId !== null
+      ? editaAddress({
+          userId: user?.id,
+          addressId: currentEditedId,
+          formData,
         })
-      : dispatch(
-          addNewAddress({
-            ...formData,
-            userId: user?.id,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
-            setFormData(initialAddressFormData);
-            toast({
-              title: "Alamat Berhasil Ditambahkan ",
-            });
-          }
+      : addNewAddress({
+          ...formData,
+          userId: user?.id,
         });
-  }
 
-  function handleDeleteAddress(getCurrentAddress) {
-    dispatch(
-      deleteAddress({ userId: user?.id, addressId: getCurrentAddress._id })
-    ).then((data) => {
+    dispatch(action).then((data) => {
       if (data?.payload?.success) {
         dispatch(fetchAllAddresses(user?.id));
+        setFormData(initialAddressFormData);
+        setCurrentEditedId(null);
         toast({
-          title: "Alamat Berhasil Dihapus",
+          title: currentEditedId ? "Alamat diperbarui" : "Alamat ditambahkan",
         });
+        setOpenFormDialog(false); // Tutup dialog
       }
     });
   }
 
-  function handleEditAddress(getCuurentAddress) {
-    setCurrentEditedId(getCuurentAddress?._id);
+  function handleDeleteAddress(address) {
+    dispatch(deleteAddress({ userId: user?.id, addressId: address._id }))
+      .then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllAddresses(user?.id));
+          toast({ title: "Alamat Berhasil Dihapus" });
+        }
+      });
+  }
+
+  function handleEditAddress(address) {
     setFormData({
-      ...formData,
-      receiverName: getCuurentAddress?.receiverName,
-      address: getCuurentAddress?.address,
-      city: getCuurentAddress?.city,
-      phone: getCuurentAddress?.phone,
-      pincode: getCuurentAddress?.pincode,
-      notes: getCuurentAddress?.notes,
+      receiverName: address?.receiverName,
+      address: address?.address,
+      city: address?.city,
+      phone: address?.phone,
+      pincode: address?.pincode,
+      notes: address?.notes,
     });
+    setCurrentEditedId(address?._id);
+    setOpenFormDialog(true);
   }
 
   function isFormValid() {
@@ -107,43 +113,51 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       .every((item) => item);
   }
 
-
-  useEffect(() => {
-    dispatch(fetchAllAddresses(user?.id));
-  }, [dispatch]);
-
-  console.log(addressList, "addressList");
-
   return (
     <Card>
-      <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2  gap-2">
-        {addressList && addressList.length > 0
-          ? addressList.map((singleAddressItem) => (
-              <AddressCard
-                selectedId={selectedId}
-                handleDeleteAddress={handleDeleteAddress}
-                addressInfo={singleAddressItem}
-                handleEditAddress={handleEditAddress}
-                setCurrentSelectedAddress={setCurrentSelectedAddress}
-              />
-            ))
-          : null}
-      </div>
-      <CardHeader>
-        <CardTitle>
-          {currentEditedId !== null ? "Ubah Alamat" : "Tambah Alamat Baru"}
-        </CardTitle>
+      {/* Header */}
+      <CardHeader className="flex flex-row justify-between items-center px-4">
+        <CardTitle className="text-xl font-bold">Alamat</CardTitle>
+        <Button className="bg-primary text-white" 
+                onClick={handleOpenAddForm}>
+          <CirclePlus className="mr-3"/>
+          Tambah Alamat
+        </Button>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <CommonForm
-          formControls={addressFormControls}
-          formData={formData}
-          setFormData={setFormData}
-          buttonText={currentEditedId !== null ? "Ubah" : "Tambah"}
-          onSubmit={handleManageAddress}
-          isBtnDisabled={!isFormValid()}
-        />
-      </CardContent>
+
+      {/* Daftar Alamat */}
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {addressList?.map((addressItem) => (
+          <AddressCard
+            key={addressItem._id}
+            selectedId={selectedId}
+            handleDeleteAddress={handleDeleteAddress}
+            handleEditAddress={handleEditAddress}
+            addressInfo={addressItem}
+            setCurrentSelectedAddress={setCurrentSelectedAddress}
+          />
+        ))}
+      </div>
+
+      {/* Form Tambah/Ubah dalam Dialog */}
+      <Dialog open={openFormDialog} onOpenChange={setOpenFormDialog}>
+        <DialogContent className="max-w-full md:max-w-screen-md max-h-lvh md:max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {currentEditedId !== null ? "Ubah Alamat" : "Tambah Alamat"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <CommonForm
+            formControls={addressFormControls}
+            formData={formData}
+            setFormData={setFormData}
+            buttonText={currentEditedId !== null ? "Ubah" : "Tambah"}
+            onSubmit={handleManageAddress}
+            isBtnDisabled={!isFormValid()}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

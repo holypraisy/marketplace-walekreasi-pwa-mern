@@ -13,7 +13,7 @@ const createOrder = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: "User tidak ditemukan." });
 
-    // Perbarui setiap item dalam keranjang
+    // Perbarui setiap item dalam keranjang dengan data lengkap
     const updatedCartItems = await Promise.all(
       cartItems.map(async (item) => {
         const product = await Product.findById(item.productId);
@@ -22,11 +22,13 @@ const createOrder = async (req, res) => {
         const seller = await Seller.findById(product.sellerId);
 
         return {
-          ...item,
-          sellerId: product.sellerId, // Tambahkan sellerId untuk pelacakan
+          productId: product._id.toString(),
+          sellerId: product.sellerId,
           storeName: seller?.storeName || "Toko Tidak Diketahui",
           title: product?.title || "Produk",
+          image: product?.image || "",
           price: product?.salePrice > 0 ? product.salePrice : product.price,
+          quantity: item.quantity,
         };
       })
     );
@@ -40,7 +42,7 @@ const createOrder = async (req, res) => {
 
     const newOrder = new Order({
       userId,
-      sellerId, // Tambahkan sellerId di level order
+      sellerId,
       cartId,
       cartItems: updatedCartItems,
       addressInfo,
@@ -59,10 +61,10 @@ const createOrder = async (req, res) => {
         gross_amount: totalAmount,
       },
       item_details: updatedCartItems.map((item) => ({
-        id: item.productId.toString(),
+        id: item.productId,
         price: item.price,
         quantity: item.quantity,
-        name: `${item.title} | Toko: ${item.storeName}`.slice(0, 50), // Batas 50 karakter
+        name: `${item.title} | Toko: ${item.storeName}`.slice(0, 50),
       })),
       customer_details: {
         first_name: addressInfo?.receiverName,

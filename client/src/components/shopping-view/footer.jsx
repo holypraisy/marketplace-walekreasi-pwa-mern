@@ -24,7 +24,7 @@ function Footer() {
             </p>
             <Link
               to="/auth/register-seller"
-              className="inline-block bg-primary text-white px-4 py-2 rounded-md text-sm hover:bg-accent transition"
+              className="inline-block bg-primary text-white px-4 py-2 rounded-full text-sm hover:bg-accent transition"
             >
               Mulai Berjualan
             </Link>

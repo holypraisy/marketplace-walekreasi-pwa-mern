@@ -1,115 +1,111 @@
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Dialog } from "../ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
-import ShoppingOrderDetailsView from "./order-details";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllOrdersByUserId,
   getOrderDetails,
   resetOrderDetails,
 } from "@/store/shop/order-slice";
-import { Badge } from "../ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import ShoppingOrderDetailsView from "./order-details";
 
-function ShoppingOrders() {
+function ShoppingOrders({ activeStatus }) {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
-
-  function handleFetchOrderDetails(getId) {
-    dispatch(getOrderDetails(getId));
-  }
+  const { orderList, orderDetails, isLoading } = useSelector(
+    (state) => state.shopOrder
+  );
 
   useEffect(() => {
-    dispatch(getAllOrdersByUserId(user?.id));
-  }, [dispatch]);
+    if (user?.id) {
+      dispatch(getAllOrdersByUserId(user.id));
+    }
+  }, [dispatch, user?.id]);
 
-  useEffect(() => {
-    if (orderDetails !== null) setOpenDetailsDialog(true);
-  }, [orderDetails]);
+  const filteredOrders =
+    activeStatus === "review"
+      ? orderList?.filter(
+          (order) => order?.orderStatus === "Sudah Diterima" && !order?.isReviewed
+        )
+      : orderList?.filter((order) => order?.orderStatus === activeStatus);
 
-  console.log(orderDetails, "orderDetails");
+  const handleFetchOrderDetails = (orderId) => {
+    dispatch(getOrderDetails(orderId));
+    setOpenDetailsDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDetailsDialog(false);
+    dispatch(resetOrderDetails());
+  };
+
+  if (isLoading) return <p className="text-sm text-gray-500">Memuat data...</p>;
+
+  if (!filteredOrders || filteredOrders.length === 0)
+    return <p className="text-sm text-gray-500">Belum ada pesanan untuk status ini.</p>;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Riwayat Pesanan</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-          <TableRow>
-            <TableHead>Kode Pesanan</TableHead>
-            <TableHead>Nama Produk</TableHead>
-            <TableHead>Tanggal</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Total</TableHead>
-            
-            <TableHead>
-              <span className="sr-only">Detail</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orderList && orderList.length > 0
-            ? orderList.map((orderItem) => (
-                <TableRow key={orderItem._id}>
-                  <TableCell>{orderItem?._id}</TableCell>
-                  <TableCell>
-                    <ul className="list-disc ml-4">
-                      {orderItem?.cartItems?.map((item, index) => (
-                        <li key={index}>{item.title}</li>
-                      ))}
-                    </ul>
-                  </TableCell>
+    <>
+      <div className="space-y-4">
+        {filteredOrders.map((orderItem) => (
+          <div
+            key={orderItem._id}
+            className="flex flex-col gap-3 border p-4 rounded-lg shadow-sm bg-white"
+          >
+            {orderItem.cartItems.map((item, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-20 h-20 object-cover rounded-md border"
+                />
 
-                  <TableCell>{orderItem?.orderDate?.split("T")[0]}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`py-1 px-3 ${
-                        orderItem?.orderStatus === "confirmed"
-                          ? "bg-green-500"
-                          : orderItem?.orderStatus === "rejected"
-                          ? "bg-red-600"
-                          : "bg-black"
-                      }`}
-                    >
-                      {orderItem?.orderStatus}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>Rp.{orderItem?.totalAmount}</TableCell>
+                <div className="flex flex-col gap-1 text-sm">
+                  <p className="font-medium text-primary">{item.title}</p>
+                  <p className="text-gray-500">
+                    Tanggal: {orderItem?.orderDate?.split("T")[0]}
+                  </p>
+                  <Badge
+                    className={`w-fit mt-1 ${
+                      {
+                        "Menunggu Konfirmasi": "bg-gray-500",
+                        Diproses: "bg-yellow-500",
+                        "Dalam Pengiriman": "bg-blue-500",
+                        "Sudah Diterima": "bg-green-500",
+                        Ditolak: "bg-red-600",
+                      }[orderItem?.orderStatus] || "bg-black"
+                    }`}
+                  >
+                    {orderItem?.orderStatus}
+                  </Badge>
+                  <p className="text-gray-700 font-semibold mt-2">
+                    Total: Rp.{Number(orderItem?.totalAmount).toLocaleString("id-ID")}
+                  </p>
 
-                  <TableCell>
-                    <Dialog
-                      open={openDetailsDialog}
-                      onOpenChange={() => {
-                        setOpenDetailsDialog(false);
-                        dispatch(resetOrderDetails());
-                      }}
-                    >
-                      <Button onClick={() => handleFetchOrderDetails(orderItem?._id)}>
-                        Lihat Detail
-                      </Button>
-                      <ShoppingOrderDetailsView orderDetails={orderDetails} />
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))
-            : null}
-        </TableBody>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 w-fit"
+                    onClick={() => handleFetchOrderDetails(orderItem._id)}
+                  >
+                    Lihat Detail
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
 
-        </Table>
-      </CardContent>
-    </Card>
+      {/* Dialog Global */}
+      <Dialog open={openDetailsDialog} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-full sm:max-w-[700px] max-h-lvh sm:max-h-[90vh] overflow-y-auto">
+          {orderDetails && <ShoppingOrderDetailsView orderDetails={orderDetails} />}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
