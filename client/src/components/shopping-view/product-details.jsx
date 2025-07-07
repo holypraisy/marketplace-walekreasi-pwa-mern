@@ -197,4 +197,4 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   );
 }
 
-export default ProductDetailsDialog;
+export default ProductDetailsDialog; 

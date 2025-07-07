@@ -139,7 +139,7 @@ export default function CustomerProfileTabs() {
         <TabsContent value="akun">
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg md:text-xl">Biodata Pengguna</CardTitle>
+              <CardTitle className="text-lg md:text-xl font-semibold text-primary">Biodata Pengguna</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4">
               <div>
@@ -157,7 +157,7 @@ export default function CustomerProfileTabs() {
         <TabsContent value="pesanan">
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-base sm:text-lg md:text-xl font-semibold text-brown-800">
+            <CardTitle className="text-lg md:text-xl font-semibold text-primary">
               Riwayat Pesanan
             </CardTitle>
           </CardHeader>
@@ -200,16 +200,16 @@ export default function CustomerProfileTabs() {
         </TabsContent>
       </Tabs>
 
-      <div className="p-8">
+      <div className="p-4">
         <div>
           <Link to="/auth/register-seller"
-                className="w-full lg:w-1/4 flex gap-2 p-3 items-center bg-secondary/50 rounded-md mb-4 ">
+                className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md mb-4 ">
             <Store className="w-4 md:w-5"/>
             <p className="text-base md:text-lg">Buka Toko di Wale Kreasi</p>
           </Link>
         </div>
 
-        <div className="w-full lg:w-1/4 flex gap-2 p-3 items-center bg-secondary/50 rounded-md cursor-pointer">
+        <div className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md cursor-pointer">
           <LogOut onClick={handleLogout}
                   className="w-4 md:w-5 "/>
           <p className="text-base md:text-lg">Keluar</p>

@@ -6,7 +6,7 @@ import {
   resetOrderDetails,
 } from "@/store/shop/order-slice";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import ShoppingOrderDetailsView from "./order-details";
 
@@ -27,7 +27,8 @@ function ShoppingOrders({ activeStatus }) {
   const filteredOrders =
     activeStatus === "review"
       ? orderList?.filter(
-          (order) => order?.orderStatus === "Sudah Diterima" && !order?.isReviewed
+          (order) =>
+            order?.orderStatus === "Sudah Diterima" && !order?.isReviewed
         )
       : orderList?.filter((order) => order?.orderStatus === activeStatus);
 
@@ -41,10 +42,15 @@ function ShoppingOrders({ activeStatus }) {
     dispatch(resetOrderDetails());
   };
 
-  if (isLoading) return <p className="text-sm text-gray-500">Memuat data...</p>;
+  if (isLoading)
+    return <p className="text-sm text-gray-500">Memuat data...</p>;
 
   if (!filteredOrders || filteredOrders.length === 0)
-    return <p className="text-sm text-gray-500">Belum ada pesanan untuk status ini.</p>;
+    return (
+      <p className="text-sm text-gray-500">
+        Belum ada pesanan untuk status ini.
+      </p>
+    );
 
   return (
     <>
@@ -52,42 +58,49 @@ function ShoppingOrders({ activeStatus }) {
         {filteredOrders.map((orderItem) => (
           <div
             key={orderItem._id}
-            className="flex flex-col gap-3 border p-4 rounded-lg shadow-sm bg-white"
+            className="border border-gray-200 p-4 rounded-lg shadow-sm bg-white"
           >
             {orderItem.cartItems.map((item, index) => (
-              <div key={index} className="flex items-start gap-4">
+              <div
+                key={index}
+                className="flex gap-4 items-start"
+              >
+                {/* Gambar Produk */}
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-20 h-20 object-cover rounded-md border"
+                  className="w-24 h-24 object-cover rounded-md border"
                 />
 
-                <div className="flex flex-col gap-1 text-sm">
-                  <p className="font-medium text-primary">{item.title}</p>
-                  <p className="text-gray-500">
-                    Tanggal: {orderItem?.orderDate?.split("T")[0]}
-                  </p>
-                  <Badge
-                    className={`w-fit mt-1 ${
-                      {
-                        "Menunggu Konfirmasi": "bg-gray-500",
-                        Diproses: "bg-yellow-500",
-                        "Dalam Pengiriman": "bg-blue-500",
-                        "Sudah Diterima": "bg-green-500",
-                        Ditolak: "bg-red-600",
-                      }[orderItem?.orderStatus] || "bg-black"
-                    }`}
-                  >
-                    {orderItem?.orderStatus}
-                  </Badge>
-                  <p className="text-gray-700 font-semibold mt-2">
-                    Total: Rp.{Number(orderItem?.totalAmount).toLocaleString("id-ID")}
-                  </p>
+                {/* Info Produk */}
+                <div className="flex flex-col justify-between flex-1 text-sm gap-4">
+                  <div className="flex flex-col gap-2">
+                    <p className="font-semibold text-gray-800">{item.title}</p>
+                    <p className="text-gray-500">
+                      Tanggal: {orderItem?.orderDate?.split("T")[0]}
+                    </p>
+                    <Badge
+                      className={`w-fit ${
+                        {
+                          "Menunggu Konfirmasi": "bg-gray-500",
+                          Diproses: "bg-yellow-500",
+                          "Dalam Pengiriman": "bg-blue-500",
+                          "Sudah Diterima": "bg-green-500",
+                          Ditolak: "bg-red-600",
+                        }[orderItem?.orderStatus] || "bg-black"
+                      }`}
+                    >
+                      {orderItem?.orderStatus}
+                    </Badge>
+                    <p className="text-gray-700 font-semibold">
+                      Total: Rp.{Number(orderItem?.totalAmount).toLocaleString("id-ID")}
+                    </p>
+                  </div>
 
                   <Button
                     size="sm"
                     variant="outline"
-                    className="mt-2 w-fit"
+                    className="w-fit"
                     onClick={() => handleFetchOrderDetails(orderItem._id)}
                   >
                     Lihat Detail
@@ -102,7 +115,9 @@ function ShoppingOrders({ activeStatus }) {
       {/* Dialog Global */}
       <Dialog open={openDetailsDialog} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-full sm:max-w-[700px] max-h-lvh sm:max-h-[90vh] overflow-y-auto">
-          {orderDetails && <ShoppingOrderDetailsView orderDetails={orderDetails} />}
+          {orderDetails && (
+            <ShoppingOrderDetailsView orderDetails={orderDetails} />
+          )}
         </DialogContent>
       </Dialog>
     </>

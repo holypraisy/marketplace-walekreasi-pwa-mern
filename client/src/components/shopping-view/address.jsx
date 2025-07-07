@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Pencil, Trash2 } from "lucide-react";
 
 const initialAddressFormData = {
   receiverName: "",
@@ -114,11 +114,11 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   return (
-    <Card>
+    <Card className="px-2">
       {/* Header */}
-      <CardHeader className="flex flex-row justify-between items-center px-4">
-        <CardTitle className="text-xl font-bold">Alamat</CardTitle>
-        <Button className="bg-primary text-white" 
+      <CardHeader className="flex">
+        <CardTitle className="text-lg md:text-xl font-semibold text-primary">Daftar Alamat</CardTitle>
+        <Button className="bg-primary text-white w-fit" 
                 onClick={handleOpenAddForm}>
           <CirclePlus className="mr-3"/>
           Tambah Alamat
