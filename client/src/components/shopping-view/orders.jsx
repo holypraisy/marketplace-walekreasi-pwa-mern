@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import ShoppingOrderDetailsView from "./order-details";
+// import { useNavigate } from "react-router-dom"; // jika nanti ingin arahkan ke form review
 
 function ShoppingOrders({ activeStatus }) {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -17,6 +18,7 @@ function ShoppingOrders({ activeStatus }) {
   const { orderList, orderDetails, isLoading } = useSelector(
     (state) => state.shopOrder
   );
+  // const navigate = useNavigate(); // aktifkan jika ingin routing
 
   useEffect(() => {
     if (user?.id) {
@@ -28,9 +30,10 @@ function ShoppingOrders({ activeStatus }) {
     activeStatus === "review"
       ? orderList?.filter(
           (order) =>
-            order?.orderStatus === "Sudah Diterima" && !order?.isReviewed
+            order.orderStatus === "Sudah Diterima" &&
+            order.cartItems.some((item) => item.isReviewed === false)
         )
-      : orderList?.filter((order) => order?.orderStatus === activeStatus);
+      : orderList?.filter((order) => order.orderStatus === activeStatus);
 
   const handleFetchOrderDetails = (orderId) => {
     dispatch(getOrderDetails(orderId));
@@ -41,6 +44,10 @@ function ShoppingOrders({ activeStatus }) {
     setOpenDetailsDialog(false);
     dispatch(resetOrderDetails());
   };
+
+  // const handleGiveReview = (productId) => {
+  //   navigate(`/review/${productId}`); // routing ke halaman form review jika tersedia
+  // };
 
   if (isLoading)
     return <p className="text-sm text-gray-500">Memuat data...</p>;
@@ -60,54 +67,74 @@ function ShoppingOrders({ activeStatus }) {
             key={orderItem._id}
             className="border border-gray-200 p-4 rounded-lg shadow-sm bg-white"
           >
-            {orderItem.cartItems.map((item, index) => (
-              <div
-                key={index}
-                className="flex gap-4 items-start"
-              >
-                {/* Gambar Produk */}
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-24 h-24 object-cover rounded-md border"
-                />
+            {orderItem.cartItems
+              .filter(
+                (item) =>
+                  activeStatus !== "review" || item.isReviewed === false
+              )
+              .map((item, index) => (
+                <div key={index} className="flex gap-4 items-start">
+                  {/* Gambar Produk */}
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-24 h-24 object-cover rounded-md border"
+                  />
 
-                {/* Info Produk */}
-                <div className="flex flex-col justify-between flex-1 text-sm gap-4">
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold text-gray-800">{item.title}</p>
-                    <p className="text-gray-500">
-                      Tanggal: {orderItem?.orderDate?.split("T")[0]}
-                    </p>
-                    <Badge
-                      className={`w-fit ${
-                        {
-                          "Menunggu Konfirmasi": "bg-gray-500",
-                          Diproses: "bg-yellow-500",
-                          "Dalam Pengiriman": "bg-blue-500",
-                          "Sudah Diterima": "bg-green-500",
-                          Ditolak: "bg-red-600",
-                        }[orderItem?.orderStatus] || "bg-black"
-                      }`}
-                    >
-                      {orderItem?.orderStatus}
-                    </Badge>
-                    <p className="text-gray-700 font-semibold">
-                      Total: Rp.{Number(orderItem?.totalAmount).toLocaleString("id-ID")}
-                    </p>
+                  {/* Info Produk */}
+                  <div className="flex flex-col justify-between flex-1 text-sm gap-4">
+                    <div className="flex flex-col gap-2">
+                      <p className="font-semibold text-gray-800">
+                        {item.title}
+                      </p>
+                      <p className="text-gray-500">
+                        Tanggal: {orderItem?.orderDate?.split("T")[0]}
+                      </p>
+                      <Badge
+                        className={`w-fit ${
+                          {
+                            "Menunggu Konfirmasi": "bg-gray-500",
+                            Diproses: "bg-yellow-500",
+                            "Dalam Pengiriman": "bg-blue-500",
+                            "Sudah Diterima": "bg-green-500",
+                            Ditolak: "bg-red-600",
+                          }[orderItem?.orderStatus] || "bg-black"
+                        }`}
+                      >
+                        {orderItem?.orderStatus}
+                      </Badge>
+                      <p className="text-gray-700 font-semibold">
+                        Total: Rp.
+                        {Number(orderItem?.totalAmount).toLocaleString("id-ID")}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-fit"
+                        onClick={() => handleFetchOrderDetails(orderItem._id)}
+                      >
+                        Lihat Detail
+                      </Button>
+
+                      {activeStatus === "review" && (
+                        <Button
+                          size="sm"
+                          className="w-fit bg-yellow-500 hover:bg-yellow-600 text-white"
+                          onClick={() => {
+                            // handleGiveReview(item.productId); // nanti arahkan ke form review
+                            alert("Buka form review untuk produk: " + item.title);
+                          }}
+                        >
+                          Beri Review
+                        </Button>
+                      )}
+                    </div>
                   </div>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-fit"
-                    onClick={() => handleFetchOrderDetails(orderItem._id)}
-                  >
-                    Lihat Detail
-                  </Button>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         ))}
       </div>

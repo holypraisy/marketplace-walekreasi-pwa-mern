@@ -1,12 +1,53 @@
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Badge } from "../ui/badge";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import StarRatingComponent from "../../components/common/star-rating"; // sesuaikan jika perlu
+import { addReview } from "@/store/shop/review-slice"; // GANTI ke addReview
 
 function ShoppingOrderDetailsView({ orderDetails }) {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const item = orderDetails?.cartItems?.[0]; // hanya tampilkan 1 produk
 
-  const item = orderDetails?.cartItems?.[0]; // hanya ambil 1 produk pertama
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+const handleSubmitReview = async () => {
+  setIsSubmitting(true);
+  try {
+    const formData = {
+      userId: user.id,
+      productId: item.productId,
+      orderId: orderDetails._id,
+      userName: user?.name || "Pengguna",
+      reviewValue: rating,
+      reviewMessage: comment,
+    };
+
+    await dispatch(addReview(formData)).unwrap();
+
+    toast({
+      title: "Review berhasil dikirim",
+      description: "Terima kasih atas ulasannya!",
+    });
+
+    if (onClose) onClose(); 
+  } catch (err) {
+    console.error(err);
+    toast({
+      title: "Gagal mengirim ulasan",
+      description: "Silakan coba lagi nanti.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <DialogContent className="max-w-full md:max-w-screen-md max-h-lvh md:max-h-[80vh] overflow-y-auto">
@@ -18,19 +59,18 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
         {/* Gambar + Info Produk */}
         <div className="flex flex-col sm:flex-row gap-6 items-start border rounded-lg p-4 bg-gray-50">
-          {/* Gambar Produk */}
           <img
             src={item?.image}
             alt={item?.title}
             className="w-full sm:w-48 sm:h-48 object-cover rounded-md border"
             onError={(e) => (e.target.src = "/default-placeholder.png")}
           />
-
-          {/* Info Produk */}
           <div className="flex flex-col gap-3 text-sm w-full">
             <div className="flex items-center justify-between">
               <span className="font-light">Kode Pesanan</span>
-              <Label className="font-medium break-all text-right">{orderDetails?._id}</Label>
+              <Label className="font-medium break-all text-right">
+                {orderDetails?._id}
+              </Label>
             </div>
             <div className="flex flex-col">
               <span className="font-light">Nama Produk</span>
@@ -71,7 +111,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
         </div>
 
-        {/* Info Pengiriman */}
+        {/* Informasi Pengiriman */}
         <div className="grid gap-4 mt-2">
           <div className="font-medium">Informasi Pengiriman</div>
           <div className="grid gap-1 text-sm text-muted-foreground">
@@ -84,6 +124,27 @@ function ShoppingOrderDetailsView({ orderDetails }) {
             <span>{orderDetails?.addressInfo?.notes}</span>
           </div>
         </div>
+
+        {/* Form Review */}
+        {orderDetails?.orderStatus === "Sudah Diterima" && !item?.isReviewed && (
+          <div className="border p-4 rounded-md bg-white space-y-4 mt-6">
+            <p className="font-medium text-gray-800">Beri Ulasan</p>
+            <StarRatingComponent rating={rating} handleRatingChange={setRating} />
+            <textarea
+              className="w-full p-2 border rounded-md text-sm"
+              rows="4"
+              placeholder="Tulis ulasan produk ini..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+            <Button
+              disabled={isSubmitting || rating === 0}
+              onClick={handleSubmitReview}
+            >
+              {isSubmitting ? "Mengirim..." : "Kirim Review"}
+            </Button>
+          </div>
+        )}
       </div>
     </DialogContent>
   );
