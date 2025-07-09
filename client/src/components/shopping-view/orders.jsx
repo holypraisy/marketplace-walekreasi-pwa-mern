@@ -6,19 +6,19 @@ import {
   resetOrderDetails,
 } from "@/store/shop/order-slice";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
 import ShoppingOrderDetailsView from "./order-details";
-// import { useNavigate } from "react-router-dom"; // jika nanti ingin arahkan ke form review
 
 function ShoppingOrders({ activeStatus }) {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [scrollToReview, setScrollToReview] = useState(false); // ✅ NEW
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { orderList, orderDetails, isLoading } = useSelector(
     (state) => state.shopOrder
   );
-  // const navigate = useNavigate(); // aktifkan jika ingin routing
 
   useEffect(() => {
     if (user?.id) {
@@ -35,7 +35,8 @@ function ShoppingOrders({ activeStatus }) {
         )
       : orderList?.filter((order) => order.orderStatus === activeStatus);
 
-  const handleFetchOrderDetails = (orderId) => {
+  const handleFetchOrderDetails = (orderId, reviewMode = false) => {
+    setScrollToReview(reviewMode); // ✅ aktifkan scroll jika dari tombol review
     dispatch(getOrderDetails(orderId));
     setOpenDetailsDialog(true);
   };
@@ -43,11 +44,8 @@ function ShoppingOrders({ activeStatus }) {
   const handleCloseDialog = () => {
     setOpenDetailsDialog(false);
     dispatch(resetOrderDetails());
+    setScrollToReview(false); // ✅ reset scroll state
   };
-
-  // const handleGiveReview = (productId) => {
-  //   navigate(`/review/${productId}`); // routing ke halaman form review jika tersedia
-  // };
 
   if (isLoading)
     return <p className="text-sm text-gray-500">Memuat data...</p>;
@@ -74,14 +72,12 @@ function ShoppingOrders({ activeStatus }) {
               )
               .map((item, index) => (
                 <div key={index} className="flex gap-4 items-start">
-                  {/* Gambar Produk */}
                   <img
                     src={item.image}
                     alt={item.title}
                     className="w-24 h-24 object-cover rounded-md border"
                   />
 
-                  {/* Info Produk */}
                   <div className="flex flex-col justify-between flex-1 text-sm gap-4">
                     <div className="flex flex-col gap-2">
                       <p className="font-semibold text-gray-800">
@@ -123,10 +119,9 @@ function ShoppingOrders({ activeStatus }) {
                         <Button
                           size="sm"
                           className="w-fit bg-yellow-500 hover:bg-yellow-600 text-white"
-                          onClick={() => {
-                            // handleGiveReview(item.productId); // nanti arahkan ke form review
-                            alert("Buka form review untuk produk: " + item.title);
-                          }}
+                          onClick={() =>
+                            handleFetchOrderDetails(orderItem._id, true)
+                          }
                         >
                           Beri Review
                         </Button>
@@ -142,8 +137,16 @@ function ShoppingOrders({ activeStatus }) {
       {/* Dialog Global */}
       <Dialog open={openDetailsDialog} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-full sm:max-w-[700px] max-h-lvh sm:max-h-[90vh] overflow-y-auto">
+          <VisuallyHidden>
+            <DialogTitle>Detail Pesanan</DialogTitle>
+          </VisuallyHidden>
+          
           {orderDetails && (
-            <ShoppingOrderDetailsView orderDetails={orderDetails} />
+            <ShoppingOrderDetailsView
+              orderDetails={orderDetails}
+              scrollToReview={scrollToReview}
+              onClose={handleCloseDialog}
+            />
           )}
         </DialogContent>
       </Dialog>

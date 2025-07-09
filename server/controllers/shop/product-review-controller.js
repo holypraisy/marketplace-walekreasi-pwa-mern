@@ -8,7 +8,7 @@ const addProductReview = async (req, res) => {
 
     const { productId, userId, userName, reviewMessage, reviewValue, orderId } = req.body;
 
-    // 1. Cek apakah order tersebut valid dan milik user, serta status sudah diterima
+    // 1. Cek validitas pesanan
     const order = await Order.findOne({
       _id: orderId,
       userId,
@@ -23,7 +23,7 @@ const addProductReview = async (req, res) => {
       });
     }
 
-    // 2. Cek apakah sudah review untuk order ini dan produk ini
+    // 2. Cek review ganda
     const existingReview = await ProductReview.findOne({
       productId,
       userId,
@@ -49,15 +49,16 @@ const addProductReview = async (req, res) => {
 
     await newReview.save();
 
-    // 4. Update rata-rata review produk
-    const reviews = await ProductReview.find({ productId });
-    const totalReviews = reviews.length;
+    // 4. Update average review di model produk
+    const allReviews = await ProductReview.find({ productId });
     const averageReview =
-      reviews.reduce((sum, item) => sum + item.reviewValue, 0) / totalReviews;
+      allReviews.reduce((sum, r) => sum + r.reviewValue, 0) / allReviews.length;
 
-    await Product.findByIdAndUpdate(productId, { averageReview });
+    await Product.findByIdAndUpdate(productId, {
+      averageReview: Number(averageReview.toFixed(1)), // <- Penting!
+    });
 
-    // 5. Tandai produk ini pada pesanan sebagai telah direview
+    // 5. Tandai produk sebagai sudah di-review di order
     await Order.updateOne(
       {
         _id: order._id,
@@ -83,12 +84,11 @@ const addProductReview = async (req, res) => {
   }
 };
 
-
 const getProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
-
     const reviews = await ProductReview.find({ productId });
+
     res.status(200).json({
       success: true,
       data: reviews,

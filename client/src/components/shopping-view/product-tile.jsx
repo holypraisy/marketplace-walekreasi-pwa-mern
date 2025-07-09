@@ -8,6 +8,8 @@ function ShoppingProductTile({
   handleGetProductDetails,
   handleAddtoCart,
 }) {
+  const averageReview = product?.averageReview || 0;
+
   return (
     <Card className="w-full max-w-[220px] mx-auto group overflow-hidden relative">
       <div
@@ -45,24 +47,19 @@ function ShoppingProductTile({
             {product?.salePrice > 0 ? (
               <>
                 <span className="line-through text-muted-foreground">
-                  Rp.{product?.price}
+                  Rp.{product?.price?.toLocaleString("id-ID")}
                 </span>
-                <span>Rp.{product?.salePrice}</span>
+                <span>Rp.{product?.salePrice?.toLocaleString("id-ID")}</span>
               </>
             ) : (
-              <span>Rp.{product?.price}</span>
+              <span>Rp.{product?.price?.toLocaleString("id-ID")}</span>
             )}
           </div>
 
           {/* ⭐ Rating */}
           <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
             <Star className="fill-yellow-400 stroke-yellow-400 w-4 h-4" />
-            <span>{(product?.rating || 0.0).toFixed(1)}</span>
-            {product?.totalReview && (
-              <span className="text-gray-400 ml-1">
-                | {product?.totalReview} ulasan
-              </span>
-            )}
+            <span>{averageReview.toFixed(1)}</span>
           </div>
         </CardContent>
       </div>
@@ -71,7 +68,7 @@ function ShoppingProductTile({
         {product?.totalStock > 0 && (
           <button
             onClick={(e) => {
-              e.stopPropagation(); // supaya tidak trigger handleGetProductDetails
+              e.stopPropagation(); // agar tidak trigger handleGetProductDetails
               handleAddtoCart(product?._id, product?.totalStock);
             }}
             className="bg-primary hover:bg-primary/90 text-white rounded-full p-2 flex items-center justify-center"

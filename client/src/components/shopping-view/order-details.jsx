@@ -1,64 +1,70 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Badge } from "../ui/badge";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import StarRatingComponent from "../../components/common/star-rating"; // sesuaikan jika perlu
-import { addReview } from "@/store/shop/review-slice"; // GANTI ke addReview
+import StarRatingComponent from "../../components/common/star-rating";
+import { addReview } from "@/store/shop/review-slice";
+import { toast } from "@/components/ui/use-toast";
+import { Mail, MapPin, Phone, User } from "lucide-react"; 
 
-function ShoppingOrderDetailsView({ orderDetails }) {
+function ShoppingOrderDetailsView({ orderDetails, scrollToReview = false, onClose }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const item = orderDetails?.cartItems?.[0]; // hanya tampilkan 1 produk
-
+  const item = orderDetails?.cartItems?.[0]; // hanya satu item
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-const handleSubmitReview = async () => {
-  setIsSubmitting(true);
-  try {
-    const formData = {
-      userId: user.id,
-      productId: item.productId,
-      orderId: orderDetails._id,
-      userName: user?.name || "Pengguna",
-      reviewValue: rating,
-      reviewMessage: comment,
-    };
+  const reviewRef = useRef(null); // ✅ ref untuk scroll ke form
 
-    await dispatch(addReview(formData)).unwrap();
+  useEffect(() => {
+    if (scrollToReview && reviewRef.current) {
+      reviewRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [scrollToReview]);
 
-    toast({
-      title: "Review berhasil dikirim",
-      description: "Terima kasih atas ulasannya!",
-    });
+  const handleSubmitReview = async () => {
+    setIsSubmitting(true);
+    try {
+      const formData = {
+        userId: user.id,
+        productId: item.productId,
+        orderId: orderDetails._id,
+        userName: user?.name || "Pengguna",
+        reviewValue: rating,
+        reviewMessage: comment,
+      };
 
-    if (onClose) onClose(); 
-  } catch (err) {
-    console.error(err);
-    toast({
-      title: "Gagal mengirim ulasan",
-      description: "Silakan coba lagi nanti.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      await dispatch(addReview(formData)).unwrap();
 
+      toast({
+        title: "Review berhasil dikirim",
+        description: "Terima kasih atas ulasannya!",
+      });
+
+      if (onClose) onClose(); // ✅ tutup dialog setelah review sukses
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Gagal mengirim ulasan",
+        description: "Silakan coba lagi nanti.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <DialogContent className="max-w-full md:max-w-screen-md max-h-lvh md:max-h-[80vh] overflow-y-auto">
       <div className="grid gap-6">
-        {/* Judul */}
         <h2 className="text-xl font-bold text-gray-800 text-center sm:text-left">
           Detail Pesanan
         </h2>
 
-        {/* Gambar + Info Produk */}
-        <div className="flex flex-col sm:flex-row gap-6 items-start border rounded-lg p-4 bg-gray-50">
+        <div className="flex flex-col sm:flex-row gap-6 items-start border rounded-lg p-4 bg-white">
           <img
             src={item?.image}
             alt={item?.title}
@@ -89,7 +95,6 @@ const handleSubmitReview = async () => {
           </div>
         </div>
 
-        {/* Status Pembayaran & Pesanan */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col p-3 border rounded-md bg-white">
             <span className="font-medium text-gray-700 mb-1">Status Pembayaran</span>
@@ -111,40 +116,61 @@ const handleSubmitReview = async () => {
           </div>
         </div>
 
-        {/* Informasi Pengiriman */}
-        <div className="grid gap-4 mt-2">
-          <div className="font-medium">Informasi Pengiriman</div>
-          <div className="grid gap-1 text-sm text-muted-foreground">
-            <span>{user?.userName}</span>
-            <span>{orderDetails?.addressInfo?.receiverName}</span>
-            <span>{orderDetails?.addressInfo?.address}</span>
-            <span>{orderDetails?.addressInfo?.city}</span>
-            <span>{orderDetails?.addressInfo?.pincode}</span>
-            <span>{orderDetails?.addressInfo?.phone}</span>
-            <span>{orderDetails?.addressInfo?.notes}</span>
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Informasi Pengiriman */}
+          <div className="border p-4 rounded-md bg-white shadow-sm space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-primary" />
+              Informasi Pengiriman
+            </h3>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p className="flex items-center gap-2">
+                <User className="w-4 h-4 text-gray-500" />
+                {orderDetails?.addressInfo?.receiverName}
+              </p>
+              <p className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-gray-500 mt-1" />
+                <span>{orderDetails?.addressInfo?.address}</span>
+              </p>
+              <p className="ml-6">{orderDetails?.addressInfo?.city}</p>
+              <p className="ml-6">Kode Pos: {orderDetails?.addressInfo?.pincode}</p>
+              <p className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-gray-500" />
+                {orderDetails?.addressInfo?.phone}
+              </p>
+              {orderDetails?.addressInfo?.notes && (
+                <p className="ml-6 italic">Catatan: {orderDetails?.addressInfo?.notes}</p>
+              )}
+            </div>
           </div>
+
+          {/* Form Review */}
+          {orderDetails?.orderStatus === "Sudah Diterima" && !item?.isReviewed && (
+            <div
+              ref={reviewRef}
+              className="border p-4 rounded-md bg-white shadow-sm space-y-4"
+            >
+              <h3 className="text-lg font-semibold text-gray-800">Beri Ulasan</h3>
+              <StarRatingComponent rating={rating} handleRatingChange={setRating} />
+              <textarea
+                className="w-full p-2 border rounded-md text-sm resize-none"
+                rows="4"
+                placeholder="Tulis ulasan produk ini..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <Button
+                disabled={isSubmitting || rating === 0}
+                onClick={handleSubmitReview}
+                className="w-full"
+              >
+                {isSubmitting ? "Mengirim..." : "Kirim Review"}
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Form Review */}
-        {orderDetails?.orderStatus === "Sudah Diterima" && !item?.isReviewed && (
-          <div className="border p-4 rounded-md bg-white space-y-4 mt-6">
-            <p className="font-medium text-gray-800">Beri Ulasan</p>
-            <StarRatingComponent rating={rating} handleRatingChange={setRating} />
-            <textarea
-              className="w-full p-2 border rounded-md text-sm"
-              rows="4"
-              placeholder="Tulis ulasan produk ini..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-            <Button
-              disabled={isSubmitting || rating === 0}
-              onClick={handleSubmitReview}
-            >
-              {isSubmitting ? "Mengirim..." : "Kirim Review"}
-            </Button>
-          </div>
-        )}
+
       </div>
     </DialogContent>
   );

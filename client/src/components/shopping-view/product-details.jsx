@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogHeader } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
@@ -18,6 +18,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { cartData } = useSelector((state) => state.shopCart);
   const { reviews } = useSelector((state) => state.shopReview);
   const { toast } = useToast();
+
+  const isControlled = typeof open === "boolean" && typeof setOpen === "function";
 
   const handleAddToCart = (productId, totalStock) => {
     const allItems = cartData?.flatMap((group) => group.items) || [];
@@ -55,8 +57,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     });
   };
 
-  const handleDialogClose = (isOpen) => {
-    if (!isOpen) {
+  const handleDialogChange = (openState) => {
+    if (isControlled && !openState) {
       setOpen(false);
       setRating(0);
     }
@@ -74,40 +76,45 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       : 0;
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:px-6 sm:py-8 max-w-[95vw] lg:max-w-[80vw]">
-        {/* Gambar Produk */}
+    <Dialog
+      open={isControlled ? open : undefined}
+      onOpenChange={isControlled ? handleDialogChange : undefined}
+    >
+      <DialogContent
+        aria-describedby="product-dialog-description"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 py-6 sm:px-6 sm:py-8 max-w-[95vw] lg:max-w-[80vw] overflow-y-auto max-h-[90vh]"
+      >
         <div className="relative overflow-hidden rounded-lg">
           <img
             src={productDetails?.image}
             alt={productDetails?.title}
-            className="aspect-square w-full object-cover rounded-lg"
+            className="w-full max-h-[320px] object-cover rounded-lg"
           />
         </div>
 
-        {/* Konten Detail */}
         <div className="flex flex-col">
-          <DialogTitle asChild>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug">
-              {productDetails?.title}
-            </h1>
-          </DialogTitle>
+          <DialogHeader>
+            <DialogTitle asChild>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug">
+                {productDetails?.title}
+              </h1>
+            </DialogTitle>
+          </DialogHeader>
 
-          {/* Rating */}
           <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
             <FaStar className="text-yellow-400" />
             <span>{averageReview.toFixed(1)}</span>
           </div>
 
-          {/* Deskripsi */}
           <div className="mt-4">
-            <h2 className="text-sm font-semibold text-muted-foreground mb-1">Deskripsi:</h2>
-            <p className="text-sm text-gray-700">
+            <h2 className="text-sm font-semibold text-muted-foreground mb-1">
+              Deskripsi:
+            </h2>
+            <p className="text-sm text-gray-700" id="product-dialog-description">
               {productDetails?.description || "Tidak ada deskripsi produk."}
             </p>
           </div>
 
-          {/* Info Toko */}
           {productDetails?.storeName && productDetails?.sellerId && (
             <div className="flex flex-wrap items-center justify-between mt-4 gap-2">
               <div className="text-sm flex items-center gap-1 text-muted-foreground">
@@ -125,7 +132,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             </div>
           )}
 
-          {/* Harga */}
           <div className="flex items-center justify-between mt-4">
             <p
               className={`text-2xl font-bold text-primary ${
@@ -141,7 +147,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             )}
           </div>
 
-          {/* Tombol Add to Cart */}
           <div className="mt-5">
             {productDetails?.totalStock === 0 ? (
               <Button className="opacity-60 cursor-not-allowed w-full">
@@ -162,8 +167,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
           <Separator className="my-5" />
 
-          {/* Review Section */}
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="max-h-[250px] overflow-y-auto pr-1">
             <h2 className="text-lg font-bold mb-3">Ulasan</h2>
             <div className="grid gap-4">
               {reviews && reviews.length > 0 ? (
@@ -197,4 +201,4 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   );
 }
 
-export default ProductDetailsDialog; 
+export default ProductDetailsDialog;

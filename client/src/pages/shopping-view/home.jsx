@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLatestProducts,
   fetchProductDetails,
+  clearProductDetails, // ✅ Tambahkan ini
 } from "@/store/shop/products-slice";
 import {
   fetchBanners,
@@ -22,7 +23,6 @@ import {
   Shirt,
   Brush,
   Sprout,
-  ArrowBigRight,
   MoveRight,
 } from "lucide-react";
 
@@ -48,7 +48,6 @@ function ShoppingHome() {
   );
   const landingBanners = useSelector(selectLandingBanners);
 
-  // Auto scroll banner
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % landingBanners.length);
@@ -96,10 +95,18 @@ function ShoppingHome() {
     });
   }
 
+  // ✅ Fungsi untuk handle tutup dialog
+  function handleDialogClose(isOpen) {
+    if (!isOpen) {
+      setOpenDetailsDialog(false);
+      dispatch(clearProductDetails());
+    }
+  }
+
   return (
-    <div className=" md:container flex flex-col min-h-screen">
+    <div className="md:container flex flex-col min-h-screen">
       {/* Banner Section */}
-      <div className="  relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
+      <div className="relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
         {landingBanners && landingBanners.length > 0 ? (
           landingBanners.map((slide, index) => (
             <div key={index}>
@@ -125,7 +132,6 @@ function ShoppingHome() {
           </div>
         )}
 
-        {/* Dot Indicators */}
         {landingBanners.length > 1 && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
             {landingBanners.map((_, index) => (
@@ -144,8 +150,8 @@ function ShoppingHome() {
       </div>
 
       {/* Category Section */}
-      <section className=" mt-6  bg-gray-50 rounded-xl md:p-2">
-        <div className="mx-auto p-6 ">
+      <section className="mt-6 bg-gray-50 rounded-xl md:p-2">
+        <div className="mx-auto p-6">
           <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
             Belanja Berdasarkan Kategori
           </h2>
@@ -169,7 +175,7 @@ function ShoppingHome() {
       </section>
 
       {/* Produk Unggulan */}
-      <section className=" mt-4  md:py-8">
+      <section className="mt-4 md:py-8">
         <div className="mx-auto px-6">
           <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
             Produk Unggulan
@@ -190,18 +196,21 @@ function ShoppingHome() {
           </div>
 
           <div className="mt-8">
-            <Button onClick={() => navigate("/shop/listing")}
-                    className ="flex gap-2 hover:shadow-lg">
+            <Button
+              onClick={() => navigate("/shop/listing")}
+              className="flex gap-2 hover:shadow-lg"
+            >
               Lihat Semua
-              <MoveRight/>
+              <MoveRight />
             </Button>
           </div>
         </div>
       </section>
 
+      {/* Dialog Produk */}
       <ProductDetailsDialog
         open={openDetailsDialog}
-        setOpen={setOpenDetailsDialog}
+        setOpen={handleDialogClose} // ✅ Gunakan handler khusus
         productDetails={productDetails}
       />
     </div>
