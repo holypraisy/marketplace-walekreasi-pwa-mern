@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { checkAuth } from "./store/auth-slice";
@@ -8,7 +8,7 @@ import { Toast } from "@/components/ui/toast";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
-import RegisterSeller from "./pages/auth/registerSeller"; // tetap
+import RegisterSeller from "./pages/auth/registerSeller";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
 import NotFound from "./pages/not-found";
@@ -42,7 +42,6 @@ import { requestForToken, onMessageListener } from "./firebase/firebase.config";
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -83,10 +82,10 @@ function App() {
       )}
 
       <Routes>
-        {/* Root redirect */}
-        <Route path="/" element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />} />
+        {/* ✅ Root redirect langsung ke halaman home */}
+        <Route path="/" element={<Navigate to="/shop/home" replace />} />
 
-        {/* ✅ Register Seller FULLSCREEN tanpa AuthLayout */}
+        {/* Register Seller (boleh diakses oleh customer yang login) */}
         <Route
           path="/auth/register-seller"
           element={
@@ -96,7 +95,7 @@ function App() {
           }
         />
 
-        {/* ✅ Halaman Auth biasa */}
+        {/* Auth Routes */}
         <Route
           path="/auth"
           element={
@@ -109,7 +108,7 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
         </Route>
 
-        {/* ✅ Seller */}
+        {/* Seller Dashboard */}
         <Route
           path="/store"
           element={
@@ -123,7 +122,7 @@ function App() {
           <Route path="orders" element={<SellerOrders />} />
         </Route>
 
-        {/* ✅ Customer */}
+        {/* Customer Shopping Pages */}
         <Route
           path="/shop"
           element={
@@ -134,14 +133,16 @@ function App() {
         >
           <Route path="home" element={<ShoppingHome />} />
           <Route path="listing" element={<ShoppingListing />} />
+          <Route path="search" element={<SearchProducts />} />
+          <Route path="store/:sellerId" element={<StoreFrontPage />} />
+
+          {/* ❗️Checkout dan Akun hanya untuk login */}
           <Route path="checkout" element={<ShoppingCheckout />} />
           <Route path="account" element={<ShoppingAccount />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
-          <Route path="search" element={<SearchProducts />} />
-          <Route path="store/:sellerId" element={<StoreFrontPage />} />
         </Route>
 
-        {/* ✅ Admin */}
+        {/* Admin Dashboard */}
         <Route
           path="/admin"
           element={
@@ -160,6 +161,7 @@ function App() {
           <Route path="setting" element={<AdminSettingPage />} />
         </Route>
 
+        {/* Unauthorized / Not Found */}
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

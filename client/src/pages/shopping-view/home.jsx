@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLatestProducts,
   fetchProductDetails,
-  clearProductDetails, // ✅ Tambahkan ini
+  setProductDetails,
 } from "@/store/shop/products-slice";
 import {
   fetchBanners,
@@ -99,7 +99,7 @@ function ShoppingHome() {
   function handleDialogClose(isOpen) {
     if (!isOpen) {
       setOpenDetailsDialog(false);
-      dispatch(clearProductDetails());
+      dispatch(setProductDetails());
     }
   }
 

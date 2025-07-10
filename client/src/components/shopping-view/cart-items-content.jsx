@@ -13,7 +13,6 @@ function UserCartItemsContent({ cartItem }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  // Pastikan product hasil populate
   const product = cartItem.productId;
   if (!product || typeof product !== "object") return null;
 
@@ -54,7 +53,7 @@ function UserCartItemsContent({ cartItem }) {
     );
 
     if (res?.payload?.success) {
-      dispatch(fetchCartItems(user.id)); // ✅ Ambil ulang cart yang lengkap dengan populate
+      dispatch(fetchCartItems(user.id));
       toast({ title: "Jumlah item diperbarui." });
     } else {
       toast({ title: "Gagal memperbarui item.", variant: "destructive" });
@@ -69,7 +68,7 @@ function UserCartItemsContent({ cartItem }) {
     );
 
     if (res?.payload?.success) {
-      dispatch(fetchCartItems(user.id)); // ✅ Ambil ulang cart
+      dispatch(fetchCartItems(user.id));
       toast({ title: "Barang dihapus dari keranjang." });
     } else {
       toast({ title: "Gagal menghapus item.", variant: "destructive" });
@@ -77,43 +76,48 @@ function UserCartItemsContent({ cartItem }) {
   };
 
   return (
-    <div className="flex items-center space-x-4 py-2 border-b">
+    <div className="flex gap-3 py-3 border rounded-lg px-3 shadow-sm items-start">
       <img
         src={product.image}
         alt={product.title}
-        className="w-20 h-20 rounded object-cover"
+        className="w-20 h-20 rounded object-cover flex-shrink-0"
       />
-      <div className="md:flex md:flex-1 ">
-        <div className="flex-1 ">
-          <h3 className="font-extrabold text-base">{product.title}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <Button
-              variant="outline"
-              className="h-8 w-8 rounded-full"
-              size="icon"
-              onClick={() => handleUpdateQuantity("minus")}
-            >
-              <Minus className="w-3 h-3 md:w-4 md:h-4" />
-            </Button>
-            <span className="font-semibold text-sm md:text-base ">{currentQty}</span>
-            <Button
-              variant="outline"
-              className="h-8 w-8 rounded-full"
-              size="icon"
-              onClick={() => handleUpdateQuantity("plus")}
-            >
-              <Plus className="w-3 h-3 md:w-4 md:h-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex gap-16 md:gap-0 mt-1 md:flex md:flex-col md:items-end">
-          <p className="font-semibold text-sm md:text-base mt-1">
-            Rp {totalPrice.toLocaleString("id-ID")}
+      <div className="flex-1 flex flex-col justify-between">
+        {/* Judul dan ikon delete */}
+        <div className="flex justify-between items-start">
+          <p className="font-semibold text-sm md:text-base leading-snug">
+            {product.title}
           </p>
           <Trash
             onClick={handleCartItemDelete}
-            className="cursor-pointer mt-1 w-4 md:w-5 h-auto text-red-500"
+            className="w-4 h-4 md:w-6 md:h-6 text-red-500 hover:text-red-600 cursor-pointer mt-1"
           />
+        </div>
+
+        {/* Qty dan harga */}
+        <div className="mt-3">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8 rounded-full"
+              onClick={() => handleUpdateQuantity("minus")}
+            >
+              <Minus className="w-4 h-4" />
+            </Button>
+            <span className="text-sm font-semibold">{currentQty}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8 rounded-full"
+              onClick={() => handleUpdateQuantity("plus")}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          <p className="text-sm font-bold mt-2">
+            Rp {totalPrice.toLocaleString("id-ID")}
+          </p>
         </div>
       </div>
     </div>

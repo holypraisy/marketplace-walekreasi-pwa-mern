@@ -17,9 +17,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
-import { CirclePlus, Pencil, Trash2 } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 
 const initialAddressFormData = {
   receiverName: "",
@@ -33,7 +32,7 @@ const initialAddressFormData = {
 function Address({ setCurrentSelectedAddress, selectedId }) {
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const [openFormDialog, setOpenFormDialog] = useState(false); // 👈 kontrol dialog
+  const [openFormDialog, setOpenFormDialog] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
@@ -49,8 +48,8 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     setOpenFormDialog(true);
   };
 
-  function handleManageAddress(event) {
-    event.preventDefault();
+  const handleManageAddress = (e) => {
+    e.preventDefault();
 
     if (addressList.length >= 3 && currentEditedId === null) {
       toast({
@@ -61,15 +60,8 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     }
 
     const action = currentEditedId !== null
-      ? editaAddress({
-          userId: user?.id,
-          addressId: currentEditedId,
-          formData,
-        })
-      : addNewAddress({
-          ...formData,
-          userId: user?.id,
-        });
+      ? editaAddress({ userId: user?.id, addressId: currentEditedId, formData })
+      : addNewAddress({ ...formData, userId: user?.id });
 
     dispatch(action).then((data) => {
       if (data?.payload?.success) {
@@ -79,55 +71,55 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
         toast({
           title: currentEditedId ? "Alamat diperbarui" : "Alamat ditambahkan",
         });
-        setOpenFormDialog(false); // Tutup dialog
+        setOpenFormDialog(false);
       }
     });
-  }
+  };
 
-  function handleDeleteAddress(address) {
+  const handleDeleteAddress = (address) => {
     dispatch(deleteAddress({ userId: user?.id, addressId: address._id }))
       .then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchAllAddresses(user?.id));
-          toast({ title: "Alamat Berhasil Dihapus" });
+          toast({ title: "Alamat berhasil dihapus." });
         }
       });
-  }
+  };
 
-  function handleEditAddress(address) {
+  const handleEditAddress = (address) => {
     setFormData({
-      receiverName: address?.receiverName,
-      address: address?.address,
-      city: address?.city,
-      phone: address?.phone,
-      pincode: address?.pincode,
-      notes: address?.notes,
+      receiverName: address.receiverName,
+      address: address.address,
+      city: address.city,
+      phone: address.phone,
+      pincode: address.pincode,
+      notes: address.notes,
     });
-    setCurrentEditedId(address?._id);
+    setCurrentEditedId(address._id);
     setOpenFormDialog(true);
-  }
+  };
 
-  function isFormValid() {
-    return Object.keys(formData)
-      .map((key) => (formData[key] || "").trim() !== "")
-      .every((item) => item);
-  }
+  const isFormValid = () =>
+    Object.values(formData).every((val) => (val || "").trim() !== "");
 
   return (
-    <Card className="px-2">
-      {/* Header */}
-      <CardHeader className="flex">
-        <CardTitle className="text-lg md:text-xl font-semibold text-primary">Daftar Alamat</CardTitle>
-        <Button className="bg-primary text-white w-fit" 
-                onClick={handleOpenAddForm}>
-          <CirclePlus className="mr-3"/>
+    <Card>
+      <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
+        <CardTitle className="text-base md:text-xl font-semibold text-primary">
+          Alamat Pengiriman
+        </CardTitle>
+        <Button
+          size="sm"
+          className="flex gap-1 items-center bg-primary text-white"
+          onClick={handleOpenAddForm}
+        >
+          <CirclePlus className="w-4 h-4" />
           Tambah Alamat
         </Button>
       </CardHeader>
 
-      {/* Daftar Alamat */}
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {addressList?.map((addressItem) => (
+      <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {addressList.map((addressItem) => (
           <AddressCard
             key={addressItem._id}
             selectedId={selectedId}
@@ -137,22 +129,20 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
             setCurrentSelectedAddress={setCurrentSelectedAddress}
           />
         ))}
-      </div>
+      </CardContent>
 
-      {/* Form Tambah/Ubah dalam Dialog */}
       <Dialog open={openFormDialog} onOpenChange={setOpenFormDialog}>
-        <DialogContent className="max-w-full md:max-w-screen-md max-h-lvh md:max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-full md:max-w-screen-md max-h-lvh overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {currentEditedId !== null ? "Ubah Alamat" : "Tambah Alamat"}
+              {currentEditedId ? "Ubah Alamat" : "Tambah Alamat"}
             </DialogTitle>
           </DialogHeader>
-
           <CommonForm
             formControls={addressFormControls}
             formData={formData}
             setFormData={setFormData}
-            buttonText={currentEditedId !== null ? "Ubah" : "Tambah"}
+            buttonText={currentEditedId ? "Ubah" : "Tambah"}
             onSubmit={handleManageAddress}
             isBtnDisabled={!isFormValid()}
           />

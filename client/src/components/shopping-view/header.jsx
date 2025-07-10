@@ -25,6 +25,7 @@ import { fetchCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 import logoWaleKreasi from "../../assets/logo-WaleKreasi.png";
 
+// Menu navigasi utama
 function MenuItems() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,6 +66,7 @@ function MenuItems() {
   );
 }
 
+// Konten kanan atas header (search, cart, auth)
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
   const cartData = useSelector((state) => state.shopCart.cartData || []);
@@ -88,36 +90,56 @@ function HeaderRightContent() {
 
   return (
     <div className="flex items-center gap-6">
-      <div className="">
-        <Button 
-        onClick={() => window.location.href = "/shop/search"}
+      {/* 🔍 Search */}
+      <Button
+        onClick={() => navigate("/shop/search")}
         variant="none"
         size="icon"
-        >
-          <Search className="w-6 h-6"/>
-        </Button>
-            
-      </div>
+      >
+        <Search className="w-6 h-6" />
+      </Button>
+
       {/* 🛒 Cart */}
-      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+      {!user?.id ? (
         <Button
-          onClick={() => setOpenCartSheet(true)}
+          onClick={() => navigate("/auth/login")}
           variant="none"
           size="icon"
           className="relative"
         >
           <ShoppingCart className="w-6 h-6" />
-          <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
-            {totalItems}
-          </span>
-
           <span className="sr-only">Keranjang belanja</span>
         </Button>
-        <UserCartWrapper setOpenCartSheet={setOpenCartSheet} />
-      </Sheet>
+      ) : (
+        <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
+          <Button
+            onClick={() => setOpenCartSheet(true)}
+            variant="none"
+            size="icon"
+            className="relative"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            <span className="absolute -top-0 -right-0 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              {totalItems}
+            </span>
+            <span className="sr-only">Keranjang belanja</span>
+          </Button>
+          <UserCartWrapper setOpenCartSheet={setOpenCartSheet} />
+        </Sheet>
+      )}
 
-      {/* 👤 Avatar */}
-      {(user?.userName || user?.name) && (
+      {/* 👤 Auth */}
+      {!user?.id ? (
+        <div className="text-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/auth/login")}
+          >
+            Masuk | Daftar
+          </Button>
+        </div>
+      ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="bg-primary">
@@ -130,24 +152,24 @@ function HeaderRightContent() {
             <DropdownMenuLabel>
               Masuk sebagai {user?.userName || user?.name || "Pengguna"}
             </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/shop/account")}>
-                    <UserCog className="mr-2 h-4 w-4" />
-                    Akun
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Keluar
-                  </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+              <UserCog className="mr-2 h-4 w-4" />
+              Akun
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Keluar
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-
     </div>
   );
 }
 
+// Header utama
 function ShoppingHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -156,7 +178,7 @@ function ShoppingHeader() {
           <img
             src={logoWaleKreasi}
             alt="Logo Wale Kreasi"
-            className="w-8 h-8 "
+            className="w-8 h-8"
           />
           <span className="font-bold text-xl lg:text-2xl">Wale Kreasi</span>
         </Link>

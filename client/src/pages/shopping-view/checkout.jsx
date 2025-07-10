@@ -1,29 +1,33 @@
-import Address from "@/components/shopping-view/address";
-import img from "../../assets/account.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import AddressSelected from "@/components/shopping-view/address-selected";
+import Address from "@/components/shopping-view/address";
+import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 function ShoppingCheckout() {
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+
   const { cartData } = useSelector((state) => state.shopCart);
   const { productList } = useSelector((state) => state.shopProducts);
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const { toast } = useToast();
+
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
   const [isPaymentStart, setIsPaymentStart] = useState(false);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
 
   const totalCartAmount =
     cartData?.reduce((sum, storeGroup) => {
       return (
         sum +
         storeGroup.items.reduce((storeSum, item) => {
-          const product = item.productId?._id ? item.productId : productList.find(
-            (p) => p._id === item.productId
-          );
+          const product = item.productId?._id
+            ? item.productId
+            : productList.find((p) => p._id === item.productId);
 
           if (!product) return storeSum;
 
@@ -35,12 +39,12 @@ function ShoppingCheckout() {
       );
     }, 0) || 0;
 
-
   function handleInitiateMidtransPayment() {
     if (!cartData?.length) {
       toast({ title: "Keranjang kosong.", variant: "destructive" });
       return;
     }
+
     if (!currentSelectedAddress) {
       toast({ title: "Pilih alamat pengiriman.", variant: "destructive" });
       return;
@@ -106,46 +110,62 @@ function ShoppingCheckout() {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
-        <Address
-          selectedId={currentSelectedAddress}
-          setCurrentSelectedAddress={setCurrentSelectedAddress}
+    <div className="flex flex-col gap-4 mt-5 p-5 max-w-6xl mx-auto">
+      {/* SECTION: Alamat Terpilih */}
+      <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+        <AddressSelected
+          selectedAddress={currentSelectedAddress}
+          onChoose={() => setShowAddressDialog(true)}
         />
-        <div className="flex flex-col gap-4">
-          {cartData?.map((storeGroup) => (
-            <div key={storeGroup.storeId}>
-              <h3 className="font-bold mb-2">{storeGroup.storeName}</h3>
-              {storeGroup.items.map((item) => {
-                const product = productList.find(
-                  (p) => p?._id?.toString() === item?.productId?.toString()
-                );
-                return (
-                  <UserCartItemsContent
-                    cartItem={{ ...item, product }}
-                    key={item.productId}
-                  />
-                );
-              })}
-            </div>
-          ))}
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <Address
+            selectedId={currentSelectedAddress}
+            setCurrentSelectedAddress={(address) => {
+              setCurrentSelectedAddress(address);
+              setShowAddressDialog(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
-          <div className="mt-4 flex justify-between">
-            <span className="font-bold">Total</span>
-            <span className="font-bold">
-              Rp {totalCartAmount.toLocaleString("id-ID")}
-            </span>
+      {/* SECTION: Daftar Produk dalam Keranjang */}
+      <div className="flex flex-col gap-4 border rounded-md p-4 bg-white shadow-sm">
+        {cartData?.map((storeGroup) => (
+          <div key={storeGroup.storeId}>
+            <h3 className="font-semibold text-sm mb-2 text-gray-700">
+              Toko: {storeGroup.storeName}
+            </h3>
+            {storeGroup.items.map((item) => {
+              const product = productList.find(
+                (p) => p?._id?.toString() === item?.productId?.toString()
+              );
+              return (
+                <UserCartItemsContent
+                  cartItem={{ ...item, product }}
+                  key={item.productId}
+                />
+              );
+            })}
           </div>
-          <div className="mt-4 w-full">
-            <Button
-              onClick={handleInitiateMidtransPayment}
-              className="w-full"
-              disabled={isPaymentStart}
-            >
-              {isPaymentStart ? "Memproses Pembayaran..." : "Bayar"}
-            </Button>
-          </div>
+        ))}
+      </div>
+
+      {/* SECTION: Total & Tombol Bayar */}
+      <div className="flex flex-col items-end gap-3">
+        <div className="text-right text-sm">
+          <p className="text-gray-600">Total Belanja:</p>
+          <p className="text-xl font-semibold text-gray-800">
+            Rp {totalCartAmount.toLocaleString("id-ID")}
+          </p>
         </div>
+
+        <Button
+          onClick={handleInitiateMidtransPayment}
+          className="w-full sm:w-auto"
+          disabled={isPaymentStart}
+        >
+          {isPaymentStart ? "Memproses Pembayaran..." : "Bayar"}
+        </Button>
       </div>
     </div>
   );

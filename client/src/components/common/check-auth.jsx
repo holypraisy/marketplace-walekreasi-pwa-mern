@@ -4,60 +4,59 @@ function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
   const path = location.pathname;
 
-  const publicPaths = ["/auth/login", "/auth/register", "/auth/register-seller"];
+  // 👉 Public routes yang boleh diakses tanpa login
+  const publicPaths = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/register-seller",
+    "/shop/home",
+    "/shop/listing",
+    "/shop/search",
+  ];
 
-  // ✅ Jika user belum login & mencoba akses halaman privat
-  if (!isAuthenticated && !publicPaths.includes(path)) {
+  const isPublicPath =
+    publicPaths.includes(path) ||
+    path.startsWith("/shop/store");
+
+  // 🔐 1. Redirect jika belum login dan bukan halaman publik
+  if (!isAuthenticated && !isPublicPath) {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // ✅ Jika user sudah login tapi mencoba buka login/register lagi
+  // 🔄 2. Redirect jika sudah login tapi akses halaman login/register
   if (isAuthenticated && publicPaths.includes(path)) {
-    // Jika customer ingin akses register seller → izinkan
+    // ✅ Izinkan customer daftar jadi seller
     if (path === "/auth/register-seller" && user?.role === "customer") {
       return <>{children}</>;
     }
-  
+
+    // 🔁 Redirect berdasarkan role
     if (user?.role === "seller") return <Navigate to="/store/profile" replace />;
     if (user?.role === "admin") return <Navigate to="/admin" replace />;
     return <Navigate to="/shop/home" replace />;
   }
-  
 
+  // 🛡️ 3. Cek role akses halaman
   if (isAuthenticated) {
     const role = user?.role;
-    const isSeller = role === "seller";
-    const isAdmin = role === "admin";
-    const isCustomer = role === "customer";
+    const isSellerPage = path.startsWith("/store");
+    const isCustomerPage = path.startsWith("/shop");
+    const isAdminPage = path.startsWith("/admin");
 
-    const isAccessingSellerPage = path.startsWith("/store");
-    const isAccessingCustomerShop = path.startsWith("/shop");
-    const isAccessingAdminPage = path.startsWith("/admin");
-
-    // ❌ Customer atau Admin mencoba buka dashboard seller
-    if (!isSeller && isAccessingSellerPage) {
-      return <Navigate to="/unauth-page" replace />;
-    }
-
-    // ❌ Seller atau Admin mencoba buka halaman customer (/shop)
-    if (!isCustomer && isAccessingCustomerShop) {
-      return <Navigate to="/unauth-page" replace />;
-    }
-
-    // ❌ Seller atau Customer mencoba buka dashboard admin
-    if (!isAdmin && isAccessingAdminPage) {
-      return <Navigate to="/unauth-page" replace />;
-    }
+    if (role !== "seller" && isSellerPage) return <Navigate to="/unauth-page" replace />;
+    if (role !== "customer" && !isPublicPath && isCustomerPage) return <Navigate to="/unauth-page" replace />;
+    if (role !== "admin" && isAdminPage) return <Navigate to="/unauth-page" replace />;
   }
 
-  // ✅ Redirect dari root "/"
+  // 🌐 4. Redirect dari root "/"
   if (path === "/") {
-    if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
+    if (!isAuthenticated) return <Navigate to="/shop/home" replace />;
     if (user?.role === "seller") return <Navigate to="/store/profile" replace />;
     if (user?.role === "admin") return <Navigate to="/admin" replace />;
     return <Navigate to="/shop/home" replace />;
   }
 
+  // ✅ Jika aman, render konten
   return <>{children}</>;
 }
 
