@@ -1,7 +1,10 @@
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { ShoppingCart, Star } from "lucide-react";
 import { categoryOptionsMap } from "@/config";
+import { toast } from "../ui/use-toast";
 
 function ShoppingProductTile({
   product,
@@ -9,6 +12,31 @@ function ShoppingProductTile({
   handleAddtoCart,
 }) {
   const averageReview = product?.averageReview || 0;
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const handleCartClick = (e) => {
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      // Belum login → redirect ke login
+      return navigate("/auth/login", {
+        state: { from: { pathname: location.pathname } },
+      });
+    }
+
+    if (user?.role !== "customer") {
+      // Bukan customer → tampilkan toast/error
+      return toast({
+        title: "Akses ditolak",
+        description: "Hanya pelanggan yang dapat menambahkan ke keranjang.",
+        variant: "destructive",
+      });
+    }
+
+    // ✅ Tambahkan ke keranjang
+    handleAddtoCart(product?._id, product?.totalStock);
+  };
 
   return (
     <Card className="w-full max-w-[220px] mx-auto group overflow-hidden relative">
@@ -67,10 +95,7 @@ function ShoppingProductTile({
       <CardFooter className="px-3 pb-3 pt-0 flex justify-end">
         {product?.totalStock > 0 && (
           <button
-            onClick={(e) => {
-              e.stopPropagation(); // agar tidak trigger handleGetProductDetails
-              handleAddtoCart(product?._id, product?.totalStock);
-            }}
+            onClick={handleCartClick}
             className="bg-primary hover:bg-primary/90 text-white rounded-full p-2 flex items-center justify-center"
             title="Tambah ke Keranjang"
           >

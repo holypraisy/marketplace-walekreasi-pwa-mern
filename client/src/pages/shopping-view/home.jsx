@@ -42,11 +42,21 @@ function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
-  const { user } = useSelector((state) => state.auth);
-  const { latestProducts, productDetails } = useSelector(
-    (state) => state.shopProducts
-  );
+  const { user, isLoading: authLoading } = useSelector((state) => state.auth);
+  const { latestProducts, productDetails } = useSelector((state) => state.shopProducts);
   const landingBanners = useSelector(selectLandingBanners);
+
+  // 🛑 Tunda render jika auth masih loading (khusus saat login)
+  if (authLoading || user === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Memuat...
+      </div>
+    );
+  }
+
+  // 🧠 Debugging
+  console.log("📌 user in ShoppingHome:", user);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -69,9 +79,7 @@ function ShoppingHome() {
 
   function handleNavigateToListingPage(item, section) {
     sessionStorage.removeItem("filters");
-    const filter = {
-      [section]: [item.id],
-    };
+    const filter = { [section]: [item.id] };
     sessionStorage.setItem("filters", JSON.stringify(filter));
     navigate(`/shop/listing`);
   }
@@ -95,7 +103,6 @@ function ShoppingHome() {
     });
   }
 
-  // ✅ Fungsi untuk handle tutup dialog
   function handleDialogClose(isOpen) {
     if (!isOpen) {
       setOpenDetailsDialog(false);
@@ -105,7 +112,7 @@ function ShoppingHome() {
 
   return (
     <div className="md:container flex flex-col min-h-screen">
-      {/* Banner Section */}
+      {/* 🖼️ Banner Section */}
       <div className="relative w-screen max-w-full aspect-[4/2] sm:aspect-[6/2] md:aspect-[16/4] overflow-hidden md:mt-8 md:rounded-xl md:border">
         {landingBanners && landingBanners.length > 0 ? (
           landingBanners.map((slide, index) => (
@@ -149,7 +156,7 @@ function ShoppingHome() {
         )}
       </div>
 
-      {/* Category Section */}
+      {/* 🧭 Category Section */}
       <section className="mt-6 bg-gray-50 rounded-xl md:p-2">
         <div className="mx-auto p-6">
           <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
@@ -174,7 +181,7 @@ function ShoppingHome() {
         </div>
       </section>
 
-      {/* Produk Unggulan */}
+      {/* 💎 Produk Unggulan */}
       <section className="mt-4 md:py-8">
         <div className="mx-auto px-6">
           <h2 className="text-xl py-1 md:text-2xl font-bold border-b border-gray-200">
@@ -207,10 +214,10 @@ function ShoppingHome() {
         </div>
       </section>
 
-      {/* Dialog Produk */}
+      {/* 🧾 Dialog Detail Produk */}
       <ProductDetailsDialog
         open={openDetailsDialog}
-        setOpen={handleDialogClose} // ✅ Gunakan handler khusus
+        setOpen={handleDialogClose}
         productDetails={productDetails}
       />
     </div>

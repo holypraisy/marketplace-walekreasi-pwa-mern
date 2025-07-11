@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCartItems } from "@/store/shop/cart-slice";
-import { FiSearch, FiShoppingCart, FiHome, FiUser, FiBriefcase } from "react-icons/fi";
+import {
+  FiSearch,
+  FiShoppingCart,
+  FiHome,
+  FiUser,
+  FiBriefcase,
+  FiLogIn,
+} from "react-icons/fi";
 import { Link } from "react-router-dom";
 import logoWaleKreasi from "@/assets/logo-WaleKreasi.png";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
@@ -66,13 +73,27 @@ export default function MobileHeaderFooterLayout({ children }) {
           <FiBriefcase className="w-5 h-5 mb-1" />
           <span>Jualan</span>
         </Link>
+
         <Link to="/shop/home" className="flex flex-col items-center text-sm">
           <FiHome className="w-5 h-5 mb-1" />
           <span>Beranda</span>
         </Link>
-        <Link to="/shop/account" className="flex flex-col items-center text-sm">
-          <FiUser className="w-5 h-5 mb-1" />
-          <span>Akun</span>
+
+        <Link
+          to={user ? "/shop/account" : "/auth/login"}
+          className="flex flex-col items-center text-sm"
+        >
+          {user ? (
+            <>
+              <FiUser className="w-5 h-5 mb-1" />
+              <span>Akun</span>
+            </>
+          ) : (
+            <>
+              <FiLogIn className="w-5 h-5 mb-1" />
+              <span>Masuk |   Daftar</span>
+            </>
+          )}
         </Link>
       </nav>
     </div>

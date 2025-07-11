@@ -82,37 +82,62 @@ function App() {
       )}
 
       <Routes>
-        {/* ✅ Root redirect langsung ke halaman home */}
+        {/* 🔁 Redirect root ke shop/home */}
         <Route path="/" element={<Navigate to="/shop/home" replace />} />
 
-        {/* Register Seller (boleh diakses oleh customer yang login) */}
-        <Route
-          path="/auth/register-seller"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <RegisterSeller />
-            </CheckAuth>
-          }
-        />
+        {/* 🔓 Public Shop Routes */}
+        <Route path="/shop" element={<ShoppingLayout />}>
+          <Route path="home" element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} />
+          <Route path="search" element={<SearchProducts />} />
+          <Route path="store/:sellerId" element={<StoreFrontPage />} />
 
-        {/* Auth Routes */}
-        <Route
-          path="/auth"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AuthLayout />
-            </CheckAuth>
-          }
-        >
-          <Route path="login" element={<AuthLogin />} />
-          <Route path="register" element={<AuthRegister />} />
+          {/* 🔒 Protected Shop Routes (butuh login) */}
+          <Route
+            path="checkout"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <ShoppingCheckout />
+              </CheckAuth>
+            }
+          />
+          <Route
+            path="account"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <ShoppingAccount />
+              </CheckAuth>
+            }
+          />
+          <Route
+            path="payment-success"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <PaymentSuccessPage />
+              </CheckAuth>
+            }
+          />
         </Route>
 
-        {/* Seller Dashboard */}
+        {/* 🔓 Auth Routes */}
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<AuthLogin />} />
+          <Route path="register" element={<AuthRegister />} />
+          <Route
+            path="register-seller"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <RegisterSeller />
+              </CheckAuth>
+            }
+          />
+        </Route>
+
+        {/* 🔒 Seller Dashboard */}
         <Route
           path="/store"
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="seller">
               <SellerDashboardLayout />
             </CheckAuth>
           }
@@ -122,31 +147,11 @@ function App() {
           <Route path="orders" element={<SellerOrders />} />
         </Route>
 
-        {/* Customer Shopping Pages */}
-        <Route
-          path="/shop"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <ShoppingLayout />
-            </CheckAuth>
-          }
-        >
-          <Route path="home" element={<ShoppingHome />} />
-          <Route path="listing" element={<ShoppingListing />} />
-          <Route path="search" element={<SearchProducts />} />
-          <Route path="store/:sellerId" element={<StoreFrontPage />} />
-
-          {/* ❗️Checkout dan Akun hanya untuk login */}
-          <Route path="checkout" element={<ShoppingCheckout />} />
-          <Route path="account" element={<ShoppingAccount />} />
-          <Route path="payment-success" element={<PaymentSuccessPage />} />
-        </Route>
-
-        {/* Admin Dashboard */}
+        {/* 🔒 Admin Dashboard */}
         <Route
           path="/admin"
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="admin">
               <AdminDashboardLayout />
             </CheckAuth>
           }
@@ -161,7 +166,7 @@ function App() {
           <Route path="setting" element={<AdminSettingPage />} />
         </Route>
 
-        {/* Unauthorized / Not Found */}
+        {/* 🔐 Error Routes */}
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
