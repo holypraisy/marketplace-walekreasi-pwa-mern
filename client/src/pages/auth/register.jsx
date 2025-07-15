@@ -36,34 +36,32 @@ function AuthRegister() {
     });
   }
 
-  console.log(formData);
-
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="flex justify-center gap-1">
-        <img src={logoWaleKreasi} alt="Logo Wale Kreasi"
-        className="w-16"  />
-        <div> 
-          <h1 className="text-2xl font-bold">Wale <br /> Kreasi .</h1>
+    <div className="mx-auto w-full max-w-md space-y-8 px-4">
+      {/* Logo & Header (mobile only) */}
+      <div className="md:hidden flex flex-col items-center justify-center">
+        <img src={logoWaleKreasi} alt="Logo Wale Kreasi" className="w-14 h-14" />
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-gray-800">Wale Kreasi</h1>
+          <p className="text-sm text-gray-500">Belanja Kreasi Lokal Lebih Praktis</p>
         </div>
       </div>
-      <div className="text-left">
-        <h1 className="text-xl lg:text-3xl font-light tracking-tight text-foreground">
-          Buat Akun Baru
-        </h1>
-        <p className="mt-2 text-xs lg:text-base font-bold">
-          Sudah Punya Akun ?
-          <Link
-            className="font-bold ml-2 text-primary hover:underline"
-            to="/auth/login"
-          >
+
+      {/* Judul & Link login */}
+      <div className="space-y-2 text-left">
+        <h1 className="text-2xl font-semibold text-gray-900">Buat Akun Baru</h1>
+        <p className="text-sm text-gray-600">
+          Sudah punya akun?
+          <Link to="/auth/login" className="ml-2 text-primary font-semibold hover:underline">
             Masuk
           </Link>
         </p>
       </div>
+
+      {/* Form */}
       <CommonForm
         formControls={registerFormControls}
-        buttonText={"Mendaftar"}
+        buttonText="Mendaftar"
         formData={formData}
         setFormData={setFormData}
         onSubmit={onSubmit}

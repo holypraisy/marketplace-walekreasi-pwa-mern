@@ -71,107 +71,120 @@ function App() {
     }
   }, [user]);
 
-  if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
+if (isLoading) return <Skeleton className="w-full bg-black" />;
 
-  return (
-    <div className="flex flex-col overflow-x-hidden bg-white min-h-screen pt-10">
-      {isOffline && (
-        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 text-sm font-semibold z-[9999]">
-          🔌 Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
-        </div>
-      )}
+return (
+  <div
+    className={`flex flex-col overflow-x-hidden bg-white min-h-screen ${
+      isOffline ? "pt-10" : ""
+    }`}
+  >
+    {isOffline && (
+      <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 px-4 flex items-center justify-center gap-1 text-sm z-[9999]">
+        <p> Koneksi Internet Terputus,</p>
+       
+        <button
+          onClick={() => window.location.reload()}
+          className="underline underline-offset-2 hover:text-red-200 transition"
+        >
+          Muat ulang
+        </button>
+      </div>
+    )}
 
-      <Routes>
-        {/* 🔁 Redirect root ke shop/home */}
-        <Route path="/" element={<Navigate to="/shop/home" replace />} />
+    <Routes>
+      {/* 🔁 Redirect root ke shop/home */}
+      <Route path="/" element={<Navigate to="/shop/home" replace />} />
 
-        {/* 🔓 Public Shop Routes */}
-        <Route path="/shop" element={<ShoppingLayout />}>
-          <Route path="home" element={<ShoppingHome />} />
-          <Route path="listing" element={<ShoppingListing />} />
-          <Route path="search" element={<SearchProducts />} />
-          <Route path="store/:sellerId" element={<StoreFrontPage />} />
+      {/* 🔓 Public Shop Routes */}
+      <Route path="/shop" element={<ShoppingLayout />}>
+        <Route path="home" element={<ShoppingHome />} />
+        <Route path="listing" element={<ShoppingListing />} />
+        <Route path="search" element={<SearchProducts />} />
+        <Route path="store/:sellerId" element={<StoreFrontPage />} />
 
-          {/* 🔒 Protected Shop Routes */}
-          <Route
-            path="checkout"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <ShoppingCheckout />
-              </CheckAuth>
-            }
-          />
-          <Route
-            path="account"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <ShoppingAccount />
-              </CheckAuth>
-            }
-          />
-          <Route
-            path="payment-success"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <PaymentSuccessPage />
-              </CheckAuth>
-            }
-          />
-        </Route>
-
-        {/* 🔓 Auth Routes */}
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route path="login" element={<AuthLogin />} />
-          <Route path="register" element={<AuthRegister />} />
-          <Route
-            path="register-seller"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <RegisterSeller />
-              </CheckAuth>
-            }
-          />
-        </Route>
-
-        {/* 🔒 Seller Dashboard */}
+        {/* 🔒 Protected Shop Routes */}
         <Route
-          path="/store"
+          path="checkout"
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="seller">
-              <SellerDashboardLayout />
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <ShoppingCheckout />
             </CheckAuth>
           }
-        >
-          <Route path="profile" element={<SellerProfilePage />} />
-          <Route path="products" element={<SellerProducts />} />
-          <Route path="orders" element={<SellerOrders />} />
-        </Route>
-
-        {/* 🔒 Admin Dashboard */}
+        />
         <Route
-          path="/admin"
+          path="account"
           element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="admin">
-              <AdminDashboardLayout />
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <ShoppingAccount />
             </CheckAuth>
           }
-        >
-          <Route index element={<AdminDashboardPage />} />
-          <Route path="payout" element={<PayoutPage />} />
-          <Route path="sellers" element={<SellersInfoPage />} />
-          <Route path="seller/:id" element={<SellerDetailPage />} />
-          <Route path="customers" element={<CustomersInfoPage />} />
-          <Route path="transactions" element={<TransactionsPage />} />
-          <Route path="transactions/:id" element={<TransactionDetailPage />} />
-          <Route path="setting" element={<AdminSettingPage />} />
-        </Route>
+        />
+        <Route
+          path="payment-success"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <PaymentSuccessPage />
+            </CheckAuth>
+          }
+        />
+      </Route>
 
-        {/* 🔐 Error Routes */}
-        <Route path="/unauth-page" element={<UnauthPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
-  );
+      {/* 🔓 Auth Routes */}
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="login" element={<AuthLogin />} />
+        <Route path="register" element={<AuthRegister />} />
+      </Route>
+
+      <Route
+          path="/auth/register-seller"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <RegisterSeller />
+            </CheckAuth>
+          }
+        />
+
+      {/* 🔒 Seller Dashboard */}
+      <Route
+        path="/store"
+        element={
+          <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="seller">
+            <SellerDashboardLayout />
+          </CheckAuth>
+        }
+      >
+        <Route path="profile" element={<SellerProfilePage />} />
+        <Route path="products" element={<SellerProducts />} />
+        <Route path="orders" element={<SellerOrders />} />
+      </Route>
+
+      {/* 🔒 Admin Dashboard */}
+      <Route
+        path="/admin"
+        element={
+          <CheckAuth isAuthenticated={isAuthenticated} user={user} requiredRole="admin">
+            <AdminDashboardLayout />
+          </CheckAuth>
+        }
+      >
+        <Route index element={<AdminDashboardPage />} />
+        <Route path="payout" element={<PayoutPage />} />
+        <Route path="sellers" element={<SellersInfoPage />} />
+        <Route path="seller/:id" element={<SellerDetailPage />} />
+        <Route path="customers" element={<CustomersInfoPage />} />
+        <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="transactions/:id" element={<TransactionDetailPage />} />
+        <Route path="setting" element={<AdminSettingPage />} />
+      </Route>
+
+      {/* 🔐 Error Routes */}
+      <Route path="/unauth-page" element={<UnauthPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </div>
+);
+
 }
 
 export default App;

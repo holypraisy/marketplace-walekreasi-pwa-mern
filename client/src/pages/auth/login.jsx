@@ -21,7 +21,6 @@ function AuthLogin() {
   const location = useLocation();
   const { toast } = useToast();
 
-  // 📍 Ambil path tujuan jika ada, default ke /shop/home
   const from = location.state?.from?.pathname || "/shop/home";
 
   const onSubmit = async (event) => {
@@ -34,8 +33,6 @@ function AuthLogin() {
         toast({
           title: result.payload.message,
         });
-
-        // ✅ Redirect ke halaman sebelumnya
         navigate(from, { replace: true });
       } else {
         toast({
@@ -53,31 +50,28 @@ function AuthLogin() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="flex justify-center gap-1">
-        <img src={logoWaleKreasi} alt="Logo Wale Kreasi" className="w-16" />
-        <div>
-          <h1 className="text-2xl font-bold">
-            Wale <br /> Kreasi .
-          </h1>
+    <div className="x-auto w-full max-w-md space-y-8 px-4">
+      {/* Logo & Branding (mobile) */}
+      <div className="flex flex-col md:hidden items-center justify-center">
+        <img src={logoWaleKreasi} alt="Logo Wale Kreasi" className="w-14 h-14" />
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-gray-800">Wale Kreasi</h1>
+          <p className="text-sm text-gray-500">Belanja Kreasi Lokal Lebih Praktis</p>
         </div>
       </div>
 
-      <div className="text-left">
-        <h1 className="text-xl lg:text-3xl font-light tracking-tight text-foreground">
-          Masuk ke akun anda
-        </h1>
-        <p className="mt-2 text-xs lg:text-base font-bold">
+      {/* Header Text */}
+      <div className="space-y-2 text-left">
+        <h1 className="text-2xl font-semibold text-gray-900">Masuk ke Akun Anda</h1>
+        <p className="text-sm text-gray-600">
           Belum punya akun?
-          <Link
-            to="/auth/register"
-            className="font-bold ml-2 text-primary hover:underline"
-          >
+          <Link to="/auth/register" className="ml-2 text-primary font-semibold hover:underline">
             Mendaftar
           </Link>
         </p>
       </div>
 
+      {/* Form Login */}
       <CommonForm
         formControls={loginFormControls}
         buttonText="Masuk"

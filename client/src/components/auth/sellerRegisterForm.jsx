@@ -113,26 +113,23 @@ export default function AuthRegisterSeller() {
   }
 
   return (
-    <div className="w-full space-y-14">
-      <div className="flex flex-col items-center mt-6">
-        <div className="lg:hidden text-center">
-          <img
-            src={logoWaleKreasi}
-            alt="Logo Wale Kreasi"
-            className="h-20 w-20 mb-4"
-          />
+    <div className="w-full space-y-10">
+      {/* Logo & Judul */}
+      <div className="flex flex-col items-center mt-4 text-center">
+        <div className="lg:hidden">
+          <img src={logoWaleKreasi} alt="Logo Wale Kreasi" className="h-20 w-20 mb-3" />
         </div>
-        <div className="text-center text-2xl md:flex md:gap-2 md:text-3xl font-bold text-gray-900">
-          <h1>Pendaftaran Seller </h1>
-          <h1>Wale Kreasi</h1>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          Pendaftaran Seller WaleKreasi
+        </h1>
       </div>
 
-      <div className="flex justify-between mb-6">
+      {/* Step Indicator */}
+      <div className="flex justify-between mb-4">
         {sections.map((section, index) => (
           <div
             key={section}
-            className={`flex-1 border-b-2 pb-1 text-center text-sm md:text-base font-medium ${
+            className={`flex-1 text-center border-b-2 pb-2 font-medium text-sm md:text-base transition-all ${
               index === step
                 ? "border-primary text-primary"
                 : "border-gray-300 text-gray-400"
@@ -143,11 +140,12 @@ export default function AuthRegisterSeller() {
         ))}
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      {/* Form */}
+      <form onSubmit={onSubmit} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {controlsToRender.map(({ name, label, placeholder, componentType, type }) => (
             <div key={name} className="col-span-1">
-              <label htmlFor={name} className="block mb-1 font-semibold text-gray-700">
+              <label htmlFor={name} className="block mb-1 text-sm font-medium text-gray-700">
                 {label}
               </label>
 
@@ -160,14 +158,14 @@ export default function AuthRegisterSeller() {
                     placeholder={placeholder}
                     value={formData[name]}
                     onChange={handleChange}
-                    className={`w-full rounded-md border px-3 py-2 transition focus:outline-none focus:ring-2 ${
+                    className={`w-full rounded-md border px-3 py-2 transition focus:outline-none focus:ring-2 text-sm ${
                       formErrors[name]
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-primary focus:border-primary"
                     }`}
                   />
                   {formErrors[name] && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors[name]}</p>
+                    <p className="mt-1 text-xs text-red-600">{formErrors[name]}</p>
                   )}
                 </>
               ) : componentType === "textarea" ? (
@@ -178,14 +176,14 @@ export default function AuthRegisterSeller() {
                     placeholder={placeholder}
                     value={formData[name]}
                     onChange={handleChange}
-                    className={`w-full rounded-md border px-3 py-2 h-24 resize-none transition focus:outline-none focus:ring-2 ${
+                    className={`w-full rounded-md border px-3 py-2 h-24 resize-none transition focus:outline-none focus:ring-2 text-sm ${
                       formErrors[name]
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-primary focus:border-primary"
                     }`}
                   />
                   {formErrors[name] && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors[name]}</p>
+                    <p className="mt-1 text-xs text-red-600">{formErrors[name]}</p>
                   )}
                 </>
               ) : null}
@@ -193,24 +191,23 @@ export default function AuthRegisterSeller() {
           ))}
         </div>
 
+        {/* Tombol Navigasi */}
         <div className="flex justify-between pt-4">
           {step > 0 ? (
             <button
               type="button"
               onClick={handleBack}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition"
+              className="px-5 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition"
             >
               Kembali
             </button>
-          ) : (
-            <div />
-          )}
+          ) : <div />}
 
           {step < sections.length - 1 ? (
             <button
               type="button"
               onClick={handleNext}
-              className="px-4 py-2 rounded-md bg-primary text-white border border-transparent hover:bg-white hover:text-primary hover:border-primary transition"
+              className="px-5 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition"
             >
               Selanjutnya
             </button>
@@ -218,10 +215,10 @@ export default function AuthRegisterSeller() {
             <button
               type="submit"
               disabled={submitting}
-              className={`px-6 py-2 rounded-md transition ${
+              className={`px-6 py-2 text-sm rounded-md transition ${
                 submitting
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-primary hover:bg-indigo-700 text-white"
+                  ? "bg-primary/60 cursor-not-allowed"
+                  : "bg-primary hover:bg-primary/90 text-white"
               }`}
             >
               {submitting ? "Memproses..." : "Daftar Seller"}
