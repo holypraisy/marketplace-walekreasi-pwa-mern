@@ -74,9 +74,9 @@ function App() {
   if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
 
   return (
-    <div className="flex flex-col overflow-hidden bg-white min-h-screen">
+    <div className="flex flex-col overflow-x-hidden bg-white min-h-screen pt-10">
       {isOffline && (
-        <div className="bg-red-500 text-white text-center py-2 text-sm font-semibold z-50">
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 text-sm font-semibold z-[9999]">
           🔌 Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
         </div>
       )}
@@ -92,7 +92,7 @@ function App() {
           <Route path="search" element={<SearchProducts />} />
           <Route path="store/:sellerId" element={<StoreFrontPage />} />
 
-          {/* 🔒 Protected Shop Routes (butuh login) */}
+          {/* 🔒 Protected Shop Routes */}
           <Route
             path="checkout"
             element={
