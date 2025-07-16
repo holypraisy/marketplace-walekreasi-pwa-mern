@@ -50,20 +50,21 @@ export const sellerRegisterFormControls = [
     type: 'email',
     section: 'Identitas Pemilik Usaha',
   },
-  {
-    name: 'password',
-    label: 'Kata Sandi',
-    placeholder: 'Masukkan kata sandi',
-    componentType: 'input',
-    type: 'password',
-    section: 'Identitas Pemilik Usaha',
-  },
+
   {
     name : 'nik',
     label :'NIK (Nomor Induk Kependudukan)',
     placeholder :'Masukkan NIK anda',
     componentType :'input',
     type : 'number',
+    section: 'Identitas Pemilik Usaha',
+  },
+  {
+    name: 'password',
+    label: 'Kata Sandi',
+    placeholder: 'Masukkan kata sandi',
+    componentType: 'input',
+    type: 'password',
     section: 'Identitas Pemilik Usaha',
   },
   {
@@ -85,13 +86,6 @@ export const sellerRegisterFormControls = [
     section: 'Data Usaha / Toko',
   },
   {
-    name: 'storeDescription',
-    label: 'Deskripsi Usaha',
-    placeholder: 'Deskripsikan usaha Anda',
-    componentType: 'textarea',
-    section: 'Data Usaha / Toko',
-  },
-  {
     name: 'productionAddress',
     label: 'Alamat Produksi',
     placeholder: 'Masukkan alamat tempat produksi',
@@ -99,20 +93,20 @@ export const sellerRegisterFormControls = [
     type: 'text',
     section: 'Data Usaha / Toko',
   },
+  {
+    name: 'storeDescription',
+    label: 'Deskripsi Usaha',
+    placeholder: 'Deskripsikan usaha Anda',
+    componentType: 'textarea',
+    section: 'Data Usaha / Toko',
+  }
+,
 
   // Data Pembayaran
   {
     name: 'bankAccountOwner',
     label: 'Nama Pemilik Rekening',
     placeholder: 'Masukkan nama pemilik rekening',
-    componentType: 'input',
-    type: 'text',
-    section: 'Data Pembayaran',
-  },
-  {
-    name: 'bankName',
-    label: 'Nama Bank',
-    placeholder: 'Masukkan nama bank',
     componentType: 'input',
     type: 'text',
     section: 'Data Pembayaran',
@@ -126,29 +120,14 @@ export const sellerRegisterFormControls = [
     section: 'Data Pembayaran',
   },
   {
-    name: 'eWallet',
-    label: 'Dompet Digital (jika ada)',
-    placeholder: 'Contoh: DANA, OVO, GoPay',
+    name: 'bankName',
+    label: 'Nama Bank',
+    placeholder: 'Masukkan nama bank',
     componentType: 'input',
     type: 'text',
     section: 'Data Pembayaran',
-  },
-  {
-    name: 'eWalletsAccountOwner',
-    label: 'Nama Pemilik Akun',
-    placeholder: 'Masukkan Nama Dompet Digital',
-    componentType: 'input',
-    type: 'text',
-    section: 'Data Pembayaran',
-  },
-  {
-    name: 'eWalletAccountNumber',
-    label: 'Nomor Dompet Digital',
-    placeholder: 'Masukkan Nomor Dompet Digital',
-    componentType: 'input',
-    type: 'text',
-    section: 'Data Pembayaran',
-  },
+  }
+
 ];
 
 export const sellerProfileFormElements = [

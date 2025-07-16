@@ -32,8 +32,7 @@ const initialFormData = {
 };
 
 function SellerProducts() {
-  const [openCreateProductsDialog, setOpenCreateProductsDialog] =
-    useState(false);
+  const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -48,14 +47,12 @@ function SellerProducts() {
     event.preventDefault();
 
     currentEditedId !== null
-      ? dispatch(                                      
+      ? dispatch(
           editProduct({
             id: currentEditedId,
             formData,
           })
         ).then((data) => {
-          console.log(data, "edit");
-
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
             setFormData(initialFormData);
@@ -100,21 +97,21 @@ function SellerProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log(formData, "productList");
-
   return (
     <Fragment>
-      <div className="mb-5 w-full flex justify-between">
+      <div className="mb-5 w-full flex justify-between items-center px-2 sm:px-4">
         <h1 className="text-2xl font-semibold text-black">PRODUK</h1>
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
           <CircleFadingPlus className="mr-2" />
           Tambah Produk
         </Button>
       </div>
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-2 sm:px-4">
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <SellerProductTile
+                key={productItem._id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}
@@ -122,8 +119,9 @@ function SellerProducts() {
                 handleDelete={handleDelete}
               />
             ))
-          : null}
+          : <p className="text-gray-500 col-span-full">Belum ada produk yang ditambahkan.</p>}
       </div>
+
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {
@@ -138,6 +136,7 @@ function SellerProducts() {
               {currentEditedId !== null ? "Ubah Produk" : "Tambah Produk Baru"}
             </SheetTitle>
           </SheetHeader>
+
           <ProductImageUpload
             imageFile={imageFile}
             setImageFile={setImageFile}
@@ -147,6 +146,7 @@ function SellerProducts() {
             imageLoadingState={imageLoadingState}
             isEditMode={currentEditedId !== null}
           />
+
           <div className="py-6 text-black">
             <CommonForm
               onSubmit={onSubmit}
@@ -162,6 +162,5 @@ function SellerProducts() {
     </Fragment>
   );
 }
-
 
 export default SellerProducts;

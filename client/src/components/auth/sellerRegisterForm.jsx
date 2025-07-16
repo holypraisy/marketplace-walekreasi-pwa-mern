@@ -113,23 +113,23 @@ export default function AuthRegisterSeller() {
   }
 
   return (
-    <div className="w-full space-y-10">
+    <div className="w-full max-w-3xl mx-auto px-4 py-8 space-y-10">
       {/* Logo & Judul */}
-      <div className="flex flex-col items-center mt-4 text-center">
+      <div className="flex flex-col items-center text-center">
         <div className="lg:hidden">
           <img src={logoWaleKreasi} alt="Logo Wale Kreasi" className="h-20 w-20 mb-3" />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-          Pendaftaran Seller WaleKreasi
+        <h1 className="text-2xl font-bold text-gray-800 leading-snug">
+          Pendaftaran Seller <br className="sm:hidden" /> WaleKreasi
         </h1>
       </div>
 
       {/* Step Indicator */}
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between gap-2 text-sm md:text-base mb-6 overflow-x-auto">
         {sections.map((section, index) => (
           <div
             key={section}
-            className={`flex-1 text-center border-b-2 pb-2 font-medium text-sm md:text-base transition-all ${
+            className={`flex-1 text-center border-b-2 pb-2 font-medium whitespace-nowrap ${
               index === step
                 ? "border-primary text-primary"
                 : "border-gray-300 text-gray-400"
@@ -142,9 +142,9 @@ export default function AuthRegisterSeller() {
 
       {/* Form */}
       <form onSubmit={onSubmit} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-5">
           {controlsToRender.map(({ name, label, placeholder, componentType, type }) => (
-            <div key={name} className="col-span-1">
+            <div key={name}>
               <label htmlFor={name} className="block mb-1 text-sm font-medium text-gray-700">
                 {label}
               </label>
@@ -158,7 +158,7 @@ export default function AuthRegisterSeller() {
                     placeholder={placeholder}
                     value={formData[name]}
                     onChange={handleChange}
-                    className={`w-full rounded-md border px-3 py-2 transition focus:outline-none focus:ring-2 text-sm ${
+                    className={`w-full rounded-md border px-3 py-2 text-sm transition focus:outline-none focus:ring-2 ${
                       formErrors[name]
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-primary focus:border-primary"
@@ -176,7 +176,7 @@ export default function AuthRegisterSeller() {
                     placeholder={placeholder}
                     value={formData[name]}
                     onChange={handleChange}
-                    className={`w-full rounded-md border px-3 py-2 h-24 resize-none transition focus:outline-none focus:ring-2 text-sm ${
+                    className={`w-full rounded-md border px-3 py-2 text-sm resize-none min-h-[100px] transition focus:outline-none focus:ring-2 ${
                       formErrors[name]
                         ? "border-red-500 focus:ring-red-500"
                         : "border-gray-300 focus:ring-primary focus:border-primary"
@@ -197,7 +197,7 @@ export default function AuthRegisterSeller() {
             <button
               type="button"
               onClick={handleBack}
-              className="px-5 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition"
             >
               Kembali
             </button>
@@ -207,7 +207,7 @@ export default function AuthRegisterSeller() {
             <button
               type="button"
               onClick={handleNext}
-              className="px-5 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition"
+              className="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition"
             >
               Selanjutnya
             </button>
@@ -215,7 +215,7 @@ export default function AuthRegisterSeller() {
             <button
               type="submit"
               disabled={submitting}
-              className={`px-6 py-2 text-sm rounded-md transition ${
+              className={`px-4 py-2 text-sm rounded-md transition ${
                 submitting
                   ? "bg-primary/60 cursor-not-allowed"
                   : "bg-primary hover:bg-primary/90 text-white"
@@ -228,4 +228,5 @@ export default function AuthRegisterSeller() {
       </form>
     </div>
   );
+
 }

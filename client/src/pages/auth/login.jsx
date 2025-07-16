@@ -21,8 +21,6 @@ function AuthLogin() {
   const location = useLocation();
   const { toast } = useToast();
 
-  const from = location.state?.from?.pathname || "/shop/home";
-
   const onSubmit = async (event) => {
     event.preventDefault();
 
@@ -30,10 +28,31 @@ function AuthLogin() {
       const result = await dispatch(loginUser(formData));
 
       if (result?.payload?.success) {
+        const user = result.payload.user;
+        const role = user?.role;
+        const from = location.state?.from?.pathname;
+
         toast({
           title: result.payload.message,
         });
-        navigate(from, { replace: true });
+
+        // Redirect berdasarkan role
+        if (from && from !== "/auth/login") {
+          navigate(from, { replace: true });
+        } else {
+          switch (role) {
+            case "seller":
+              navigate("/store/profile", { replace: true });
+              break;
+            case "admin":
+              navigate("/admin", { replace: true });
+              break;
+            case "customer":
+            default:
+              navigate("/shop/home", { replace: true });
+              break;
+          }
+        }
       } else {
         toast({
           title: result?.payload?.message || "Login gagal",
