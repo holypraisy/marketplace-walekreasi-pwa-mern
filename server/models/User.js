@@ -9,24 +9,28 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    index: true,
   },
   password: {
     type: String,
     required: true,
+    select: false, // 🔐 untuk keamanan
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true,
   },
   role: {
     type: String,
     enum: ["admin", "seller", "customer"],
     default: "customer",
   },
-  storeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Store",
-  },
   fcmToken: {
     type: String,
     default: null,
-  }
+  },
 }, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);

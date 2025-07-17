@@ -10,6 +10,7 @@ import {
   selectCustomerBanners,
 } from "@/store/admin/banner-slice";
 import { logoutUser } from "@/store/auth-slice";
+import { fetchCustomerProfile } from "@/store/shop/customer-slice"; 
 import {
   Tabs,
   TabsList,
@@ -24,10 +25,11 @@ import {
 } from "@/components/ui/card";
 import ShoppingOrders from "@/components/shopping-view/orders";
 import Address from "@/components/shopping-view/address";
+import CustomerBiodata from "@/components/shopping-view/customer-detail"; 
 import { CircleUser, ShoppingBag, MapPin, LogOut, Store } from "lucide-react";
 
 const tabNavs = [
-  { key: "akun", label: "Biodata Diri", Icon: CircleUser},
+  { key: "akun", label: "Biodata Diri", Icon: CircleUser },
   { key: "pesanan", label: "Riwayat Pesanan", Icon: ShoppingBag },
   { key: "alamat", label: "Daftar Alamat", Icon: MapPin },
 ];
@@ -45,14 +47,13 @@ export default function CustomerProfileTabs() {
   const dispatch = useDispatch();
   const [tabValue, setTabValue] = useState("akun");
   const [activeStatus, setActiveStatus] = useState("Menunggu");
-  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
   const [tabSliderStyle, setTabSliderStyle] = useState({ left: 0, width: 0 });
 
   const tabRefs = useRef({});
   const navTabRefs = useRef({});
   const { user } = useSelector((state) => state.auth);
-  const { orderList, orderDetails, isLoading } = useSelector((state) => state.shopOrder);
+  const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
   const customerBanners = useSelector(selectCustomerBanners);
   const backgroundImage = customerBanners?.[0]?.imageUrl;
 
@@ -64,12 +65,9 @@ export default function CustomerProfileTabs() {
     if (user?.id) {
       dispatch(getAllOrdersByUserId(user.id));
     }
+    dispatch(fetchCustomerProfile()); // ✅ Ambil profil customer
     dispatch(fetchBanners());
   }, [dispatch, user]);
-
-  useEffect(() => {
-    if (orderDetails !== null) setOpenDetailsDialog(true);
-  }, [orderDetails]);
 
   useEffect(() => {
     const activeTab = tabRefs.current[activeStatus];
@@ -91,17 +89,6 @@ export default function CustomerProfileTabs() {
     }
   }, [tabValue]);
 
-  const filteredOrders =
-    activeStatus === "review"
-      ? orderList?.filter(
-          (order) => order?.orderStatus === "Sudah Diterima" && !order?.isReviewed
-        )
-      : orderList?.filter((order) => order?.orderStatus === activeStatus);
-
-  const handleFetchOrderDetails = (orderId) => {
-    dispatch(getOrderDetails(orderId));
-  };
-
   return (
     <div className="flex flex-col">
       <div className="relative h-[200px] md:h-[250px] lg:h-[300px] w-full overflow-hidden">
@@ -119,14 +106,14 @@ export default function CustomerProfileTabs() {
 
       <Tabs value={tabValue} onValueChange={setTabValue} className="w-full max-w-7xl mx-auto mt-6 px-4">
         <TabsList className="relative w-full flex justify-start flex-nowrap gap-6 overflow-x-auto bg-white">
-          {tabNavs.map(({key, label, Icon}) => (
+          {tabNavs.map(({ key, label, Icon }) => (
             <TabsTrigger
               key={key}
               value={key}
               ref={(el) => (navTabRefs.current[key] = el)}
               className="relative py-2 px-4 whitespace-nowrap text-base font-medium border-b-2 border-transparent hover:border-gray-400 data-[state=active]:text-primary transition-all duration-300 ease-in-out rounded-none"
             >
-              <Icon className="w-4 mr-2"/>
+              <Icon className="w-4 mr-2" />
               {label}
             </TabsTrigger>
           ))}
@@ -137,61 +124,41 @@ export default function CustomerProfileTabs() {
         </TabsList>
 
         <TabsContent value="akun">
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="text-lg md:text-xl font-semibold text-primary">Biodata Pengguna</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4">
-              <div>
-                <p className="text-gray-600 text-sm md:text-base font-light">Nama:</p>
-                <p className="text-primary font-medium text-base md:text-lg">{user?.name}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 text-sm md:text-base font-light">Email:</p>
-                <p className="text-primary font-medium text-base md:text-lg">{user?.email}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <CustomerBiodata />
         </TabsContent>
 
         <TabsContent value="pesanan">
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg md:text-xl font-semibold text-primary">
-              Riwayat Pesanan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-          <div className="relative flex-nowrap overflow-x-auto border-b border-gray-300 mb-4 scrollbar-thin scrollbar-thumb-gray-300">
-            <div className="flex w-max gap-3 px-1">
-              {statusTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  ref={(el) => (tabRefs.current[tab.key] = el)}
-                  onClick={() => setActiveStatus(tab.key)}
-                  className={`relative text-sm sm:text-base font-medium px-3 sm:px-4 py-2 transition-colors duration-300 whitespace-nowrap ${
-                    activeStatus === tab.key ? "text-primary" : "text-gray-500"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-lg md:text-xl font-semibold text-primary">Riwayat Pesanan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative flex-nowrap overflow-x-auto border-b border-gray-300 mb-4 scrollbar-thin scrollbar-thumb-gray-300">
+                <div className="flex w-max gap-3 px-1">
+                  {statusTabs.map((tab) => (
+                    <button
+                      key={tab.key}
+                      ref={(el) => (tabRefs.current[tab.key] = el)}
+                      onClick={() => setActiveStatus(tab.key)}
+                      className={`relative text-sm sm:text-base font-medium px-3 sm:px-4 py-2 transition-colors duration-300 whitespace-nowrap ${
+                        activeStatus === tab.key ? "text-primary" : "text-gray-500"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <span
+                  className="absolute bottom-0 h-[2px] bg-primary transition-all duration-300"
+                  style={{ width: sliderStyle.width, left: sliderStyle.left }}
+                />
+              </div>
 
-            <span
-              className="absolute bottom-0 h-[2px] bg-primary transition-all duration-300"
-              style={{ width: sliderStyle.width, left: sliderStyle.left }}
-            />
-          </div>
-
-
-            {/* Komponen Riwayat Pesanan */}
-            <ShoppingOrders activeStatus={activeStatus} />
-          </CardContent>
-        </Card>
+              {/* Komponen Riwayat Pesanan */}
+              <ShoppingOrders activeStatus={activeStatus} />
+            </CardContent>
+          </Card>
         </TabsContent>
-
-
 
         <TabsContent value="alamat">
           <div className="mt-6">
@@ -202,22 +169,23 @@ export default function CustomerProfileTabs() {
 
       <div className="p-4">
         <div>
-          <Link to="/auth/register-seller"
-                className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md mb-4 ">
-            <Store className="w-4 md:w-5"/>
+          <Link
+            to="/auth/register-seller"
+            className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md mb-4 "
+          >
+            <Store className="w-4 md:w-5" />
             <p className="text-base md:text-lg">Buka Toko di Wale Kreasi</p>
           </Link>
         </div>
 
-        <div className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md cursor-pointer">
-          <LogOut onClick={handleLogout}
-                  className="w-4 md:w-5 "/>
+        <div
+          className="w-full lg:w-2/5 flex gap-2 p-3 items-center bg-secondary/50 rounded-md cursor-pointer"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 md:w-5 " />
           <p className="text-base md:text-lg">Keluar</p>
         </div>
-
-
       </div>
-
     </div>
   );
 }

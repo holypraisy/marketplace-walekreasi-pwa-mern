@@ -2,21 +2,28 @@ export const registerFormControls = [
   {
       name : 'userName' ,
       label : 'Nama Pengguna', 
-      placeholder :'Masukkan nama pengguna' ,
+      placeholder :'Masukkan nama anda' ,
       componentType : 'input' , 
       type : 'text'   
   },
   {
       name : 'email' ,
       label : 'Email', 
-      placeholder :'Masukkan Email Anda' ,
+      placeholder :'Contoh: saya@email.com' ,
       componentType : 'input' , 
       type : 'email'   
+  },
+    {
+      name : 'phoneNumber' ,
+      label : 'Nomor Telepon', 
+      placeholder :'08xxxxxxxxxx' ,
+      componentType : 'input' , 
+      type : 'tel'   
   },
   {
       name : 'password' ,
       label : 'Kata Sandi', 
-      placeholder :'Masukkan Kata Sandi' ,
+      placeholder :'Minimal 8 Karakter' ,
       componentType : 'input' , 
       type : 'password'   
   }

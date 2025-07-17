@@ -19,6 +19,7 @@ import customersSlice from "./admin/customers-slice";
 import transactionsSlice from "./admin/trasactions-slice";
 import bannerSlice from "./admin/banner-slice";
 import notificationSlice from "./admin/notification-slice";
+import customerSlice from "./shop/customer-slice";
 
 const store = configureStore({
   reducer: {
@@ -35,6 +36,7 @@ const store = configureStore({
     shopSearch: shopSearchSlice,
     shopReview: shopReviewSlice,
     shopStore: shopStoreSlice,
+    shopCustomer: customerSlice,
 
     payout: payoutSlice,
     commonFeature: commonFeatureSlice,

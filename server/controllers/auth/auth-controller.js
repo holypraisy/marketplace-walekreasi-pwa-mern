@@ -1,43 +1,51 @@
+require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
-const Seller = require ('../../models/Seller');
+const Seller = require("../../models/Seller");
 
-
-//register
+// ========================= Register Customer =========================
 const registerUser = async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { userName, email, password, phoneNumber } = req.body;
 
   try {
-    const checkUser = await User.findOne({ email });
-    if (checkUser)
-      return res.json({
-        success: false,
-        message: "User Already exists with the same email! Please try again",
-      });
+    if (!userName || !email || !password || !phoneNumber) {
+      return res.status(400).json({ message: "Mohon lengkapi semua data" });
+    }
 
-    const hashPassword = await bcrypt.hash(password, 12);
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Kata sandi minimal 8 karakter" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email sudah terdaftar" });
+    }
+
+    const existingPhone = await User.findOne({ phoneNumber });
+    if (existingPhone) {
+      return res.status(409).json({ message: "Nomor telepon sudah terdaftar" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
       userName,
       email,
-      password: hashPassword,
+      password: hashedPassword,
+      phoneNumber,
     });
 
     await newUser.save();
-    res.status(200).json({
-      success: true,
-      message: "Registration successful",
-    });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occured",
-    });
+
+    res.status(201).json({ message: "Pendaftaran berhasil" });
+  } catch (error) {
+    console.error("Register Error:", error);
+    res.status(500).json({ message: "Terjadi kesalahan server" });
   }
 };
 
-// registrasi seller (pakai model Seller baru)
+// ========================= Register Seller =========================
 const registerSeller = async (req, res) => {
   const {
     sellerName,
@@ -54,21 +62,27 @@ const registerSeller = async (req, res) => {
     bankAccountNumber,
     eWalletsAccountOwner,
     eWallet,
-    eWalletAccountNumber
+    eWalletAccountNumber,
+    agreedToTerms
   } = req.body;
 
   try {
-    // Cek apakah user sudah terdaftar dengan email yang sama
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Seller sudah terdaftar dengan email yang sama! Silakan coba lagi.",
-      });
+    if (!sellerName || !phoneNumber || !email || !password || !nik || !storeName) {
+      return res.status(400).json({ success: false, message: "Data penting tidak boleh kosong" });
     }
 
-    // Buat user baru dengan role seller
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: "Email sudah terdaftar" });
+    }
+
+    const existingPhone = await User.findOne({ phoneNumber });
+    if (existingPhone) {
+      return res.status(409).json({ success: false, message: "Nomor telepon sudah terdaftar" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
+
     const newUser = new User({
       userName: sellerName,
       email,
@@ -78,13 +92,11 @@ const registerSeller = async (req, res) => {
     });
     await newUser.save();
 
-    // Buat entri seller
     const newSeller = new Seller({
       user: newUser._id,
       sellerName,
       phoneNumber,
       email,
-      password,
       nik,
       domicileAddress,
       storeName,
@@ -95,7 +107,8 @@ const registerSeller = async (req, res) => {
       bankAccountNumber,
       eWalletsAccountOwner,
       eWallet,
-      eWalletAccountNumber
+      eWalletAccountNumber,
+      agreedToTerms: agreedToTerms || false,
     });
     await newSeller.save();
 
@@ -111,138 +124,137 @@ const registerSeller = async (req, res) => {
     });
   } catch (error) {
     console.error("Register Seller Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Terjadi kesalahan saat mendaftar.",
-    });
+    res.status(500).json({ success: false, message: "Terjadi kesalahan saat mendaftar" });
   }
 };
 
-
-
-// login
+// ========================= Login =========================
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const checkUser = await User.findOne({ email });
-    if (!checkUser)
-      return res.json({
+    // 1. Validasi input
+    if (!email || !password) {
+      return res.status(400).json({
         success: false,
-        message: "Pengguna tidak ditemukan! Silahkan Mendaftar.",
+        message: "Email dan kata sandi wajib diisi",
       });
+    }
 
-    const checkPasswordMatch = await bcrypt.compare(
-      password,
-      checkUser.password
-    );
-    if (!checkPasswordMatch)
-      return res.json({
+    // 2. Cari user berdasarkan email
+    const user = await User.findOne({ email });
+
+    // 3. Cek user dan password
+    if (!user || typeof user.password !== "string") {
+      return res.status(401).json({
         success: false,
-        message: "Kata Sandi salah! Silahkan Coba Lagi.",
+        message: "Pengguna tidak ditemukan atau data tidak lengkap",
       });
+    }
 
+    // 4. Bandingkan password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Kata sandi salah. Silakan coba lagi.",
+      });
+    }
+
+    // 5. Generate token
     const token = jwt.sign(
       {
-        id: checkUser._id,
-        role: checkUser.role,
-        email: checkUser.email,
-        name: checkUser.userName,
+        id: user._id,
+        role: user.role,
+        email: user.email,
+        name: user.userName,
       },
-      "CLIENT_SECRET_KEY",
+      process.env.JWT_SECRET,
       { expiresIn: "60m" }
     );
 
-    res.cookie("token", token, { httpOnly: true, secure: false }).json({
+    // 6. Kirim token sebagai cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // true di produksi
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60, // 1 jam
+    });
+
+    // 7. Kirim respons sukses
+    res.json({
       success: true,
-      message: "Berhasil Masuk !",
+      message: "Berhasil masuk",
       user: {
-        email: checkUser.email,
-        role: checkUser.role,
-        id: checkUser._id,
-        name: checkUser.userName,
+        id: user._id,
+        name: user.userName,
+        email: user.email,
+        role: user.role,
       },
     });
   } catch (e) {
-    console.log(e);
+    console.error("Login Error:", e);
     res.status(500).json({
       success: false,
-      message: "Terjadi Kesalahan",
+      message: "Terjadi kesalahan saat login",
     });
   }
 };
 
-// logout
+
+// ========================= Logout =========================
 const logoutUser = (req, res) => {
   res.clearCookie("token").json({
     success: true,
-    message: "Berhasil Keluar !",
+    message: "Berhasil keluar",
   });
 };
 
-// auth middleware
+// ========================= Middleware =========================
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token;
-  if (!token)
+
+  if (!token) {
     return res.status(401).json({
       success: false,
-      message: "Akses ditolak. Anda tidak memiliki izin untuk melakukan tindakan ini.",
+      message: "Akses ditolak. Tidak ada token.",
     });
+  }
 
   try {
-    const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
-    req.user = decoded;
-    console.log("Decoded JWT:", req.user);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Pengguna tidak ditemukan." });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Akses ditolak. Anda tidak memiliki izin untuk melakukan tindakan ini.",
-    });
+    console.error("Auth Middleware Error:", error);
+    res.status(401).json({ success: false, message: "Token tidak valid." });
   }
 };
 
-// Mengecek apakah user sudah login
 const isAuthenticated = (req, res, next) => {
-  if (req.user) {
-    next();
-  } else {
-    return res.status(401).json({
-      success: false,
-      message: "Anda harus login terlebih dahulu.",
-    });
-  };
+  if (req.user) return next();
+  return res.status(401).json({ success: false, message: "Anda harus login terlebih dahulu." });
 };
 
-// Mengecek apakah user adalah seller
 const isSeller = (req, res, next) => {
-  if (req.user && req.user.role === "seller") {
-    next();
-  } else {
-    return res.status(403).json({
-      success: false,
-      message: "Akses ditolak. Hanya seller yang diizinkan.",
-    });
-  }
+  if (req.user?.role === "seller") return next();
+  return res.status(403).json({ success: false, message: "Akses ditolak. Hanya seller yang diizinkan." });
 };
 
-// Mengecek apakah user adalah admin
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    return res.status(403).json({
-      success: false,
-      message: "Akses ditolak. Hanya admin yang diizinkan.",
-    });
-  }
+  if (req.user?.role === "admin") return next();
+  return res.status(403).json({ success: false, message: "Akses ditolak. Hanya admin yang diizinkan." });
 };
-
-
 
 module.exports = {
   registerUser,
-  registerSeller, 
+  registerSeller,
   loginUser,
   logoutUser,
   authMiddleware,

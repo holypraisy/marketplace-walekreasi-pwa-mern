@@ -6,23 +6,10 @@ const SellerSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  sellerName: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
 
-  // Data Identitas dan Domisili
+  // Data Identitas & Domisili
   nik: {
     type: String,
-    required: false,
   },
   domicileAddress: {
     type: String,
@@ -56,6 +43,7 @@ const SellerSchema = new mongoose.Schema({
   },
   bankAccountNumber: {
     type: String,
+    match: /^[0-9]{6,20}$/, // validasi dasar
   },
   eWalletsAccountOwner: {
     type: String,
@@ -65,6 +53,7 @@ const SellerSchema = new mongoose.Schema({
   },
   eWalletAccountNumber: {
     type: String,
+    match: /^[0-9]{6,20}$/, // validasi dasar
   },
 
   // Persetujuan
@@ -74,7 +63,6 @@ const SellerSchema = new mongoose.Schema({
     default: false,
   },
 
-  // Tanggal Daftar
   createdAt: {
     type: Date,
     default: Date.now,
